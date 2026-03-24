@@ -249,20 +249,40 @@ export default function ReviewAndPay() {
               {promoStatus === 'invalid' && <span className="absolute -bottom-5 left-2 text-[10px] text-red-500 font-bold">Invalid promo code</span>}
             </div>
 
-            <div className="bg-muted/50 rounded-xl p-4 flex justify-between items-center mb-6 border border-border/50">
-              <span className="font-bold text-foreground">Total Amount</span>
-              <span className="font-heading font-extrabold text-2xl text-primary">₹{finalTotal.toFixed(2)}</span>
+            <div className="mb-6 p-4 bg-muted/30 rounded-xl border border-border/50">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-semibold text-muted-foreground">Courier:</span>
+                <span className="text-sm font-bold text-foreground">{selectedCourier?.name || 'Delhivery'}</span>
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-semibold text-muted-foreground">Base Price:</span>
+                <span className="text-sm font-bold text-foreground">₹{baseShipping.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-sm font-semibold text-muted-foreground">GST:</span>
+                <span className="text-sm font-bold text-foreground">₹{gst.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center pt-3 border-t border-border/50 mb-4">
+                <span className="text-base font-bold text-foreground">Total:</span>
+                <span className="text-base font-extrabold text-primary">₹{finalTotal.toFixed(2)}</span>
+              </div>
+              <div className="bg-emerald-50 text-emerald-700 text-center py-2.5 rounded-lg border border-emerald-200 shadow-sm font-bold text-sm">
+                💰 You saved ₹18
+              </div>
             </div>
 
             <Button onClick={handlePay} disabled={isProcessing} className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-90 text-white font-semibold rounded-xl text-lg shadow-lg shadow-emerald-600/20 transition-transform active:scale-95 flex items-center justify-center gap-2">
-              {isProcessing ? <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</> : <><Lock className="w-5 h-5 opacity-80" /> Pay ₹{finalTotal.toFixed(2)} Securely</>}
+              {isProcessing ? <><Loader2 className="w-5 h-5 animate-spin mr-1" /> Processing...</> : <><Lock className="w-5 h-5 opacity-80" /> Pay ₹{finalTotal.toFixed(2)} Securely</>}
             </Button>
             
-            <div className="mt-4 flex flex-col items-center gap-2">
-              <div className="flex items-center gap-1 text-xs text-muted-foreground font-medium">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" /> 256-bit SSL Encrypted
+            <div className="mt-8 pt-6 border-t border-border/60 flex flex-col items-center gap-4">
+              <div className="flex items-center justify-center gap-2 text-sm text-foreground font-extrabold bg-muted/40 w-full py-3 rounded-lg border border-border/50">
+                <span className="text-lg">🔒</span> Secure Payment
               </div>
-              <div className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-bold">
+              <div className="flex items-center justify-center gap-2 text-sm text-foreground font-extrabold bg-emerald-50 text-emerald-800 w-full py-3 rounded-lg border border-emerald-100">
+                <span className="text-lg">🚚</span> Trusted by 10,000+ users
+              </div>
+              <div className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-bold mt-2">
                 Powered by Razorpay
               </div>
             </div>

@@ -1,19 +1,28 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function BookingLayout({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+
+  const getStepId = () => {
+    const path = location.pathname;
+    if (path.includes('/book/address')) return 1;
+    if (path.includes('/book/courier') || path.includes('/book/evidence')) return 2;
+    if (path.includes('/book/review')) return 3;
+    if (path.includes('/book/confirmed')) return 4;
+    return 1;
+  };
+
   const steps = [
-    { id: 1, name: 'Address Details', href: '/book/address' },
-    { id: 2, name: 'Select Courier', href: '/book/courier' },
-    { id: 3, name: 'Evidence Vault', href: '/book/evidence' },
-    { id: 4, name: 'Review & Pay', href: '/book/review' },
+    { id: 1, name: 'Address', href: '/book/address' },
+    { id: 2, name: 'Package', href: '/book/courier' },
+    { id: 3, name: 'Review', href: '/book/review' },
+    { id: 4, name: 'Payment', href: '/book/review' },
   ];
 
-  // We'll hardcode current step to 2 for the purpose of demonstrating the courier select
-  // In a real app, this would be determined by the route segment
-  const currentStep = 2;
+  const currentStep = getStepId();
 
   return (
     <div className="min-h-screen bg-[#f7f9fb] flex flex-col">

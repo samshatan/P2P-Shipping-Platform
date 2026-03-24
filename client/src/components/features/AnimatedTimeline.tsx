@@ -15,7 +15,7 @@ interface AnimatedTimelineProps {
 
 export function AnimatedTimeline({ currentStatus, className }: AnimatedTimelineProps) {
   const steps: Step[] = [
-    { id: 1, title: "Pickup", icon: <Package className="w-4 h-4" />, status: "upcoming" },
+    { id: 1, title: "Pickup Completed", icon: <Package className="w-4 h-4" />, status: "upcoming" },
     { id: 2, title: "In Transit", icon: <Truck className="w-4 h-4" />, status: "upcoming" },
     { id: 3, title: "Out for Delivery", icon: <MapPin className="w-4 h-4" />, status: "upcoming" },
     { id: 4, title: "Delivered", icon: <Check className="w-4 h-4" />, status: "upcoming" },
@@ -23,7 +23,7 @@ export function AnimatedTimeline({ currentStatus, className }: AnimatedTimelineP
 
   // Logic to determine status of each step based on currentStatus
   let currentStepIndex = -1;
-  if (currentStatus === "Order Booked" || currentStatus === "Picked Up") currentStepIndex = 0;
+  if (currentStatus === "Pickup Completed" || currentStatus === "Order Booked") currentStepIndex = 0;
   else if (currentStatus === "In Transit") currentStepIndex = 1;
   else if (currentStatus === "Out for Delivery") currentStepIndex = 2;
   else if (currentStatus === "Delivered") currentStepIndex = 3;
@@ -43,7 +43,7 @@ export function AnimatedTimeline({ currentStatus, className }: AnimatedTimelineP
         <div className="absolute top-5 left-0 w-full h-1 bg-muted rounded-full overflow-hidden">
           {/* Progress Fill */}
           <div 
-            className="h-full bg-gradient-to-r from-[#a33900] to-[#cc4900] transition-all duration-1000 ease-out"
+            className="h-full bg-primary transition-all duration-1000 ease-out"
             style={{ width: `${Math.max(0, (currentStepIndex / (steps.length - 1)) * 100)}%` }}
           />
         </div>
@@ -55,7 +55,7 @@ export function AnimatedTimeline({ currentStatus, className }: AnimatedTimelineP
               <div 
                 className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 relative z-10",
-                  step.status === "completed" ? "bg-gradient-to-br from-[#a33900] to-[#cc4900] text-white shadow-lg shadow-primary/20 scale-110" :
+                  step.status === "completed" ? "bg-primary text-white shadow-lg shadow-primary/20 scale-110" :
                   step.status === "current" ? "bg-white border-2 border-primary text-primary shadow-md scale-125" :
                   "bg-white border-2 border-muted text-muted-foreground"
                 )}
@@ -97,7 +97,7 @@ export function AnimatedTimeline({ currentStatus, className }: AnimatedTimelineP
               </div>
               <div>
                   <div className="text-[10px] uppercase font-bold text-muted-foreground mb-0.5">Overall Progress</div>
-                  <div className="text-sm font-extrabold text-foreground">{Math.round(progressPercentage)}% Completed</div>
+                  <div className="text-sm font-extrabold text-foreground tracking-tight pl-1 bg-muted/30 border border-muted py-1 mt-1 px-3 rounded-lg flex items-center gap-1.5"><span className="text-lg">████████░░░░</span> {Math.round(progressPercentage)}% Completed</div>
               </div>
           </div>
           

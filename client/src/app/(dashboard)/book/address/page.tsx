@@ -4,15 +4,82 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Truck, Package, ArrowRightLeft, Home, Briefcase, Heart, Search, ArrowUpDown, ArrowRight } from "lucide-react";
+import { MapPin, Truck, Package, ArrowRightLeft, Home, Briefcase, Heart, Search, ArrowUpDown, ArrowRight, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AddressInput() {
   const navigate = useNavigate();
   const [pickup, setPickup] = useState("400001");
+  const [pickupAddress, setPickupAddress] = useState("Flat 4B, Hill View");
+  const [senderName, setSenderName] = useState("Rahul Sharma");
+  const [senderPhone, setSenderPhone] = useState("98765 43210");
+
   const [delivery, setDelivery] = useState("110001");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [receiverName, setReceiverName] = useState("");
+  const [receiverPhone, setReceiverPhone] = useState("");
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('lastAddress');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.pickup) setPickup(data.pickup);
+        if (data.pickupAddress) setPickupAddress(data.pickupAddress);
+        if (data.senderName) setSenderName(data.senderName);
+        if (data.senderPhone) setSenderPhone(data.senderPhone);
+      } catch (e) {}
+    }
+  }, []);
+
+  const handleContinue = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setApiError(false);
+    const newErrors: Record<string, string> = {};
+
+    if (!/^\d{6}$/.test(pickup.trim())) newErrors.pickup = "Invalid pincode";
+    if (!/^\d{6}$/.test(delivery.trim())) newErrors.delivery = "Invalid pincode";
+    
+    const pPhone = senderPhone.replace(/\s/g, '');
+    const dPhone = receiverPhone.replace(/\s/g, '');
+    if (!/^\d{10}$/.test(pPhone)) newErrors.senderPhone = "Enter valid phone number";
+    if (!/^\d{10}$/.test(dPhone)) newErrors.receiverPhone = "Enter valid phone number";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+    setIsLoading(true);
+
+    try {
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (pickup.trim() === "000000") {
+            reject(new Error("API Failed"));
+          } else {
+            resolve(true);
+          }
+        }, 800);
+      });
+
+      localStorage.setItem('lastAddress', JSON.stringify({
+        pickup, pickupAddress, senderName, senderPhone
+      }));
+
+      navigate('/book/courier');
+    } catch (err) {
+      setApiError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const savedAddresses = [
     { id: 1, type: "Home", name: "Rahul Sharma", address: "B-402, Seawoods, Mumbai 400001", icon: <Home className="w-5 h-5 text-primary" />, isDefault: true },
     { id: 2, type: "Office", name: "Rahul Sharma", address: "Tech Park, Andheri, Mumbai 400053", icon: <Briefcase className="w-5 h-5 text-yellow-600" />, isDefault: false },
@@ -60,23 +127,25 @@ export default function AddressInput() {
               <Label>Search Pincode / Area</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input value={pickup} onChange={e => setPickup(e.target.value)} placeholder="Start typing pincode e.g 400001" className="pl-10 h-12 bg-gray-50/50 rounded-xl" />
+                <Input value={pickup} onChange={e => { setPickup(e.target.value); if(errors.pickup) setErrors({...errors, pickup: ""}); }} placeholder="Start typing pincode e.g 400001" className={cn("pl-10 h-12 bg-gray-50/50 rounded-xl", errors.pickup && "border-red-500 ring-1 ring-red-500")} />
               </div>
+              {errors.pickup && <p className="text-xs text-red-500 mt-1 font-semibold">{errors.pickup}</p>}
             </div>
 
             <div className="space-y-2 sm:col-span-2">
               <Label>Complete Address (House, Building, Street)</Label>
-              <Input placeholder="Eg. Flat 4B, Hill View Apartments, Linking Road" className="h-12 bg-gray-50/50 rounded-xl" defaultValue="Flat 4B, Hill View" />
+              <Input value={pickupAddress} onChange={e => setPickupAddress(e.target.value)} placeholder="Eg. Flat 4B, Hill View Apartments, Linking Road" className="h-12 bg-gray-50/50 rounded-xl" />
             </div>
 
             <div className="space-y-2">
               <Label>Sender Name</Label>
-              <Input placeholder="John Doe" className="h-12 bg-gray-50/50 rounded-xl" defaultValue="Rahul Sharma" />
+              <Input value={senderName} onChange={e => setSenderName(e.target.value)} placeholder="John Doe" className="h-12 bg-gray-50/50 rounded-xl" />
             </div>
 
             <div className="space-y-2">
               <Label>Sender Phone</Label>
-              <Input placeholder="98765 43210" className="h-12 bg-gray-50/50 rounded-xl" defaultValue="98765 43210" />
+              <Input value={senderPhone} onChange={e => { setSenderPhone(e.target.value); if(errors.senderPhone) setErrors({...errors, senderPhone: ""}); }} placeholder="98765 43210" className={cn("h-12 bg-gray-50/50 rounded-xl", errors.senderPhone && "border-red-500 ring-1 ring-red-500")} />
+              {errors.senderPhone && <p className="text-xs text-red-500 mt-1 font-semibold">{errors.senderPhone}</p>}
             </div>
           </div>
         </Card>
@@ -106,23 +175,25 @@ export default function AddressInput() {
               <Label>Search Pincode / Area</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input value={delivery} onChange={e => setDelivery(e.target.value)} placeholder="Start typing pincode e.g 110001" className="pl-10 h-12 bg-gray-50/50 rounded-xl" />
+                <Input value={delivery} onChange={e => { setDelivery(e.target.value); if(errors.delivery) setErrors({...errors, delivery: ""}); }} placeholder="Start typing pincode e.g 110001" className={cn("pl-10 h-12 bg-gray-50/50 rounded-xl", errors.delivery && "border-red-500 ring-1 ring-red-500")} />
               </div>
+              {errors.delivery && <p className="text-xs text-red-500 mt-1 font-semibold">{errors.delivery}</p>}
             </div>
 
             <div className="space-y-2 sm:col-span-2">
               <Label>Complete Address (House, Building, Street)</Label>
-              <Input placeholder="Eg. Flat 4B, Hill View Apartments, Linking Road" className="h-12 bg-gray-50/50 rounded-xl" />
+              <Input value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} placeholder="Eg. Flat 4B, Hill View Apartments, Linking Road" className="h-12 bg-gray-50/50 rounded-xl" />
             </div>
 
             <div className="space-y-2">
               <Label>Receiver Name</Label>
-              <Input placeholder="Jane Doe" className="h-12 bg-gray-50/50 rounded-xl" />
+              <Input value={receiverName} onChange={e => setReceiverName(e.target.value)} placeholder="Jane Doe" className="h-12 bg-gray-50/50 rounded-xl" />
             </div>
 
             <div className="space-y-2">
               <Label>Receiver Phone</Label>
-              <Input placeholder="98765 43210" className="h-12 bg-gray-50/50 rounded-xl" />
+              <Input value={receiverPhone} onChange={e => { setReceiverPhone(e.target.value); if(errors.receiverPhone) setErrors({...errors, receiverPhone: ""}); }} placeholder="98765 43210" className={cn("h-12 bg-gray-50/50 rounded-xl", errors.receiverPhone && "border-red-500 ring-1 ring-red-500")} />
+              {errors.receiverPhone && <p className="text-xs text-red-500 mt-1 font-semibold">{errors.receiverPhone}</p>}
             </div>
           </div>
         </Card>
@@ -154,15 +225,22 @@ export default function AddressInput() {
           </div>
         </Card>
         
+        {apiError && (
+          <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 flex flex-col items-center justify-center shadow-sm">
+            <h4 className="font-bold flex items-center gap-2"><span className="text-xl">❌</span> Something went wrong</h4>
+            <p className="text-sm">Please try again</p>
+          </div>
+        )}
+
         <div className="flex justify-between items-center pt-4 gap-4">
-          <Button onClick={() => navigate('/compare')} variant="outline" className="h-14 px-8 rounded-xl font-semibold border-border">
+          <Button onClick={() => navigate('/compare')} variant="outline" className="h-14 px-8 rounded-xl font-semibold border-border disabled:opacity-50" disabled={isLoading}>
             Back
           </Button>
-          <Link to="/book/courier" className="flex-1 sm:w-auto">
-            <Button className="w-full h-14 px-8 bg-foreground hover:bg-foreground/90 text-white font-semibold rounded-xl text-lg shadow-lg shadow-foreground/20 transition-transform active:scale-95 group">
-              Continue to Courier <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+          <div className="flex-1 sm:w-auto">
+            <Button onClick={handleContinue} disabled={isLoading} className="w-full h-14 px-8 bg-foreground hover:bg-foreground/90 text-white font-semibold rounded-xl text-lg shadow-lg shadow-foreground/20 transition-transform active:scale-95 group disabled:opacity-90 flex items-center justify-center">
+              {isLoading ? <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Processing...</> : <>Continue to Courier <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" /></>}
             </Button>
-          </Link>
+          </div>
         </div>
 
       </div>

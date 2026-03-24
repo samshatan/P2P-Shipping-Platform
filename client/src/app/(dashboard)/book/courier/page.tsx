@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ShieldCheck, Truck, MapPin, Search, ArrowRight, Activity, Clock } from "lucide-react";
+import { ShieldCheck, Truck, MapPin, Search, ArrowRight, Activity, Clock, CheckCircle2, Info } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { MOCK_COURIERS } from "@/lib/mockData";
@@ -38,7 +39,7 @@ export default function CourierSelection() {
       const cheapest = [...adaptedRates].sort((a, b) => a.price - b.price)[0];
       if (cheapest) setSelectedRateId(cheapest.id);
       setLoading(false);
-    }, 800);
+    }, 1500);
     
     return () => clearTimeout(timer);
   }, []);
@@ -63,8 +64,12 @@ export default function CourierSelection() {
   const finalRates = getFilteredAndSorted();
   const selectedRate = rates.find(r => r.id === selectedRateId);
 
+  const cheapestId = rates.length > 0 ? [...rates].sort((a, b) => a.price - b.price)[0]?.id : null;
+  const fastestId = rates.length > 0 ? [...rates].sort((a, b) => a.etaDays - b.etaDays)[0]?.id : null;
+  const recommendedId = rates.length > 0 ? [...rates].sort((a, b) => b.rating - a.rating)[0]?.id : null;
+
   return (
-    <div className="flex flex-col lg:flex-row gap-8">
+    <div className="flex flex-col lg:flex-row gap-8 pb-32">
       
       {/* Left: Rate Engine */}
       <div className="flex-1 max-w-4xl space-y-6 mt-8">
@@ -106,39 +111,72 @@ export default function CourierSelection() {
         {loading ? (
           <div className="space-y-4">
             {[1,2,3].map(i => (
-              <Card key={i} className="h-32 bg-white/50 animate-pulse border-border rounded-2xl p-6 relative overflow-hidden" />
+              <Card key={i} className="bg-white/50 animate-pulse border-border rounded-2xl p-6 relative overflow-hidden">
+                <div className="flex flex-col sm:flex-row gap-6 items-center">
+                  <div className="flex items-center gap-4 w-full sm:w-1/4">
+                    <div className="w-12 h-12 bg-muted rounded-full shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-muted rounded w-24" />
+                      <div className="h-3 bg-muted rounded w-16" />
+                    </div>
+                  </div>
+                  <div className="flex-1 grid grid-cols-2 gap-4 w-full">
+                    <div className="space-y-2">
+                      <div className="h-3 bg-muted rounded w-16" />
+                      <div className="h-4 bg-muted rounded w-12" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-3 bg-muted rounded w-16" />
+                      <div className="h-4 bg-muted rounded w-12" />
+                    </div>
+                  </div>
+                  <div className="w-full sm:w-auto mt-4 sm:mt-0">
+                    <div className="h-10 w-24 bg-muted rounded-xl" />
+                  </div>
+                </div>
+              </Card>
             ))}
           </div>
         ) : (
           <div className="space-y-4">
-            {finalRates.map((rate, idx) => (
+            {!loading && finalRates.length === 0 ? (
+              <div className="text-center py-16 bg-white rounded-2xl border border-border flex flex-col items-center justify-center shadow-sm">
+                <div className="text-5xl mb-4">🚫</div>
+                <h3 className="text-xl font-heading font-bold text-foreground mb-2">No couriers available for this route</h3>
+                <p className="text-muted-foreground font-medium">Try a different pincode or package weight</p>
+              </div>
+            ) : finalRates.map((rate, idx) => (
               <Card 
                 key={rate.id} 
                 onClick={() => setSelectedRateId(rate.id)}
                 className={cn(
-                  "bg-white border p-6 rounded-2xl transition-all group hover:shadow-lg hover:border-primary/40 cursor-pointer relative", 
-                  selectedRateId === rate.id ? "border-primary ring-2 ring-primary/10 shadow-md" : "border-border shadow-sm",
-                  idx === 0 && sort === "PRICE" ? "before:content-[''] before:absolute before:inset-0 before:rounded-2xl before:ring-1 before:ring-primary/20" : ""
+                  "bg-white border p-6 rounded-2xl transition-all duration-300 group cursor-pointer relative", 
+                  selectedRateId === rate.id ? "border-primary ring-2 ring-primary/20 shadow-md scale-[1.01]" : "border-border shadow-sm hover:shadow-lg hover:border-primary/40 hover:scale-[1.01]",
+                  rate.id === recommendedId ? "ring-1 ring-primary/40 shadow-primary/5" : ""
                 )}
               >
-                
-                {idx === 0 && sort==="PRICE" && (
-                  <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl rounded-tr-xl">
-                    Cheapest Choice
-                  </div>
-                )}
                 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                   
                   {/* Courier Identity */}
                   <div className="flex items-center gap-4 w-full sm:w-1/4">
-                    <div className="w-12 h-12 bg-muted/30 rounded-full flex items-center justify-center overflow-hidden border border-border">
+                    <div className="w-12 h-12 bg-muted/30 rounded-full flex items-center justify-center overflow-hidden border border-border shrink-0">
                       <Truck className="w-6 h-6 text-muted-foreground/50" />
                     </div>
                     <div>
-                      <h4 className="font-heading font-bold text-lg text-foreground">{rate.name}</h4>
-                      <div className="flex items-center gap-1 text-xs font-bold text-yellow-500">
-                        {rate.rating} ★
+                      <div className="flex flex-wrap gap-1 mb-1.5">
+                        {rate.id === cheapestId && <Badge className="text-[9px] px-1.5 py-0 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-none">💰 Cheapest</Badge>}
+                        {rate.id === fastestId && <Badge className="text-[9px] px-1.5 py-0 bg-blue-100 text-blue-800 hover:bg-blue-200 border-none">⚡ Fastest</Badge>}
+                        {rate.id === recommendedId && <Badge className="text-[9px] px-1.5 py-0 bg-orange-100 text-orange-800 hover:bg-orange-200 border-none">⭐ Recommended</Badge>}
+                      </div>
+                      <h4 className="font-heading font-bold text-lg text-foreground leading-none mb-1">{rate.name}</h4>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        <div className="flex items-center gap-1 text-xs font-bold text-yellow-500">
+                          {rate.rating} ★
+                        </div>
+                        <div className="text-[10px] text-muted-foreground font-semibold">
+                          On-time: {90 + (rate.id % 8)}% • COD: {85 + (rate.id % 12)}%
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -186,8 +224,46 @@ export default function CourierSelection() {
                       </Button>
                     </div>
                   </div>
-
+                  
                 </div>
+
+                {/* Quick Expand Details */}
+                <AnimatePresence>
+                  {selectedRateId === rate.id && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pt-5 mt-5 border-t border-border grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-muted/30 p-3 rounded-xl flex items-start gap-3 border border-border/50">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">Delivery Attempts</p>
+                            <p className="text-sm font-semibold">3 Attempts included</p>
+                          </div>
+                        </div>
+                        <div className="bg-muted/30 p-3 rounded-xl flex items-start gap-3 border border-border/50">
+                          <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">Support Quality</p>
+                            <p className="text-sm font-semibold">{rate.rating >= 4.5 ? "Priority Contact" : "Standard Support"}</p>
+                          </div>
+                        </div>
+                        <div className="bg-muted/30 p-3 rounded-xl flex items-start gap-3 border border-border/50">
+                          <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">Insurance</p>
+                            <p className="text-sm font-semibold">Covered up to ₹5000</p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
               </Card>
             ))}
           </div>
@@ -254,6 +330,50 @@ export default function CourierSelection() {
           </div>
         </ScrollArea>
       </div>
+
+      {/* Sticky Bottom Bar */}
+      <AnimatePresence>
+        {selectedRate && (
+          <motion.div 
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed bottom-0 left-0 right-0 bg-white border-t border-border p-4 sm:p-5 shadow-[0_-8px_30px_-15px_rgba(0,0,0,0.15)] z-50 flex justify-center backdrop-blur-md bg-white/95"
+          >
+            <div className="w-full max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 px-2 sm:px-6">
+              
+              <div className="flex items-center justify-between w-full sm:w-auto sm:gap-6">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                  <span className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">Selected Courier</span>
+                  <span className="text-base sm:text-xl font-heading font-extrabold text-foreground">{selectedRate.name}</span>
+                </div>
+                
+                <div className="w-1 h-8 bg-border hidden sm:block rounded-full"></div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-right sm:text-left">
+                  <span className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Price</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl sm:text-2xl font-extrabold text-primary">₹{selectedRate.price}</span>
+                    <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground">+ GST</span>
+                  </div>
+                </div>
+              </div>
+
+              <Button 
+                onClick={() => {
+                  showToast("Courier Selected", "success");
+                  localStorage.setItem('selectedCourier', JSON.stringify(selectedRate));
+                  navigate('/book/address');
+                }} 
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-8 py-6 font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95 text-base sm:text-lg shrink-0"
+              >
+                Continue <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

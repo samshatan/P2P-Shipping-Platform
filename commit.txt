@@ -1,0 +1,7 @@
+feat: enhance parcel platform frontend
+
+* improved compare page UI with badges, trust info, and sticky bar
+* added booking flow enhancements with validation and progress steps
+* implemented animated tracking page with timeline and live status
+* created dashboard page with shipment stats and filters
+* improved overall UX, micro-interactions, and responsiveness

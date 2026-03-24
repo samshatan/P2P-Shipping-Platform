@@ -2,10 +2,10 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Copy, MapPin, Truck, CheckCircle2, Map, Calendar, Phone, Activity, Search, Mail, MessageCircle } from "lucide-react";
+import { Copy, MapPin, Truck, CheckCircle2, Map, Calendar, Phone, Activity, Search, Mail, MessageCircle, RefreshCw, AlertCircle, Package } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/context/ToastContext";
+import { useToast } from "@/components/ui/Toast";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 
@@ -15,7 +15,7 @@ export default function TrackingPage() {
   const params = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const [trackInput, setTrackInput] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const awb = params.awb || "AWB123456789IN";
 
   const handleCopy = () => {
@@ -23,14 +23,39 @@ export default function TrackingPage() {
     showToast("AWB Copied to clipboard!", "success");
   };
 
-  const currentStatus = "In Transit"; // Mock status for alignment
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setIsRefreshing(false);
+      showToast("Tracking status updated!", "success");
+    }, 1000);
+  };
+
+  if (awb.length < 5 || awb.toUpperCase() === "INVALID") {
+    return (
+      <div className="min-h-screen bg-[#f7f9fb] flex flex-col">
+        <Navbar />
+        <main className="flex-1 flex flex-col items-center justify-center p-4">
+          <div className="bg-white p-8 rounded-3xl shadow-sm border border-red-100 flex flex-col items-center max-w-md w-full text-center">
+             <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6">
+                <span className="text-4xl">❌</span>
+             </div>
+             <h1 className="font-heading font-bold text-2xl mb-2">Invalid Tracking ID</h1>
+             <p className="text-muted-foreground mb-8">Please check your AWB number and try again.</p>
+             <Button onClick={() => navigate('/track')} className="w-full h-12 bg-foreground text-white rounded-xl hover:bg-foreground/90 transition-colors">Go Back</Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  const currentStatus = "Out for Delivery"; // Mock status for alignment
 
   const events = [
-    { id: 1, title: "Order Booked", location: "Kolkata Hub", date: "24 Oct, 10:30 AM", status: "completed", past: true },
-    { id: 2, title: "Picked Up by Courier", location: "Mumbai", date: "24 Oct, 02:45 PM", status: "completed", past: true },
-    { id: 3, title: "In Transit", location: "Mumbai Hub", date: "25 Oct, 06:10 AM", status: "active", past: false },
-    { id: 4, title: "Out for Delivery", location: "Delhi Delivery Center", date: "Pending", status: "upcoming", past: false },
-    { id: 5, title: "Delivered", location: "Delhi", date: "Pending", status: "upcoming", past: false },
+    { id: 1, title: "Pickup Completed", location: "Mumbai", date: "24 Oct, 10:30 AM", status: "completed", past: true },
+    { id: 2, title: "In Transit", location: "Mumbai Hub", date: "25 Oct, 06:10 AM", status: "completed", past: true },
+    { id: 3, title: "Out for Delivery", location: "Delhi Delivery Center", date: "26 Oct, 10:32 AM", status: "active", past: false },
+    { id: 4, title: "Delivered", location: "Delhi", date: "Pending", status: "upcoming", past: false },
   ];
 
   return (
@@ -40,38 +65,52 @@ export default function TrackingPage() {
       <main className="flex-1 pt-24 pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           
-          <div className="flex flex-col sm:flex-row justify-between sm:items-end mb-8 gap-4">
-            <div>
-              <div className="flex flex-wrap items-center gap-3 mb-2">
-                <h1 className="text-3xl font-heading font-extrabold text-foreground tracking-tight">{awb}</h1>
-                <Button onClick={handleCopy} variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                  <Copy className="w-4 h-4" />
-                </Button>
-                <div className="flex items-center gap-2 ml-4">
-                   <Input value={trackInput} onChange={e => setTrackInput(e.target.value.toUpperCase())} placeholder="Track another AWB" className="h-9 text-sm w-48 bg-white" />
-                   <Button onClick={() => trackInput && navigate(`/track/${trackInput}`)} size="sm" className="h-9 px-3 bg-foreground">
-                      <Search className="w-4 h-4" />
-                   </Button>
-                   <Button onClick={() => window.open(`https://wa.me/?text=Track%20my%20parcel%3A%20https%3A%2F%2Fparcel.in%2Ftrack%2F${awb}`, '_blank')} size="sm" className="h-9 bg-[#25D366] hover:bg-[#128C7E] text-white p-2">
-                      <MessageCircle className="w-4 h-4" />
-                   </Button>
+          <div className="flex flex-col md:flex-row justify-between md:items-start mb-8 gap-6 border-b border-border/60 pb-8">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
+                  <Truck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h1 className="text-3xl sm:text-4xl font-heading font-extrabold text-foreground tracking-tight uppercase">
+                    🚚 {currentStatus}
+                  </h1>
+                  <p className="text-lg text-primary font-bold mt-1">Expected Today by 6 PM</p>
                 </div>
               </div>
-              <p className="text-muted-foreground font-medium flex items-center gap-2">
-                Shipped via <Badge variant="outline" className="font-bold border-border bg-white text-[10px] uppercase">Delhivery</Badge>
-              </p>
             </div>
 
-             <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-0 px-4 py-1.5 text-sm uppercase tracking-wider font-extrabold shadow-sm w-fit self-start sm:self-auto">
-                {currentStatus.toUpperCase()}
-             </Badge>
+             <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
+                <Button onClick={handleCopy} variant="outline" className="h-10 px-4 bg-white border-border/80 text-foreground font-semibold hover:bg-muted/50 rounded-xl shadow-sm transition-all hover:-translate-y-0.5">
+                  📋 Copy AWB
+                </Button>
+                <Button onClick={() => window.open('tel:18001234567')} variant="outline" className="h-10 px-4 bg-white border-border/80 text-foreground font-semibold hover:bg-muted/50 rounded-xl shadow-sm transition-all hover:-translate-y-0.5">
+                  📞 Contact Support
+                </Button>
+                <Button onClick={handleRefresh} variant="outline" className="h-10 px-4 bg-foreground text-white border-foreground font-semibold hover:bg-foreground/90 rounded-xl shadow-sm transition-all hover:-translate-y-0.5 group">
+                  <RefreshCw className={cn("w-4 h-4 mr-2", isRefreshing && "animate-spin")} /> 🔁 Refresh Status
+                </Button>
+             </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             
             {/* Left: Timeline */}
             <div className="md:col-span-2 space-y-6">
-               <AnimatedTimeline currentStatus={currentStatus} className="bg-white border-border shadow-sm rounded-3xl mb-0" />
+               
+               {/* Live Location Block */}
+               <div className="bg-blue-50/50 border border-blue-100 rounded-3xl p-5 flex items-start gap-4 shadow-sm animate-in fade-in duration-500">
+                  <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shrink-0">
+                    <MapPin className="w-5 h-5 animate-pulse" />
+                  </div>
+                  <div>
+                     <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">📍 Current Location</p>
+                     <h3 className="font-heading font-bold text-lg text-blue-950 mb-0.5">Hub — Delhi Sorting Center</h3>
+                     <p className="text-sm font-medium text-blue-700/70">Last updated: 10:32 AM</p>
+                  </div>
+               </div>
+
+               <AnimatedTimeline currentStatus={currentStatus} className="bg-white border-border shadow-sm rounded-3xl mb-0 transition-all" />
                
                <Card className="bg-white border-border shadow-sm rounded-3xl p-6 sm:p-10 relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-48 h-48 bg-blue-50 rounded-full blur-[60px]"></div>
@@ -121,29 +160,24 @@ export default function TrackingPage() {
             <div className="space-y-6">
               
               <Card className="bg-white border-border shadow-sm rounded-2xl p-6">
-                <h3 className="font-heading font-bold text-lg mb-4">Journey Summary</h3>
+                <h3 className="font-heading font-bold text-lg mb-4">Delivery Details</h3>
                 
-                <div className="space-y-6">
-                  <div className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                      <Map className="w-4 h-4 text-slate-600" />
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">From</div>
-                      <div className="font-semibold text-foreground">Mumbai (400001)</div>
-                      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mt-1">Rahul S.</div>
-                    </div>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center py-2 border-b border-border/40">
+                    <span className="text-sm font-medium text-muted-foreground">Courier</span>
+                    <span className="text-sm font-bold text-foreground">Delhivery</span>
                   </div>
-
-                  <div className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                      <Truck className="w-4 h-4 text-slate-600" />
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">To</div>
-                      <div className="font-semibold text-foreground">New Delhi (110001)</div>
-                      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mt-1">Jane D.</div>
-                    </div>
+                  <div className="flex justify-between items-center py-2 border-b border-border/40">
+                    <span className="text-sm font-medium text-muted-foreground">AWB</span>
+                    <span className="text-sm font-bold text-foreground font-mono">{awb}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-border/40">
+                    <span className="text-sm font-medium text-muted-foreground">Pickup Date</span>
+                    <span className="text-sm font-bold text-foreground">24 Oct, 2026</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-sm font-medium text-muted-foreground">Estimated Delivery</span>
+                    <span className="text-sm font-bold text-primary">Today by 6 PM</span>
                   </div>
                 </div>
               </Card>

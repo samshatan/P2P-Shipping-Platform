@@ -29,9 +29,9 @@ export default function ConfirmedPage() {
         {/* Success Header */}
         <div className="flex flex-col items-center text-center mb-12">
           <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6 shadow-[0_0_50px_rgba(16,185,129,0.2)] animate-in zoom-in-50 duration-500">
-            <CheckCircle2 className="w-12 h-12" />
+            <span className="text-5xl">🎉</span>
           </div>
-          <h1 className="font-heading font-extrabold text-4xl text-foreground mb-3">Shipment Booked Successfully!</h1>
+          <h1 className="font-heading font-extrabold text-4xl text-foreground mb-3">Booking Confirmed!</h1>
           <p className="text-lg text-muted-foreground font-medium max-w-lg">
             Your parcel is confirmed. A pickup partner from Delhivery will arrive during the scheduled slot.
           </p>
@@ -56,8 +56,8 @@ export default function ConfirmedPage() {
 
             <div className="relative z-10 flex gap-3 w-full md:w-auto">
               <Link to={`/track/${awb}`} className="w-full md:w-auto">
-                <Button className="w-full bg-white text-secondary hover:bg-white/90 font-bold rounded-xl h-12 shadow-lg">
-                  Track Live
+                <Button className="w-full bg-white text-secondary hover:bg-white/90 font-bold rounded-xl h-12 shadow-lg px-8">
+                  Track your shipment →
                 </Button>
               </Link>
               <Button variant="outline" className="w-12 px-0 bg-transparent border-white/20 hover:bg-white/10 text-white rounded-xl h-12">
