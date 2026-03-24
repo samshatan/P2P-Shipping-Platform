@@ -1,21 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { MapPin, Truck, CheckCircle2, ShieldCheck, Tag, CreditCard, HelpCircle, Wallet, ArrowRight, Lock, Loader2 } from "lucide-react";
+import { SavingsBanner } from "@/components/features/SavingsBanner";
+import { useToast } from "@/context/ToastContext";
 
 export default function ReviewAndPay() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [walletApplied, setWalletApplied] = useState(false);
   const [promoInput, setPromoInput] = useState("");
   const [promoStatus, setPromoStatus] = useState<false | "applied" | "invalid">(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedCourier, setSelectedCourier] = useState<any>(null);
 
-  const baseShipping = 45.00;
-  const fuelSurcharge = 12.50;
+  useEffect(() => {
+    const saved = localStorage.getItem('selectedCourier');
+    if (saved) {
+      setSelectedCourier(JSON.parse(saved));
+    }
+  }, []);
+
+  const baseShipping = selectedCourier?.price || 45.00;
+  const fuelSurcharge = selectedCourier ? (selectedCourier.price * 0.1) : 12.50; // Dynamic surcharge if courier is selected
   const subtotal = baseShipping + fuelSurcharge;
   const gst = subtotal * 0.18;
   const total = subtotal + gst;
@@ -27,8 +38,10 @@ export default function ReviewAndPay() {
   const handleApplyPromo = () => {
     if (promoInput === "PARCEL10") {
       setPromoStatus("applied");
+      showToast("Discount Applied: 10% Off!", "success");
     } else {
       setPromoStatus("invalid");
+      showToast("Invalid Promo Code", "error");
       setTimeout(() => setPromoStatus(false), 2000);
     }
   };
@@ -36,6 +49,7 @@ export default function ReviewAndPay() {
   const handlePay = () => {
     setIsProcessing(true);
     setTimeout(() => {
+      showToast("Payment Successful!", "success");
       navigate('/book/confirmed/AWB123456789IN');
     }, 2000);
   };
@@ -177,6 +191,8 @@ export default function ReviewAndPay() {
       <div className="w-full lg:w-96 shrink-0 mt-8 lg:mt-0">
         <div className="space-y-6 sticky top-6">
           
+          <SavingsBanner selectedPrice={selectedCourier?.price} className="bg-white" />
+
           <Card className="p-6 bg-white border-border shadow-sm rounded-2xl">
             <h3 className="font-heading font-bold text-lg mb-6">Price Breakdown</h3>
             

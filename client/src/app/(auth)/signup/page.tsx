@@ -1,20 +1,42 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Package, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Package, ArrowRight, CheckCircle2, User, Building2, Smartphone, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { clsx } from "clsx";
-import { useNavigate } from "react-router-dom";
 
 export default function SignupPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [role, setRole] = useState("USER"); // USER or BUSINESS
+  const [role, setRole] = useState("USER");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    height: "48px",
+    padding: "0 16px",
+    fontSize: "15px",
+    borderRadius: "12px",
+    border: "1.5px solid #d1d5db",
+    backgroundColor: "#ffffff",
+    outline: "none",
+    transition: "border-color 0.2s, box-shadow 0.2s",
+    color: "#1a1a1a",
+  };
+
+  const inputFocusHandler = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.style.borderColor = "#a33900";
+    e.target.style.boxShadow = "0 0 0 3px rgba(163, 57, 0, 0.1)";
+  };
+
+  const inputBlurHandler = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.style.borderColor = "#d1d5db";
+    e.target.style.boxShadow = "none";
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
-      {/* Left Pane */}
+      {/* Left Pane - Progress Sidebar */}
       <div className="hidden md:flex flex-col w-1/3 bg-white border-r border-border p-8 justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-[#a33900] to-[#cc4900] rounded-lg flex items-center justify-center">
@@ -75,62 +97,212 @@ export default function SignupPage() {
       <div className="flex-1 flex flex-col items-center p-6 justify-center bg-[#f7f9fb]">
         <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.04)] border border-border/60">
           
+          {/* Step 1: Account Type */}
           {step === 1 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
               <div>
                 <h2 className="font-heading text-2xl font-bold">Welcome to PARCEL</h2>
                 <p className="text-muted-foreground mt-1 text-sm">How are you planning to use the platform?</p>
               </div>
 
-              <div className="space-y-4">
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 <button 
                   onClick={() => setRole("USER")}
-                  className={clsx("w-full text-left p-4 rounded-xl border-2 transition-all", role === "USER" ? "border-primary bg-primary/5" : "border-border hover:border-border/80")}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "20px",
+                    borderRadius: "14px",
+                    border: role === "USER" ? "2px solid #a33900" : "2px solid #e5e7eb",
+                    backgroundColor: role === "USER" ? "rgba(163, 57, 0, 0.04)" : "#ffffff",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "14px",
+                  }}
                 >
-                  <h3 className="font-semibold text-foreground">Individual Sender</h3>
-                  <p className="text-sm text-muted-foreground mt-1">For personal shipping, occasional parcels, and gifting.</p>
+                  <div style={{
+                    width: "44px",
+                    height: "44px",
+                    borderRadius: "12px",
+                    background: role === "USER" ? "linear-gradient(135deg, #a33900, #cc4900)" : "#f3f4f6",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}>
+                    <User style={{ width: 22, height: 22, color: role === "USER" ? "#fff" : "#6b7280" }} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1a1a1a", margin: 0 }}>Individual Sender</h3>
+                    <p style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>For personal shipping, occasional parcels, and gifting.</p>
+                  </div>
                 </button>
+
                 <button 
                   onClick={() => setRole("BUSINESS")}
-                  className={clsx("w-full text-left p-4 rounded-xl border-2 transition-all", role === "BUSINESS" ? "border-primary bg-primary/5" : "border-border hover:border-border/80")}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "20px",
+                    borderRadius: "14px",
+                    border: role === "BUSINESS" ? "2px solid #a33900" : "2px solid #e5e7eb",
+                    backgroundColor: role === "BUSINESS" ? "rgba(163, 57, 0, 0.04)" : "#ffffff",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "14px",
+                  }}
                 >
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-semibold text-foreground">Business / D2C Brand</h3>
-                    <span className="bg-tertiary/10 text-tertiary text-[10px] font-bold px-2 py-0.5 rounded uppercase">B2B Rates</span>
+                  <div style={{
+                    width: "44px",
+                    height: "44px",
+                    borderRadius: "12px",
+                    background: role === "BUSINESS" ? "linear-gradient(135deg, #a33900, #cc4900)" : "#f3f4f6",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}>
+                    <Building2 style={{ width: 22, height: 22, color: role === "BUSINESS" ? "#fff" : "#6b7280" }} />
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">For bulk shipping, COD remittance, and analytics.</p>
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1a1a1a", margin: 0 }}>Business / D2C Brand</h3>
+                      <span style={{
+                        background: "rgba(163, 57, 0, 0.08)",
+                        color: "#a33900",
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        padding: "2px 8px",
+                        borderRadius: "4px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                      }}>B2B Rates</span>
+                    </div>
+                    <p style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>For bulk shipping, COD remittance, and analytics.</p>
+                  </div>
                 </button>
               </div>
 
               <Button onClick={() => setStep(2)} className="w-full h-12 rounded-xl bg-foreground hover:bg-foreground/90 text-white font-semibold">
                 Continue <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
+
+              <p className="text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link to="/login" className="text-primary font-semibold hover:underline">
+                  Log In
+                </Link>
+              </p>
             </div>
           )}
 
+          {/* Step 2: Basic Details */}
           {step === 2 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
               <div>
                 <h2 className="font-heading text-2xl font-bold">Your Details</h2>
                 <p className="text-muted-foreground mt-1 text-sm">Let's set up your profile.</p>
               </div>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Full Name / Company Name</Label>
-                  <Input placeholder="John Doe" className="h-12 bg-gray-50/50 rounded-xl" />
+              <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Full Name / Company Name</Label>
+                  <div style={{ position: "relative", width: "100%" }}>
+                    <User style={{
+                      position: "absolute",
+                      left: "14px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: 18,
+                      height: 18,
+                      color: "#9ca3af",
+                      pointerEvents: "none",
+                    }} />
+                    <input
+                      placeholder="John Doe"
+                      style={{ ...inputStyle, paddingLeft: "44px" }}
+                      onFocus={inputFocusHandler}
+                      onBlur={inputBlurHandler}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Email Address</Label>
-                  <Input placeholder="name@example.com" type="email" className="h-12 bg-gray-50/50 rounded-xl" />
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Email Address</Label>
+                  <div style={{ position: "relative", width: "100%" }}>
+                    <Mail style={{
+                      position: "absolute",
+                      left: "14px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: 18,
+                      height: 18,
+                      color: "#9ca3af",
+                      pointerEvents: "none",
+                    }} />
+                    <input
+                      placeholder="name@example.com"
+                      type="email"
+                      style={{ ...inputStyle, paddingLeft: "44px" }}
+                      onFocus={inputFocusHandler}
+                      onBlur={inputBlurHandler}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Password</Label>
-                  <Input placeholder="••••••••" type="password" className="h-12 bg-gray-50/50 rounded-xl" />
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Password</Label>
+                  <div style={{ position: "relative", width: "100%" }}>
+                    <Lock style={{
+                      position: "absolute",
+                      left: "14px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: 18,
+                      height: 18,
+                      color: "#9ca3af",
+                      pointerEvents: "none",
+                    }} />
+                    <input
+                      placeholder="Create a strong password"
+                      type={showPassword ? "text" : "password"}
+                      style={{ ...inputStyle, paddingLeft: "44px", paddingRight: "44px" }}
+                      onFocus={inputFocusHandler}
+                      onBlur={inputBlurHandler}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: "absolute",
+                        right: "14px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 0,
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      {showPassword 
+                        ? <EyeOff style={{ width: 18, height: 18, color: "#9ca3af" }} />
+                        : <Eye style={{ width: 18, height: 18, color: "#9ca3af" }} />
+                      }
+                    </button>
+                  </div>
+                  <p style={{ fontSize: "12px", color: "#9ca3af", marginTop: "2px" }}>
+                    Must be at least 8 characters with a number and symbol
+                  </p>
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div style={{ display: "flex", gap: "12px" }}>
                 <Button variant="outline" onClick={() => setStep(1)} className="h-12 rounded-xl flex-1">Back</Button>
                 <Button onClick={() => setStep(3)} className="h-12 rounded-xl flex-[2] bg-primary hover:bg-primary/90 text-white font-semibold shadow-md shadow-primary/20">
                   Next Step
@@ -139,30 +311,67 @@ export default function SignupPage() {
             </div>
           )}
 
+          {/* Step 3: Phone Verification */}
           {step === 3 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
               <div>
                 <h2 className="font-heading text-2xl font-bold">Secure your account</h2>
                 <p className="text-muted-foreground mt-1 text-sm">We'll send a 6-digit OTP to verify your mobile.</p>
               </div>
 
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label>Mobile Number</Label>
-                  <div className="flex relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">+91</span>
-                    <Input placeholder="98765 43210" className="pl-12 h-12 bg-gray-50/50 rounded-xl" type="tel" maxLength={10} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Mobile Number</Label>
+                  <div style={{ position: "relative", width: "100%" }}>
+                    <Smartphone style={{
+                      position: "absolute",
+                      left: "14px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: 18,
+                      height: 18,
+                      color: "#9ca3af",
+                      pointerEvents: "none",
+                    }} />
+                    <span style={{
+                      position: "absolute",
+                      left: "40px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      color: "#6b7280",
+                      fontSize: "15px",
+                      fontWeight: 500,
+                      pointerEvents: "none",
+                    }}>+91</span>
+                    <input
+                      placeholder="98765 43210"
+                      type="tel"
+                      maxLength={10}
+                      style={{ ...inputStyle, paddingLeft: "76px" }}
+                      onFocus={inputFocusHandler}
+                      onBlur={inputBlurHandler}
+                    />
                   </div>
                 </div>
 
-                <div className="bg-emerald-50 text-emerald-700 p-3 rounded-lg text-sm flex gap-2 items-start">
-                  <CheckCircle2 className="w-5 h-5 shrink-0" />
-                  <p>Your Aadhaar KYC will be linked to this number for seamless verification later.</p>
+                <div style={{
+                  backgroundColor: "#ecfdf5",
+                  color: "#047857",
+                  padding: "14px 16px",
+                  borderRadius: "12px",
+                  fontSize: "13px",
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "flex-start",
+                  lineHeight: 1.5,
+                }}>
+                  <CheckCircle2 style={{ width: 20, height: 20, flexShrink: 0, marginTop: "1px" }} />
+                  <p style={{ margin: 0 }}>Your Aadhaar KYC will be linked to this number for seamless verification later.</p>
                 </div>
 
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => setStep(2)} className="h-12 rounded-xl flex-1 ">Back</Button>
-                  <Button onClick={() => navigate('/dashboard')} className="h-12 rounded-xl flex-[2] bg-gradient-to-r from-[#a33900] to-[#cc4900] text-white font-semibold shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform">
+                <div style={{ display: "flex", gap: "12px" }}>
+                  <Button variant="outline" onClick={() => setStep(2)} className="h-12 rounded-xl flex-1">Back</Button>
+                  <Button onClick={() => navigate('/')} className="h-12 rounded-xl flex-[2] bg-gradient-to-r from-[#a33900] to-[#cc4900] text-white font-semibold shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform">
                     Send OTP & Finish
                   </Button>
                 </div>
@@ -170,17 +379,9 @@ export default function SignupPage() {
             </div>
           )}
 
-          {step === 1 && (
-             <p className="text-center text-sm text-muted-foreground mt-8">
-               Already have an account?{" "}
-               <Link to="/login" className="text-primary font-semibold hover:underline">
-                 Log In
-               </Link>
-             </p>
-          )}
-
         </div>
       </div>
     </div>
   );
 }
+

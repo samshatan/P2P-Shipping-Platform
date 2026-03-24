@@ -5,9 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Copy, MapPin, Truck, CheckCircle2, Map, Calendar, Phone, Activity, Search, Mail, MessageCircle } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/components/ui/Toast";
+import { useToast } from "@/context/ToastContext";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+
+import { AnimatedTimeline } from "@/components/features/AnimatedTimeline";
 
 export default function TrackingPage() {
   const params = useParams();
@@ -20,6 +22,8 @@ export default function TrackingPage() {
     navigator.clipboard.writeText(awb);
     showToast("AWB Copied to clipboard!", "success");
   };
+
+  const currentStatus = "In Transit"; // Mock status for alignment
 
   const events = [
     { id: 1, title: "Order Booked", location: "Kolkata Hub", date: "24 Oct, 10:30 AM", status: "completed", past: true },
@@ -59,7 +63,7 @@ export default function TrackingPage() {
             </div>
 
              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-0 px-4 py-1.5 text-sm uppercase tracking-wider font-extrabold shadow-sm w-fit self-start sm:self-auto">
-                IN TRANSIT
+                {currentStatus.toUpperCase()}
              </Badge>
           </div>
 
@@ -67,6 +71,8 @@ export default function TrackingPage() {
             
             {/* Left: Timeline */}
             <div className="md:col-span-2 space-y-6">
+               <AnimatedTimeline currentStatus={currentStatus} className="bg-white border-border shadow-sm rounded-3xl mb-0" />
+               
                <Card className="bg-white border-border shadow-sm rounded-3xl p-6 sm:p-10 relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-48 h-48 bg-blue-50 rounded-full blur-[60px]"></div>
                  

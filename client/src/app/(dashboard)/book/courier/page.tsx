@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,33 +6,41 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ShieldCheck, Truck, MapPin, Search, ArrowRight, Activity, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { MOCK_COURIERS } from "@/lib/mockData";
+import { AiRecommendationCard } from "@/components/features/AiRecommendationCard";
+import { SavingsBanner } from "@/components/features/SavingsBanner";
+import { useToast } from "@/context/ToastContext";
 
 export default function CourierSelection() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [rates, setRates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
   const [sort, setSort] = useState("PRICE");
+  const [selectedRateId, setSelectedRateId] = useState<number | string | null>(null);
 
   useEffect(() => {
-    // Fetch mock rates
-    setTimeout(() => {
-      fetch("/api/rates", {
-        method: "POST",
-        body: JSON.stringify({
-          pickupPincode: "400001",
-          deliveryPincode: "110001",
-          weight: 1.5,
-          type: "PARCEL",
-          isCod: false
-        })
-      })
-      .then(r => r.json())
-      .then(data => {
-        setRates(data.data || []);
-        setLoading(false);
-      });
-    }, 1500);
+    // Adapt MOCK_COURIERS to the expected structure
+    const adaptedRates = MOCK_COURIERS.map(c => ({
+      ...c,
+      etaDays: parseInt(c.days.split('-')[0]) || 3, // Extract first day from "3-4"
+      actualAvgDays: parseInt(c.actual.replace('~', '').split(' ')[0]) || 5, // Extract from "~5 days"
+      pickupWindow: "Today, 4 PM - 6 PM",
+      codAvailable: c.cod,
+      tags: c.tag ? [c.tag] : []
+    }));
+
+    // Simulate loading for better UX
+    const timer = setTimeout(() => {
+      setRates(adaptedRates);
+      // Set cheapest as default selected
+      const cheapest = [...adaptedRates].sort((a, b) => a.price - b.price)[0];
+      if (cheapest) setSelectedRateId(cheapest.id);
+      setLoading(false);
+    }, 800);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const filters = ["ALL", "COD AVAILABLE", "SAME DAY", "UNDER ₹100"];
@@ -54,6 +61,7 @@ export default function CourierSelection() {
   };
 
   const finalRates = getFilteredAndSorted();
+  const selectedRate = rates.find(r => r.id === selectedRateId);
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
@@ -61,6 +69,13 @@ export default function CourierSelection() {
       {/* Left: Rate Engine */}
       <div className="flex-1 max-w-4xl space-y-6 mt-8">
         
+        {!loading && rates.length > 0 && (
+          <>
+            <AiRecommendationCard rates={rates} />
+            <SavingsBanner selectedPrice={selectedRate?.price} />
+          </>
+        )}
+
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-border">
           <div className="flex flex-wrap gap-2">
             {filters.map(f => (
@@ -97,7 +112,15 @@ export default function CourierSelection() {
         ) : (
           <div className="space-y-4">
             {finalRates.map((rate, idx) => (
-              <Card key={rate.id} className={cn("bg-white border p-6 rounded-2xl transition-all group hover:shadow-lg hover:border-primary/40", idx === 0 && sort==="PRICE" ? "border-primary/50 ring-1 ring-primary/20 shadow-md" : "border-border shadow-sm")}>
+              <Card 
+                key={rate.id} 
+                onClick={() => setSelectedRateId(rate.id)}
+                className={cn(
+                  "bg-white border p-6 rounded-2xl transition-all group hover:shadow-lg hover:border-primary/40 cursor-pointer relative", 
+                  selectedRateId === rate.id ? "border-primary ring-2 ring-primary/10 shadow-md" : "border-border shadow-sm",
+                  idx === 0 && sort === "PRICE" ? "before:content-[''] before:absolute before:inset-0 before:rounded-2xl before:ring-1 before:ring-primary/20" : ""
+                )}
+              >
                 
                 {idx === 0 && sort==="PRICE" && (
                   <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl rounded-tr-xl">
@@ -155,9 +178,10 @@ export default function CourierSelection() {
                         <div className="text-[10px] font-semibold text-muted-foreground">+18% GST</div>
                       </div>
                       <Button onClick={() => {
+                        showToast("Courier Selected", "success");
                         localStorage.setItem('selectedCourier', JSON.stringify(rate));
                         navigate('/book/address');
-                      }} className="h-12 px-6 rounded-xl font-semibold bg-foreground hover:bg-foreground/90 text-white shadow-md transition-transform active:scale-95 group-hover:bg-primary group-hover:shadow-primary/20">
+                      }} className="bg-primary hover:bg-primary/90 text-white px-6 font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95">
                         Select
                       </Button>
                     </div>
