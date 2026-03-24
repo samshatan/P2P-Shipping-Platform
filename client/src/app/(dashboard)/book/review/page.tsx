@@ -7,23 +7,24 @@ import { Input } from "@/components/ui/input";
 import { MapPin, Truck, CheckCircle2, ShieldCheck, Tag, CreditCard, HelpCircle, Wallet, ArrowRight, Lock, Loader2 } from "lucide-react";
 import { SavingsBanner } from "@/components/features/SavingsBanner";
 import { useToast } from "@/context/ToastContext";
+import { useBooking } from "@/context/BookingContext";
 
 export default function ReviewAndPay() {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { selectedCourier, pickup, delivery, packageDetails, setLastAwb, resetBooking } = useBooking();
+  
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [walletApplied, setWalletApplied] = useState(false);
   const [promoInput, setPromoInput] = useState("");
   const [promoStatus, setPromoStatus] = useState<false | "applied" | "invalid">(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedCourier, setSelectedCourier] = useState<any>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('selectedCourier');
-    if (saved) {
-      setSelectedCourier(JSON.parse(saved));
+    if (!selectedCourier) {
+      navigate('/book/courier');
     }
-  }, []);
+  }, [selectedCourier, navigate]);
 
   const baseShipping = selectedCourier?.price || 45.00;
   const fuelSurcharge = selectedCourier ? (selectedCourier.price * 0.1) : 12.50; // Dynamic surcharge if courier is selected
@@ -48,9 +49,12 @@ export default function ReviewAndPay() {
 
   const handlePay = () => {
     setIsProcessing(true);
+    const mockAwb = 'AWB' + Math.random().toString(36).substring(2, 11).toUpperCase() + 'IN';
     setTimeout(() => {
       showToast("Payment Successful!", "success");
-      navigate('/book/confirmed/AWB123456789IN');
+      setLastAwb(mockAwb);
+      resetBooking();
+      navigate(`/book/confirmed/${mockAwb}`);
     }, 2000);
   };
 
@@ -74,8 +78,8 @@ export default function ReviewAndPay() {
                </div>
                <div>
                  <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Pickup From</div>
-                 <div className="font-semibold text-foreground">Rahul Sharma • 98765 43210</div>
-                 <div className="text-sm text-muted-foreground mt-0.5">Flat 4B, Hill View Apartments, Linking Road, Mumbai 400001</div>
+                 <div className="font-semibold text-foreground">{pickup.name} • {pickup.phone}</div>
+                 <div className="text-sm text-muted-foreground mt-0.5">{pickup.address}, {pickup.pincode}</div>
                </div>
              </div>
 
@@ -85,8 +89,8 @@ export default function ReviewAndPay() {
                </div>
                <div>
                  <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Deliver To</div>
-                 <div className="font-semibold text-foreground">Jane Doe • 98765 00000</div>
-                 <div className="text-sm text-muted-foreground mt-0.5">Building 7, Cyber City, Phase 2, New Delhi 110001</div>
+                 <div className="font-semibold text-foreground">{delivery.name} • {delivery.phone}</div>
+                 <div className="text-sm text-muted-foreground mt-0.5">{delivery.address}, {delivery.pincode}</div>
                </div>
              </div>
              
@@ -100,8 +104,8 @@ export default function ReviewAndPay() {
                    <Link to="/book/courier" className="text-primary hover:underline normal-case tracking-normal">Change</Link>
                  </div>
                  <div className="flex justify-between items-center bg-muted/30 p-3 rounded-xl mt-2 border border-border/50">
-                   <div className="font-semibold text-foreground">Delhivery Surface</div>
-                   <div className="text-sm font-medium text-muted-foreground">1.5 kg • ETA: 3 Days</div>
+                   <div className="font-semibold text-foreground">{selectedCourier?.name || 'Standard Courier'}</div>
+                   <div className="text-sm font-medium text-muted-foreground">{packageDetails.weight} kg • ETA: {selectedCourier?.etaDays || '3'} Days</div>
                  </div>
                </div>
              </div>
@@ -198,7 +202,7 @@ export default function ReviewAndPay() {
             
             <div className="space-y-4 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground font-medium">Base Shipping (1.5 kg)</span>
+                <span className="text-muted-foreground font-medium">Base Shipping ({packageDetails.weight} kg)</span>
                 <span className="font-semibold text-foreground">₹{baseShipping.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center group cursor-help">

@@ -5,16 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Package, Truck, CheckCircle, IndianRupee, ExternalLink, Filter, Plus, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-
-const shipmentsData = [
-  { id: "SR12345", courier: "Delhivery", status: "Out for Delivery", price: 89, date: "24 Mar" },
-  { id: "SR12346", courier: "Blue Dart", status: "In Transit", price: 120, date: "23 Mar" },
-  { id: "SR12347", courier: "XpressBees", status: "Delivered", price: 65, date: "21 Mar" },
-  { id: "SR12348", courier: "Ecom Express", status: "Failed", price: 75, date: "20 Mar" },
-  { id: "SR12349", courier: "Delhivery", status: "Delivered", price: 90, date: "15 Mar" },
-  { id: "SR12350", courier: "Blue Dart", status: "Delivered", price: 110, date: "10 Mar" },
-];
+import { useState, useEffect } from "react";
+import { getDashboardData } from "@/lib/api";
 
 function getStatusColor(status: string) {
   switch (status) {
@@ -28,11 +20,46 @@ function getStatusColor(status: string) {
 
 export default function UserDashboard() {
   const [filter, setFilter] = useState("All");
+  const [shipments, setShipments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredShipments = shipmentsData.filter(s => {
-    if (filter === "All") return true;
-    return s.status === filter;
-  });
+  useEffect(() => {
+    async function fetchDashboard() {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getDashboardData(1, 50, filter);
+        
+        // Map API fields to UI fields
+        const mappedShipments = (data.shipments || []).map((s: any) => {
+          // Status mapping format from API (e.g., in_transit -> In Transit)
+          const formatStatus = (st: string) => {
+            if (st === "cancelled") return "Failed";
+            return st.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+          };
+
+          return {
+            id: s.awb_number || s.shipment_id, // UI uses SR123 AWB typically
+            courier: s.courier_name || s.courier_id,
+            status: formatStatus(s.status),
+            price: s.total_paise / 100,
+            date: new Date(s.created_at || new Date()).toLocaleString('en-US', { day: '2-digit', month: 'short' })
+          };
+        });
+        
+        setShipments(mappedShipments);
+      } catch (err: any) {
+        console.error(err);
+        setError("Unable to load shipments");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDashboard();
+  }, [filter]);
+
+  const filteredShipments = shipments;
 
   return (
     <div className="min-h-screen bg-[#f7f9fb] flex flex-col">
@@ -133,8 +160,21 @@ export default function UserDashboard() {
              </div>
 
              {/* Shipment Table/List */}
-             <div className="flex-1 w-full overflow-x-auto">
-               {filteredShipments.length > 0 ? (
+             <div className="flex-1 w-full overflow-x-auto relative min-h-[300px]">
+               {loading ? (
+                 <div className="absolute inset-0 z-10 bg-white/50 flex flex-col items-center justify-center">
+                   <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin mb-4" />
+                   <div className="text-muted-foreground font-semibold">Loading shipments...</div>
+                 </div>
+               ) : null}
+               
+               {error && !loading ? (
+                 <div className="flex flex-col items-center justify-center py-24 text-center px-4">
+                   <div className="text-red-500 mb-2">❌</div>
+                   <h3 className="font-heading font-bold text-xl text-foreground mb-2">{error}</h3>
+                   <Button onClick={() => setFilter("All")} variant="outline" className="mt-4">Try Again</Button>
+                 </div>
+               ) : shipments.length > 0 ? (
                  <table className="w-full text-left min-w-[700px]">
                    <thead className="bg-muted/30 border-b border-border/80">
                      <tr>

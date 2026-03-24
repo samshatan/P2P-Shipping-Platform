@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 // Import all pages
 import LandingPage from './app/page';
@@ -47,17 +48,17 @@ function App() {
             
             <Route path="/compare" element={<CourierSelection />} />
             
-            <Route path="/book/address" element={<AddressInput />} />
-            <Route path="/book/courier" element={<CourierSelection />} />
-            <Route path="/book/evidence" element={<EvidenceVault />} />
-            <Route path="/book/review" element={<ReviewAndPay />} />
-            <Route path="/book/confirmed" element={<ConfirmedPage />} />
-            <Route path="/book/confirmed/:awb" element={<ConfirmedPage />} />
+            <Route path="/book/address" element={<ProtectedRoute><AddressInput /></ProtectedRoute>} />
+            <Route path="/book/courier" element={<ProtectedRoute><CourierSelection /></ProtectedRoute>} />
+            <Route path="/book/evidence" element={<ProtectedRoute><EvidenceVault /></ProtectedRoute>} />
+            <Route path="/book/review" element={<ProtectedRoute><ReviewAndPay /></ProtectedRoute>} />
+            <Route path="/book/confirmed" element={<ProtectedRoute><ConfirmedPage /></ProtectedRoute>} />
+            <Route path="/book/confirmed/:awb" element={<ProtectedRoute><ConfirmedPage /></ProtectedRoute>} />
             
-            <Route path="/dashboard" element={<UserDashboard />} />
-            <Route path="/shipments" element={<ShipmentsPage />} />
-            <Route path="/track/:awb" element={<TrackingPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
+            <Route path="/shipments" element={<ProtectedRoute><ShipmentsPage /></ProtectedRoute>} />
+            <Route path="/track/:awb" element={<ProtectedRoute><TrackingPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             
             <Route path="/cod-returns" element={<CashOnDeliveryPortal />} />
             <Route path="/international" element={<InternationalBooking />} />

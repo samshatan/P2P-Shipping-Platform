@@ -7,7 +7,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getTracking } from "@/lib/api";
 
 import { AnimatedTimeline } from "@/components/features/AnimatedTimeline";
 
@@ -16,22 +17,53 @@ export default function TrackingPage() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [trackingData, setTrackingData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const awb = params.awb || "AWB123456789IN";
+
+  const fetchTracking = async () => {
+    try {
+      setIsRefreshing(true);
+      setError(null);
+      const data = await getTracking(awb);
+      setTrackingData(data);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Invalid Tracking ID");
+    } finally {
+      setIsRefreshing(false);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTracking();
+  }, [awb]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(awb);
     showToast("AWB Copied to clipboard!", "success");
   };
 
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      setIsRefreshing(false);
-      showToast("Tracking status updated!", "success");
-    }, 1000);
+  const handleRefresh = async () => {
+    await fetchTracking();
+    showToast("Tracking status updated!", "success");
   };
 
-  if (awb.length < 5 || awb.toUpperCase() === "INVALID") {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f7f9fb] flex flex-col items-center justify-center">
+        <Navbar />
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-full bg-primary animate-pulse" />
+          <div className="text-xl font-heading font-bold text-muted-foreground">Loading tracking data...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !trackingData) {
     return (
       <div className="min-h-screen bg-[#f7f9fb] flex flex-col">
         <Navbar />
@@ -41,7 +73,7 @@ export default function TrackingPage() {
                 <span className="text-4xl">❌</span>
              </div>
              <h1 className="font-heading font-bold text-2xl mb-2">Invalid Tracking ID</h1>
-             <p className="text-muted-foreground mb-8">Please check your AWB number and try again.</p>
+             <p className="text-muted-foreground mb-8">{error || "Please check your AWB number and try again."}</p>
              <Button onClick={() => navigate('/track')} className="w-full h-12 bg-foreground text-white rounded-xl hover:bg-foreground/90 transition-colors">Go Back</Button>
           </div>
         </main>
@@ -49,14 +81,27 @@ export default function TrackingPage() {
     );
   }
 
-  const currentStatus = "Out for Delivery"; // Mock status for alignment
-
-  const events = [
-    { id: 1, title: "Pickup Completed", location: "Mumbai", date: "24 Oct, 10:30 AM", status: "completed", past: true },
-    { id: 2, title: "In Transit", location: "Mumbai Hub", date: "25 Oct, 06:10 AM", status: "completed", past: true },
-    { id: 3, title: "Out for Delivery", location: "Delhi Delivery Center", date: "26 Oct, 10:32 AM", status: "active", past: false },
-    { id: 4, title: "Delivered", location: "Delhi", date: "Pending", status: "upcoming", past: false },
-  ];
+  const currentStatus = trackingData.current_status.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+  
+  // Map API events to UI events
+  const events = trackingData.events.map((ev: any, index: number) => {
+    const isCompleted = new Date(ev.timestamp) < new Date();
+    const isActive = index === 0; // Assuming newest event is first
+    
+    return {
+      id: index,
+      title: ev.status.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
+      location: ev.location,
+      date: new Date(ev.timestamp).toLocaleString('en-US', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
+      status: isCompleted ? "completed" : (isActive ? "active" : "upcoming"),
+      past: isCompleted && !isActive
+    };
+  });
+  
+  // Format dates
+  const officialEtaObj = new Date(trackingData.official_eta);
+  const aiEtaObj = trackingData.ai_eta ? new Date(trackingData.ai_eta) : officialEtaObj;
+  const etaFormatted = officialEtaObj.toLocaleString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
 
   return (
     <div className="min-h-screen bg-[#f7f9fb] flex flex-col">
@@ -75,7 +120,7 @@ export default function TrackingPage() {
                   <h1 className="text-3xl sm:text-4xl font-heading font-extrabold text-foreground tracking-tight uppercase">
                     🚚 {currentStatus}
                   </h1>
-                  <p className="text-lg text-primary font-bold mt-1">Expected Today by 6 PM</p>
+                  <p className="text-lg text-primary font-bold mt-1">Expected {etaFormatted}</p>
                 </div>
               </div>
             </div>
@@ -105,8 +150,8 @@ export default function TrackingPage() {
                   </div>
                   <div>
                      <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">📍 Current Location</p>
-                     <h3 className="font-heading font-bold text-lg text-blue-950 mb-0.5">Hub — Delhi Sorting Center</h3>
-                     <p className="text-sm font-medium text-blue-700/70">Last updated: 10:32 AM</p>
+                     <h3 className="font-heading font-bold text-lg text-blue-950 mb-0.5">{trackingData.current_location}</h3>
+                     <p className="text-sm font-medium text-blue-700/70">Last updated: {events[0]?.date.split(",")[1] || "Just now"}</p>
                   </div>
                </div>
 
@@ -165,19 +210,19 @@ export default function TrackingPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-2 border-b border-border/40">
                     <span className="text-sm font-medium text-muted-foreground">Courier</span>
-                    <span className="text-sm font-bold text-foreground">Delhivery</span>
+                    <span className="text-sm font-bold text-foreground">{trackingData.courier}</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-border/40">
                     <span className="text-sm font-medium text-muted-foreground">AWB</span>
-                    <span className="text-sm font-bold text-foreground font-mono">{awb}</span>
+                    <span className="text-sm font-bold text-foreground font-mono">{trackingData.awb}</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-border/40">
                     <span className="text-sm font-medium text-muted-foreground">Pickup Date</span>
-                    <span className="text-sm font-bold text-foreground">24 Oct, 2026</span>
+                    <span className="text-sm font-bold text-foreground">{events[events.length - 1]?.date.split(",")[0] || "N/A"}</span>
                   </div>
                   <div className="flex justify-between items-center py-2">
                     <span className="text-sm font-medium text-muted-foreground">Estimated Delivery</span>
-                    <span className="text-sm font-bold text-primary">Today by 6 PM</span>
+                    <span className="text-sm font-bold text-primary">{etaFormatted}</span>
                   </div>
                 </div>
               </Card>
@@ -187,8 +232,8 @@ export default function TrackingPage() {
                 <div className="flex items-start gap-3 mt-4">
                    <Calendar className="w-5 h-5 text-emerald-600 mt-0.5" />
                    <div>
-                     <p className="text-sm font-semibold text-emerald-800">Delivery expected on Sat, 26th Oct</p>
-                     <p className="text-xs text-emerald-700 mt-1">100% on-time performance for this route by Delhivery this week.</p>
+                     <p className="text-sm font-semibold text-emerald-800">Delivery expected on {aiEtaObj.toLocaleString('en-US', { weekday: 'short', day: 'numeric', month: 'short' })}</p>
+                     <p className="text-xs text-emerald-700 mt-1">Based on AI prediction from {trackingData.courier} historical shipments.</p>
                    </div>
                 </div>
               </Card>

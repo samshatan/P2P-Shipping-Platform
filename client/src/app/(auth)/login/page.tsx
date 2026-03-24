@@ -1,14 +1,98 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Package, Smartphone, Mail } from "lucide-react";
+import { Package, Smartphone, Mail, Loader2, AlertCircle } from "lucide-react";
+import { loginUser, verifyOtp as verifyOtpApi } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const { showToast } = useToast();
+  
   const [timer, setTimer] = useState(45);
   const [otpSent, setOtpSent] = useState(false);
   const [activeTab, setActiveTab] = useState<"mobile" | "email">("mobile");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let interval: any;
+    if (otpSent && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [otpSent, timer]);
+
+  const handleSendOtp = async () => {
+    if (phone.length !== 10) {
+      setError("Please enter a valid 10-digit phone number");
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+    try {
+      await loginUser(phone);
+      setOtpSent(true);
+      setTimer(45);
+      showToast("OTP sent successfully", "success");
+    } catch (err: any) {
+      setError(err.message || "Failed to send OTP. Please try again.");
+      showToast("Failed to send OTP", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const otpString = otp.join("");
+    if (otpString.length !== 6) {
+      setError("Please enter the 6-digit OTP");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await verifyOtpApi(phone, otpString);
+      login(data.access_token);
+      showToast("Logged in successfully", "success");
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err.message || "Invalid OTP. Please try again.");
+      showToast("Invalid OTP", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Auto focus next input
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+      nextInput?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      prevInput?.focus();
+    }
+  };
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -154,6 +238,11 @@ export default function LoginPage() {
                 {!otpSent ? (
                   <>
                     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      {error && (
+                        <div className="flex items-center gap-2 text-red-500 text-xs font-bold bg-red-50 p-3 rounded-lg border border-red-100 mb-2">
+                          <AlertCircle className="w-4 h-4" /> {error}
+                        </div>
+                      )}
                       <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Mobile Number</Label>
                       <div style={{ position: "relative", width: "100%" }}>
                         <span style={{
@@ -170,6 +259,8 @@ export default function LoginPage() {
                           placeholder="98765 43210"
                           type="tel"
                           maxLength={10}
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
                           style={{ ...inputStyle, paddingLeft: "52px" }}
                           onFocus={inputFocusHandler}
                           onBlur={inputBlurHandler}
@@ -178,9 +269,10 @@ export default function LoginPage() {
                     </div>
                     <Button
                       className="w-full h-12 text-base font-semibold bg-foreground hover:bg-foreground/90 text-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5"
-                      onClick={() => setOtpSent(true)}
+                      onClick={handleSendOtp}
+                      disabled={isLoading}
                     >
-                      Send OTP
+                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send OTP"}
                     </Button>
                   </>
                 ) : (
@@ -188,13 +280,24 @@ export default function LoginPage() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Enter 6-digit OTP</Label>
-                        <button onClick={() => setOtpSent(false)} className="text-xs text-primary font-semibold hover:underline" style={{ background: "none", border: "none", cursor: "pointer" }}>Change Number</button>
+                        <button onClick={() => { setOtpSent(false); setError(null); }} className="text-xs text-primary font-semibold hover:underline" style={{ background: "none", border: "none", cursor: "pointer" }}>Change Number</button>
                       </div>
+                      
+                      {error && (
+                        <div className="flex items-center gap-2 text-red-500 text-xs font-bold bg-red-50 p-3 rounded-lg border border-red-100 mb-2">
+                          <AlertCircle className="w-4 h-4" /> {error}
+                        </div>
+                      )}
+
                       <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
-                        {[1,2,3,4,5,6].map(i => (
+                        {otp.map((digit, i) => (
                           <input
                             key={i}
+                            id={`otp-${i}`}
                             maxLength={1}
+                            value={digit}
+                            onChange={(e) => handleOtpChange(i, e.target.value)}
+                            onKeyDown={(e) => handleKeyDown(i, e)}
                             style={otpInputStyle}
                             onFocus={inputFocusHandler}
                             onBlur={inputBlurHandler}
@@ -202,11 +305,19 @@ export default function LoginPage() {
                         ))}
                       </div>
                       <p style={{ fontSize: "14px", color: "#6b7280", textAlign: "center", marginTop: "8px" }}>
-                        Resend code in <span style={{ fontWeight: 600, color: "#1a1a1a" }}>00:{timer < 10 ? `0${timer}` : timer}</span>
+                        {timer > 0 ? (
+                          <>Resend code in <span style={{ fontWeight: 600, color: "#1a1a1a" }}>00:{timer < 10 ? `0${timer}` : timer}</span></>
+                        ) : (
+                          <button onClick={handleSendOtp} className="text-primary font-bold hover:underline">Resend OTP Now</button>
+                        )}
                       </p>
                     </div>
-                    <Button onClick={() => navigate('/')} className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/25 transition-all">
-                      Verify & Log In
+                    <Button 
+                      onClick={handleVerifyOtp} 
+                      disabled={isLoading}
+                      className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/25 transition-all"
+                    >
+                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify & Log In"}
                     </Button>
                   </div>
                 )}

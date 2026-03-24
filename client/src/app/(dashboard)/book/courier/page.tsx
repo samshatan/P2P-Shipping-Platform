@@ -11,37 +11,60 @@ import { MOCK_COURIERS } from "@/lib/mockData";
 import { AiRecommendationCard } from "@/components/features/AiRecommendationCard";
 import { SavingsBanner } from "@/components/features/SavingsBanner";
 import { useToast } from "@/context/ToastContext";
+import { getCourierRates } from "@/lib/api";
+import { useBooking } from "@/context/BookingContext";
 
 export default function CourierSelection() {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { selectedCourier, setCourier, pickup: bPickup, delivery: bDelivery, packageDetails: bPackage } = useBooking();
   const [rates, setRates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("ALL");
   const [sort, setSort] = useState("PRICE");
-  const [selectedRateId, setSelectedRateId] = useState<number | string | null>(null);
+
+  const selectedRateId = selectedCourier?.id || null;
 
   useEffect(() => {
-    // Adapt MOCK_COURIERS to the expected structure
-    const adaptedRates = MOCK_COURIERS.map(c => ({
-      ...c,
-      etaDays: parseInt(c.days.split('-')[0]) || 3, // Extract first day from "3-4"
-      actualAvgDays: parseInt(c.actual.replace('~', '').split(' ')[0]) || 5, // Extract from "~5 days"
-      pickupWindow: "Today, 4 PM - 6 PM",
-      codAvailable: c.cod,
-      tags: c.tag ? [c.tag] : []
-    }));
+    async function fetchRates() {
+      try {
+        setLoading(true);
+        setError(null);
+        // Hardcoded payload since we don't have form inputs here in CourierSelection
+        // In real app, these come from previous step
+        const payload = {
+          pickup: bPickup.pincode || "110001",
+          delivery: bDelivery.pincode || "400001",
+          weight: Math.round(parseFloat(bPackage.weight || "1.5") * 1000), // weight in grams
+          is_cod: false
+        };
+        const data = await getCourierRates(payload);
+        
+        const adaptedRates = data.couriers.map((c: any) => ({
+          id: c.courier_id,
+          name: c.courier_name,
+          logo: c.logo_url,
+          price: c.price_paise / 100, // paise to rupees
+          etaDays: c.official_eta_days,
+          actualAvgDays: c.ai_eta_days,
+          pickupWindow: `Within ${c.pickup_sla_hours} hours`,
+          codAvailable: c.cod_available,
+          rating: c.rating,
+          tags: c.tags || []
+        }));
 
-    // Simulate loading for better UX
-    const timer = setTimeout(() => {
-      setRates(adaptedRates);
-      // Set cheapest as default selected
-      const cheapest = [...adaptedRates].sort((a, b) => a.price - b.price)[0];
-      if (cheapest) setSelectedRateId(cheapest.id);
-      setLoading(false);
-    }, 1500);
-    
-    return () => clearTimeout(timer);
+        setRates(adaptedRates);
+        const cheapest = [...adaptedRates].sort((a, b) => a.price - b.price)[0];
+        if (cheapest && !selectedCourier) setCourier(cheapest);
+      } catch (err: any) {
+        console.error(err);
+        setError("Unable to fetch courier rates");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRates();
   }, []);
 
   const filters = ["ALL", "COD AVAILABLE", "SAME DAY", "UNDER ₹100"];
@@ -74,11 +97,17 @@ export default function CourierSelection() {
       {/* Left: Rate Engine */}
       <div className="flex-1 max-w-4xl space-y-6 mt-8">
         
-        {!loading && rates.length > 0 && (
+        {!loading && !error && rates.length > 0 && (
           <>
             <AiRecommendationCard rates={rates} />
             <SavingsBanner selectedPrice={selectedRate?.price} />
           </>
+        )}
+
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 text-sm font-semibold mb-6 flex items-center">
+            <Info className="w-5 h-5 mr-2" /> {error}
+          </div>
         )}
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-border">
@@ -148,7 +177,7 @@ export default function CourierSelection() {
             ) : finalRates.map((rate, idx) => (
               <Card 
                 key={rate.id} 
-                onClick={() => setSelectedRateId(rate.id)}
+                onClick={() => setCourier(rate)}
                 className={cn(
                   "bg-white border p-6 rounded-2xl transition-all duration-300 group cursor-pointer relative", 
                   selectedRateId === rate.id ? "border-primary ring-2 ring-primary/20 shadow-md scale-[1.01]" : "border-border shadow-sm hover:shadow-lg hover:border-primary/40 hover:scale-[1.01]",
@@ -217,7 +246,7 @@ export default function CourierSelection() {
                       </div>
                       <Button onClick={() => {
                         showToast("Courier Selected", "success");
-                        localStorage.setItem('selectedCourier', JSON.stringify(rate));
+                        setCourier(rate);
                         navigate('/book/address');
                       }} className="bg-primary hover:bg-primary/90 text-white px-6 font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95">
                         Select
@@ -285,7 +314,7 @@ export default function CourierSelection() {
                   <div className="w-5 h-5 rounded-full bg-background border-2 border-tertiary flex-shrink-0 z-10 mt-0.5"></div>
                   <div>
                     <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-0.5">Pickup</p>
-                    <p className="text-sm font-semibold text-foreground">400001 • Mumbai</p>
+                    <p className="text-sm font-semibold text-foreground">{bPickup.pincode} • {bPickup.name || 'Mumbai'}</p>
                   </div>
                 </div>
 
@@ -293,7 +322,7 @@ export default function CourierSelection() {
                   <div className="w-5 h-5 rounded-full bg-primary flex flex-shrink-0 z-10 mt-0.5"></div>
                   <div>
                     <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-0.5">Delivery</p>
-                    <p className="text-sm font-semibold text-foreground">110001 • New Delhi</p>
+                    <p className="text-sm font-semibold text-foreground">{bDelivery.pincode} • {bDelivery.name || 'New Delhi'}</p>
                   </div>
                 </div>
               </div>
@@ -301,7 +330,7 @@ export default function CourierSelection() {
               <div className="mt-6 pt-4 border-t border-border/50 space-y-2">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground font-medium">Weight</span>
-                  <span className="font-semibold">1.5 kg (Volumetric)</span>
+                  <span className="font-semibold">{bPackage.weight} kg (Volumetric)</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground font-medium">Parcel Type</span>
@@ -363,7 +392,6 @@ export default function CourierSelection() {
               <Button 
                 onClick={() => {
                   showToast("Courier Selected", "success");
-                  localStorage.setItem('selectedCourier', JSON.stringify(selectedRate));
                   navigate('/book/address');
                 }} 
                 className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-8 py-6 font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95 text-base sm:text-lg shrink-0"
