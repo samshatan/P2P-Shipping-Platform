@@ -34,9 +34,9 @@ export default function Home() {
               </Badge>
               
               <h1 className="font-heading font-extrabold text-5xl sm:text-6xl md:text-7xl leading-[1.1] text-foreground tracking-tight">
-                Ship Anything, <br/>
+                Ship anything <br/>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">
-                  Anywhere in India.
+                  anywhere across the globe.
                 </span>
               </h1>
               
@@ -56,18 +56,8 @@ export default function Home() {
               {/* Trust Bar Inline */}
               <div className="flex items-center gap-6 mt-8 pt-8 border-t border-border/60">
                 <div>
-                  <div className="font-heading font-bold text-2xl text-foreground">1Cr+</div>
-                  <div className="text-sm text-muted-foreground font-medium">Shipments</div>
-                </div>
-                <div className="w-px h-8 bg-border/80"></div>
-                <div>
                   <div className="font-heading font-bold text-2xl text-foreground">27k+</div>
                   <div className="text-sm text-muted-foreground font-medium">Pincodes</div>
-                </div>
-                <div className="w-px h-8 bg-border/80"></div>
-                <div className="flex items-center gap-1">
-                  <div className="font-heading font-bold text-2xl text-foreground">4.8</div>
-                  <div className="text-yellow-500 text-xl">★</div>
                 </div>
               </div>
             </div>
