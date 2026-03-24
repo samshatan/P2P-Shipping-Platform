@@ -5,7 +5,7 @@ Read the full API contract at: `server/contracts/api-contracts.md`
 
 ---
 
-## 👥 Developer Assignments (Quick Reference)
+## 👥 Developer Assignments
 
 | Developer | Module | Endpoints |
 |---|---|---|
@@ -15,395 +15,164 @@ Read the full API contract at: `server/contracts/api-contracts.md`
 
 ---
 
+## ⚙️ Technology Stack
+
+| Layer | Technology | Why |
+|---|---|---|
+| **Runtime** | Node.js 20 | Same language as frontend, huge ecosystem |
+| **Framework** | Express.js | Lightweight, fast to set up |
+| **Language** | TypeScript | Type safety, matches frontend |
+| **ORM** | Prisma | Schema already exists in repo |
+| **Primary DB** | PostgreSQL | Relational data (users, shipments, payments) |
+| **Cache** | Redis | OTP storage, JWT sessions, rate limiting |
+| **File Storage** | MinIO (local) / AWS S3 (prod) | Evidence Vault uploads |
+| **Auth** | JWT | Access token (15 min) + Refresh token (7 days) |
+| **Payments** | Razorpay | Order creation + webhook |
+| **OTP SMS** | MSG91 | Send OTP to user's phone |
+| **KYC** | Digio API | Aadhaar eKYC verification |
+| **Email** | SendGrid | Booking receipts |
+
+All infrastructure (Postgres, Redis, MinIO, Kafka) is already defined in `server/docker-compose.yml`. Just run `docker compose up -d`.
+
+---
+
+## 📁 Folder Structure
+
+```
+server/
+├── src/
+│   ├── api/
+│   │   ├── auth/           → Dev 1
+│   │   ├── users/          → Dev 1
+│   │   ├── couriers/       → Dev 2
+│   │   ├── shipments/      → Dev 2
+│   │   ├── tracking/       → Dev 2
+│   │   ├── payments/       → Dev 3
+│   │   └── wallet/         → Dev 3
+│   ├── middleware/
+│   │   ├── auth.ts         → JWT verification (shared by all)
+│   │   └── errorHandler.ts
+│   ├── lib/
+│   │   ├── prisma.ts       → Prisma client
+│   │   ├── redis.ts        → Redis client
+│   │   └── razorpay.ts     → Razorpay client
+│   └── index.ts            → Server entry point (port 3001)
+├── prisma/
+│   └── schema.prisma
+└── .env
+```
+
+---
+
 # 📅 WEEK 1 — Foundation & Core Auth
 
-**Goal by end of week:** Server is running, database is connected, OTP login works end-to-end, and the frontend can log in against the real backend.
+**Goal:** Server is running, database connected, OTP login works end-to-end, frontend can log in against the real backend.
 
 ---
 
-## Day 1 — Project Setup (ALL 3 DEVS together, ~3 hours)
+## Day 1 — Project Setup (ALL 3 DEVS together)
 
-Everyone does this together on one machine first, then pulls the code.
+**What to do:**
+- Initialize the Node.js + TypeScript + Express project inside `server/`
+- Install all dependencies: `express`, `prisma`, `ioredis`, `jsonwebtoken`, `bcryptjs`, `cors`, `helmet`, `dotenv`
+- Configure `tsconfig.json` for TypeScript
+- Set up `nodemon` or `ts-node-dev` for auto-restart on file changes
+- Run `docker compose up -d` to start PostgreSQL and Redis
+- Run `npx prisma migrate dev` to create all database tables from the schema
+- Create a `GET /health` endpoint that returns `{ status: "ok" }`
 
-### Step 1: Initialize the server
-```bash
-cd server
-npm init -y
-npm install express cors dotenv helmet morgan
-npm install prisma @prisma/client
-npm install redis ioredis
-npm install jsonwebtoken bcryptjs
-npm install multer uuid
-npm install -D typescript ts-node-dev @types/express @types/node @types/jsonwebtoken @types/bcryptjs @types/multer @types/cors
-npx tsc --init
-```
-
-### Step 2: Create `tsconfig.json`
-```json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
-  }
-}
-```
-
-### Step 3: Create `package.json` scripts
-```json
-"scripts": {
-  "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-  "build": "tsc",
-  "start": "node dist/index.js"
-}
-```
-
-### Step 4: Create `src/index.ts`
-```typescript
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 3001;
-
-app.use(helmet());
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
-app.use(express.json());
-app.use(morgan('dev'));
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
-```
-
-### Step 5: Start Docker and run Prisma migrations
-```bash
-docker compose up -d
-npx prisma migrate dev --name init
-npx prisma generate
-```
-
-### Step 6: Create `src/lib/prisma.ts`
-```typescript
-import { PrismaClient } from '@prisma/client';
-
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
-
-export const prisma = globalForPrisma.prisma || new PrismaClient({ log: ['query'] });
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-```
-
-### Step 7: Create `src/lib/redis.ts`
-```typescript
-import Redis from 'ioredis';
-
-export const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
-
-redis.on('connect', () => console.log('✅ Redis connected'));
-redis.on('error', (err) => console.error('❌ Redis error:', err));
-```
-
-**✅ Day 1 Checkpoint:** `npm run dev` → server starts → `GET http://localhost:3001/health` returns `{ "status": "ok" }`
+**✅ Checkpoint:** Server starts on port 3001. Hitting `/health` returns success response.
 
 ---
 
-## Day 2 — Auth: Send OTP (DEV 1)
+## Day 2 — Send OTP Endpoint (DEV 1)
 
-Build `POST /auth/send-otp`.
+**What to build:** `POST /auth/send-otp`
 
-### Create `src/api/auth/auth.router.ts`
-```typescript
-import { Router } from 'express';
-import { sendOtp, verifyOtp } from './auth.controller';
+**Logic:**
+1. Receive phone number in request body
+2. Validate it is exactly 10 digits
+3. Generate a random 6-digit OTP
+4. Store the OTP in Redis with a **5-minute expiry** using key `otp:{phone}`
+5. For now, just `console.log` the OTP instead of calling MSG91 (real SMS comes in Week 2)
+6. Return success response with `expires_in: 300`
 
-const router = Router();
-router.post('/send-otp', sendOtp);
-router.post('/verify-otp', verifyOtp);
-
-export default router;
-```
-
-### Create `src/api/auth/auth.controller.ts`
-```typescript
-import { Request, Response } from 'express';
-import { redis } from '../../lib/redis';
-import { prisma } from '../../lib/prisma';
-
-export const sendOtp = async (req: Request, res: Response) => {
-  try {
-    const { phone } = req.body;
-
-    if (!phone || phone.length !== 10) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Phone must be 10 digits' }
-      });
-    }
-
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Store in Redis with 5 minute expiry
-    await redis.set(`otp:${phone}`, otp, 'EX', 300);
-
-    // TODO Week 2: Replace this with real MSG91 API call
-    console.log(`📱 OTP for ${phone}: ${otp}`);
-
-    return res.json({
-      success: true,
-      data: { message: 'OTP sent successfully', expires_in: 300 }
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: { message: 'Internal server error' } });
-  }
-};
-```
-
-### Register router in `src/index.ts`
-```typescript
-import authRouter from './api/auth/auth.router';
-app.use('/auth', authRouter);
-```
-
-**✅ Day 2 Checkpoint:** `POST /auth/send-otp` with `{ "phone": "9876543210" }` → OTP printed in terminal → Redis stores it
+**✅ Checkpoint:** Send a phone number → OTP printed in terminal → OTP visible in Redis.
 
 ---
 
-## Day 3 — Auth: Verify OTP + JWT (DEV 1)
+## Day 3 — Verify OTP + JWT + Auth Middleware (DEV 1)
 
-Build `POST /auth/verify-otp` and the shared `authMiddleware`.
+**What to build:** `POST /auth/verify-otp` + shared `authMiddleware`
 
-### Add `verifyOtp` to `auth.controller.ts`
-```typescript
-import jwt from 'jsonwebtoken';
+**Logic for verify-otp:**
+1. Receive phone + OTP in request body
+2. Look up OTP from Redis using key `otp:{phone}`
+3. If not found or doesn't match → return `401 INVALID_OTP`
+4. Delete the OTP from Redis immediately (one-time use)
+5. Find the user in the database. If not found, create a new user record
+6. Sign a JWT Access Token (15 min expiry) and Refresh Token (7 day expiry)
+7. Return both tokens + `user_id` + `is_new_user` flag
 
-export const verifyOtp = async (req: Request, res: Response) => {
-  try {
-    const { phone, otp } = req.body;
+**Logic for authMiddleware:**
+1. Read the `Authorization: Bearer <token>` header from every request
+2. If missing → return `401 UNAUTHORIZED`
+3. Verify the JWT signature using `JWT_SECRET`
+4. If expired → return `401 TOKEN_EXPIRED`
+5. Attach decoded user info (`userId`, `phone`, `role`) to the request object
+6. Call `next()` to continue
 
-    // Check OTP from Redis
-    const storedOtp = await redis.get(`otp:${phone}`);
-
-    if (!storedOtp || storedOtp !== otp) {
-      return res.status(401).json({
-        success: false,
-        error: { code: 'INVALID_OTP', message: 'Invalid or expired OTP' }
-      });
-    }
-
-    // Delete OTP after successful verification (one-time use)
-    await redis.del(`otp:${phone}`);
-
-    // Find or create user in DB
-    let user = await prisma.user.findUnique({ where: { phone } });
-    const isNewUser = !user;
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: { phone, role: 'USER', kycStatus: 'PENDING' }
-      });
-    }
-
-    // Generate JWT tokens
-    const accessToken = jwt.sign(
-      { userId: user.id, phone: user.phone, role: user.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: '15m' }
-    );
-
-    const refreshToken = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_REFRESH_SECRET!,
-      { expiresIn: '7d' }
-    );
-
-    return res.json({
-      success: true,
-      data: {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        user_id: user.id,
-        is_new_user: isNewUser
-      }
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: { message: 'Internal server error' } });
-  }
-};
-```
-
-### Create `src/middleware/auth.ts`
-```typescript
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-
-export interface AuthRequest extends Request {
-  user?: { userId: string; phone: string; role: string };
-}
-
-export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({
-      success: false,
-      error: { code: 'UNAUTHORIZED', message: 'No token provided' }
-    });
-  }
-
-  const token = authHeader.split(' ')[1];
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      success: false,
-      error: { code: 'TOKEN_EXPIRED', message: 'Token is invalid or expired' }
-    });
-  }
-};
-```
-
-**✅ Day 3 Checkpoint:** Full auth flow works in Postman: send OTP → verify → receive JWT → use JWT on protected test route
+**✅ Checkpoint:** Full auth flow works in Postman. Send OTP → verify → receive JWT → use JWT on a protected test route.
 
 ---
 
-## Day 4 — Courier Rates (DEV 2) + Razorpay Order (DEV 3)
+## Day 4 — Fake Courier Rates (DEV 2) + Razorpay Setup (DEV 3)
 
-### DEV 2: Build `GET /couriers/rates` with fake data
+### DEV 2: `GET /couriers/rates`
 
-```typescript
-// src/api/couriers/couriers.controller.ts
-import { Request, Response } from 'express';
+**What to build:** Return hardcoded fake courier data (real Delhivery API call comes in Week 2)
 
-export const getRates = async (req: Request, res: Response) => {
-  const { pickup, delivery, weight } = req.query;
+**Query params to accept:** `pickup`, `delivery`, `weight` (in grams)
 
-  // Validate inputs
-  if (!pickup || !delivery || !weight) {
-    return res.status(400).json({
-      success: false,
-      error: { code: 'VALIDATION_ERROR', message: 'pickup, delivery, and weight are required' }
-    });
-  }
+**Response must match `api-contracts.md` format exactly:**
+- `courier_id`, `courier_name`, `price_paise`, `official_eta_days`, `ai_eta_days`, `cod_available`, `rating`, `is_sponsored`, `tags`
 
-  // TODO Week 2: Replace with real Delhivery API call
-  const fakeCouriers = [
-    {
-      courier_id: 'delhivery',
-      courier_name: 'Delhivery',
-      price_paise: 8900,
-      official_eta_days: 3,
-      ai_eta_days: 4,
-      cod_available: true,
-      rating: 4.2,
-      is_sponsored: true,
-      tags: ['fastest']
-    },
-    {
-      courier_id: 'dtdc',
-      courier_name: 'DTDC',
-      price_paise: 7500,
-      official_eta_days: 4,
-      ai_eta_days: 5,
-      cod_available: true,
-      rating: 3.8,
-      is_sponsored: false,
-      tags: ['cheapest']
-    }
-  ];
+**✅ Checkpoint:** `GET /couriers/rates?pickup=110001&delivery=400001&weight=1500` returns a list of 2–3 fake couriers.
 
-  return res.json({ success: true, data: { couriers: fakeCouriers } });
-};
-```
+### DEV 3: `POST /payments/initiate`
 
-### DEV 3: Install Razorpay and create test order
+**What to build:** Create a Razorpay test order
 
-```bash
-npm install razorpay
-npm install -D @types/razorpay
-```
+**Logic:**
+1. Receive `amount_paise` and `shipment_id` in request body
+2. Call Razorpay `orders.create()` with the amount **in paise**
+3. Return `order_id`, `amount_paise`, `razorpay_key`, `currency: "INR"`
 
-```typescript
-// src/lib/razorpay.ts
-import Razorpay from 'razorpay';
+**Important:** Sign up for a Razorpay test account. All payments in test mode use fake money.
 
-export const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-});
-```
-
-```typescript
-// src/api/payments/payments.controller.ts
-import { Request, Response } from 'express';
-import { razorpay } from '../../lib/razorpay';
-import { AuthRequest } from '../../middleware/auth';
-
-export const initiatePayment = async (req: AuthRequest, res: Response) => {
-  try {
-    const { amount_paise, shipment_id } = req.body;
-
-    const order = await razorpay.orders.create({
-      amount: amount_paise,  // Must be in PAISE
-      currency: 'INR',
-      receipt: `receipt_${shipment_id}`,
-      notes: { shipment_id, user_id: req.user!.userId }
-    });
-
-    return res.json({
-      success: true,
-      data: {
-        order_id: order.id,
-        amount_paise: order.amount,
-        razorpay_key: process.env.RAZORPAY_KEY_ID,
-        currency: 'INR'
-      }
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: { message: 'Payment initiation failed' } });
-  }
-};
-```
-
-**✅ Day 4 Checkpoint:** `GET /couriers/rates?pickup=110001&delivery=400001&weight=1500` returns fake rates. `POST /payments/initiate` returns a real Razorpay test order ID.
+**✅ Checkpoint:** `POST /payments/initiate` returns a real Razorpay order ID in test mode.
 
 ---
 
-## Day 5 — Integration Test with Frontend (ALL 3 DEVS)
+## Day 5 — Frontend Integration Test (ALL 3 DEVS)
 
-- Update `client/.env.local`: `VITE_API_URL=http://localhost:3001`
-- Open the frontend and go through login flow — should hit the real server
-- Fix CORS issues if any
-- Verify auth token is being sent in the Network tab in DevTools
-- Verify courier rates page shows real (fake) data from the server
+**What to do:**
+- Update `client/.env.local`: set `VITE_API_URL=http://localhost:3001`
+- Open the frontend and go through the login flow — it should now hit the real backend
+- Open browser DevTools → Network tab and verify the JWT token is being sent in `Authorization` header
+- Verify the courier rates page shows real (fake) data from the server response
+- Fix any CORS errors that appear (add the frontend origin to the server's CORS config)
 
 **✅ Week 1 Final Checklist:**
 ```
-[ ] Server runs on port 3001
+[ ] Server runs on port 3001 with no errors
 [ ] All DB tables created (prisma migrate ran successfully)
 [ ] POST /auth/send-otp → stores OTP in Redis, prints to console
-[ ] POST /auth/verify-otp → returns valid JWT
+[ ] POST /auth/verify-otp → returns valid JWT access + refresh token
 [ ] authMiddleware blocks requests without Authorization header
-[ ] GET /couriers/rates → returns fake data in correct format
+[ ] GET /couriers/rates → returns fake data in correct api-contracts format
 [ ] POST /payments/initiate → creates real Razorpay test order
-[ ] Frontend login works against real backend
+[ ] Frontend login works against real backend (not MSW)
 [ ] No CORS errors in browser DevTools
 ```
 
@@ -411,290 +180,142 @@ export const initiatePayment = async (req: AuthRequest, res: Response) => {
 
 # 📅 WEEK 2 — Core Business Logic
 
-**Goal by end of week:** A user can log in, select a courier, create a shipment, complete a payment, and see their tracking events — all with real data.
+**Goal:** A user can log in, select a courier, create a shipment, complete a payment, and see their tracking events — all with real data in the database.
 
 ---
 
-## Day 6 — User Profile + MSG91 Real OTP (DEV 1)
+## Day 6 — User Profile + Real OTP SMS (DEV 1)
 
-### Build `GET /users/profile` and `PUT /users/profile`
+**What to build:** `GET /users/profile`, `PUT /users/profile`
 
-```typescript
-// src/api/users/users.controller.ts
-import { Response } from 'express';
-import { prisma } from '../../lib/prisma';
-import { AuthRequest } from '../../middleware/auth';
+**GET /users/profile logic:**
+1. Use the `userId` from the JWT (already decoded by `authMiddleware`)
+2. Look up the user in the database by ID
+3. Return: `user_id`, `name`, `phone`, `email`, `kyc_status`, `wallet_balance`, `referral_code`, `role`
 
-export const getProfile = async (req: AuthRequest, res: Response) => {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.user!.userId }
-    });
+**PUT /users/profile logic:**
+1. Accept `name` and `email` in request body
+2. Update the user record in the database
+3. Return success message
 
-    if (!user) {
-      return res.status(404).json({ success: false, error: { message: 'User not found' } });
-    }
+**Replace fake OTP with real MSG91 call:**
+- Read MSG91 documentation at `https://docs.msg91.com`
+- Create a function in `src/lib/msg91.ts` that calls their OTP API with the phone number and OTP
+- Replace the `console.log` in `send-otp` controller with this function
 
-    return res.json({
-      success: true,
-      data: {
-        user_id: user.id,
-        name: user.name,
-        phone: user.phone,
-        email: user.email,
-        kyc_status: user.kycStatus,
-        wallet_balance: user.walletBalance,
-        referral_code: user.referralCode,
-        role: user.role
-      }
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: { message: 'Internal server error' } });
-  }
-};
-
-export const updateProfile = async (req: AuthRequest, res: Response) => {
-  try {
-    const { name, email } = req.body;
-
-    const user = await prisma.user.update({
-      where: { id: req.user!.userId },
-      data: { name, email }
-    });
-
-    return res.json({ success: true, data: { message: 'Profile updated successfully' } });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: { message: 'Internal server error' } });
-  }
-};
-```
-
-### Replace console.log OTP with real MSG91 call
-
-```typescript
-// src/lib/msg91.ts
-export const sendOtpSms = async (phone: string, otp: string): Promise<void> => {
-  const url = `https://api.msg91.com/api/v5/otp`;
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'authkey': process.env.MSG91_AUTH_KEY! },
-    body: JSON.stringify({
-      template_id: process.env.MSG91_TEMPLATE_ID,
-      mobile: `91${phone}`,
-      otp
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to send OTP via MSG91');
-  }
-};
-```
-
-**✅ Day 6 Checkpoint:** Login → get JWT → `GET /users/profile` returns real user data. OTP is now delivered via real SMS.
+**✅ Checkpoint:** OTP delivered via real SMS. Profile endpoint returns real user data from DB.
 
 ---
 
-## Day 7 — Address Book (DEV 1) + Shipment Creation (DEV 2)
+## Day 7 — Address Book (DEV 1) + Create Shipment (DEV 2)
 
-### DEV 1: Build address endpoints (`GET`, `POST`, `PUT`, `DELETE /users/addresses`)
+### DEV 1: Build Address Book endpoints
 
-These are standard CRUD operations using Prisma.
-Note: Address is stored as a JSON string in the `Shipment` model. Create a separate address utility to serialize/deserialize it.
+**Endpoints:** `GET`, `POST`, `PUT`, `DELETE /users/addresses`
+
+All require the `authMiddleware`. Store addresses in the database linked to the user's ID.
+
+Each address must have: `label` (Home/Work/Other), `name`, `phone`, `flat`, `area`, `city`, `state`, `pincode`, `country`
 
 ### DEV 2: Build `POST /shipments/create`
 
-```typescript
-// src/api/shipments/shipments.controller.ts
-export const createShipment = async (req: AuthRequest, res: Response) => {
-  try {
-    const {
-      pickup_pincode, delivery_pincode,
-      courier_id, weight, dimensions,
-      parcel_type, is_cod, cod_amount,
-      pickup_address, delivery_address
-    } = req.body;
+**Logic:**
+1. Receive: `pickup_address`, `delivery_address`, `courier_id`, `weight`, `dimensions`, `parcel_type`, `is_cod`, `cod_amount`
+2. Look up the courier partner in DB by `courier_id` — return 404 if not found
+3. Generate a unique AWB number (format: `AWB` + timestamp + `IN`)
+4. Create a Shipment record in DB with status `DRAFT`
+5. Return: `shipment_id`, `awb`, `status: "draft"`, `amount_paise`
 
-    // Look up courier partner in DB
-    const courier = await prisma.courierPartner.findUnique({ where: { id: courier_id } });
-    if (!courier) {
-      return res.status(404).json({ success: false, error: { message: 'Courier not found' } });
-    }
-
-    // Generate AWB number
-    const awbNumber = `AWB${Date.now()}IN`;
-
-    const shipment = await prisma.shipment.create({
-      data: {
-        awbNumber,
-        userId: req.user!.userId,
-        courierId: courier_id,
-        pickupAddress: JSON.stringify(pickup_address),
-        deliveryAddress: JSON.stringify(delivery_address),
-        weight,
-        dimensions: JSON.stringify(dimensions),
-        parcelType: parcel_type || 'PARCEL',
-        codAmount: cod_amount || 0,
-        status: 'BOOKED',
-        totalAmount: 0  // Will be updated after payment
-      }
-    });
-
-    return res.status(201).json({
-      success: true,
-      data: {
-        shipment_id: shipment.id,
-        awb: shipment.awbNumber,
-        status: shipment.status
-      }
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: { message: 'Failed to create shipment' } });
-  }
-};
-```
-
-**✅ Day 7 Checkpoint:** Can create a shipment record in the database and get back a real shipment ID and AWB number.
+**✅ Checkpoint:** Can create a shipment record in database. Get back a real shipment ID and AWB number.
 
 ---
 
-## Day 8 — Razorpay Webhook + Wallet (DEV 3)
+## Day 8 — Razorpay Webhook + Wallet Top-up (DEV 3)
 
-### Build `POST /payments/webhook` — CRITICAL SECURITY STEP
+### Build `POST /payments/webhook`
 
-```typescript
-import crypto from 'crypto';
-import { Request, Response } from 'express';
-import { prisma } from '../../lib/prisma';
+**This is the most critical security endpoint in the entire backend.**
 
-// ⚠️ This route must use express.raw() middleware, NOT express.json()
-export const handleWebhook = async (req: Request, res: Response) => {
-  try {
-    const signature = req.headers['x-razorpay-signature'] as string;
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET!;
+**Logic:**
+1. This route must use raw body middleware (not JSON parser) — Razorpay sends raw bytes
+2. Read the `x-razorpay-signature` header from the incoming request
+3. Generate an HMAC-SHA256 signature of the raw body using `RAZORPAY_WEBHOOK_SECRET`
+4. **Compare the signatures** — if they don't match, return 400 and stop processing
+5. Parse the event type — handle `payment.captured`
+6. On `payment.captured`: update the linked shipment status to `BOOKED`, store payment amount
 
-    // Verify signature
-    const expectedSignature = crypto
-      .createHmac('sha256', webhookSecret)
-      .update(req.body)  // raw body
-      .digest('hex');
+**⚠️ Warning:** Register this webhook route BEFORE `express.json()` middleware in `index.ts`
 
-    if (signature !== expectedSignature) {
-      return res.status(400).json({ error: 'Invalid signature' });
-    }
+### Build Wallet Top-up `POST /users/wallet/topup`
 
-    const event = JSON.parse(req.body.toString());
+**Logic:**
+1. Accept an `amount` (in rupees) from the request
+2. Create a Razorpay order for `amount × 100` (convert to paise)
+3. On webhook success, credit the wallet: use a database transaction to safely add the amount to `walletBalance`
 
-    if (event.event === 'payment.captured') {
-      const { order_id, amount } = event.payload.payment.entity;
-      const shipmentId = event.payload.payment.entity.notes?.shipment_id;
-
-      // Update shipment status
-      if (shipmentId) {
-        await prisma.shipment.update({
-          where: { id: shipmentId },
-          data: { status: 'BOOKED', totalAmount: amount / 100, paymentMethod: 'RAZORPAY' }
-        });
-      }
-    }
-
-    return res.json({ received: true });
-  } catch (error) {
-    return res.status(500).json({ error: 'Webhook processing failed' });
-  }
-};
-```
-
-### Register with raw body parser in `index.ts`
-
-```typescript
-// Webhook must use raw body — register BEFORE express.json()
-app.post('/payments/webhook', express.raw({ type: 'application/json' }), handleWebhook);
-app.use(express.json());
-```
-
-**✅ Day 8 Checkpoint:** Razorpay test webhook fires → payment is captured → shipment status updates to `BOOKED` in DB.
+**✅ Checkpoint:** Razorpay test webhook fires → shipment status updates in DB. Wallet balance increases correctly.
 
 ---
 
-## Day 9 — Tracking Events (DEV 2) + Real Courier Rates (DEV 2)
+## Day 9 — Real Tracking + Real Courier Rates (DEV 2)
 
 ### Build `GET /tracking/:awb`
 
-```typescript
-export const getTracking = async (req: Request, res: Response) => {
-  try {
-    const { awb } = req.params;
+**Logic:**
+1. Look up shipment by AWB number in DB
+2. Include all related `TrackingEvent` records, ordered by timestamp descending
+3. Return: `awb`, `courier`, `current_status`, `current_location`, `official_eta`, `events[]`
 
-    const shipment = await prisma.shipment.findUnique({
-      where: { awbNumber: awb },
-      include: { trackingEvents: { orderBy: { timestamp: 'desc' } }, courier: true }
-    });
+Each event must have: `status`, `location`, `description`, `timestamp`
 
-    if (!shipment) {
-      return res.status(404).json({ success: false, error: { message: 'AWB not found' } });
-    }
+### Upgrade Courier Rates to Real Delhivery API
 
-    return res.json({
-      success: true,
-      data: {
-        awb: shipment.awbNumber,
-        courier: shipment.courier.name,
-        current_status: shipment.status,
-        current_location: shipment.trackingEvents[0]?.location || 'Pickup Pending',
-        official_eta: new Date(Date.now() + 3 * 86400000).toISOString(),
-        events: shipment.trackingEvents.map(e => ({
-          status: e.status,
-          location: e.location,
-          description: e.description,
-          timestamp: e.timestamp
-        }))
-      }
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: { message: 'Tracking failed' } });
-  }
-};
-```
+**Logic:**
+1. Read Delhivery API documentation
+2. Call their rate check API with `pickup`, `delivery`, `weight`
+3. Normalize the Delhivery response to match the format defined in `api-contracts.md`
+4. Cache the result in Redis for **10 minutes** to avoid calling the API on every request
+5. Return the sorted list (cheapest first by default)
 
-**✅ Day 9 Checkpoint:** `GET /tracking/AWB123456789IN` returns real tracking events from the database.
+**✅ Checkpoint:** `GET /tracking/:awb` returns real tracking events from DB. Courier rates come from real Delhivery API (not hardcoded).
 
 ---
 
 ## Day 10 — Full End-to-End Test (ALL 3 DEVS)
 
-Test the complete user journey on the real frontend:
-1. Open `http://localhost:5173`
-2. Enter phone number → receive real OTP SMS → enter OTP → logged in
-3. Enter pickup and delivery addresses → see real courier rates
-4. Select a courier → go to payment → complete Razorpay test payment
-5. Booking confirmed → see AWB number
-6. Go to My Shipments → shipment appears in the list
-7. Click Track → see tracking timeline
+Walk through the complete user journey on the live frontend:
+
+1. Open the web app → Enter phone → Receive real SMS OTP → Log in successfully
+2. Enter Delhi to Mumbai addresses → See real courier rates from Delhivery
+3. Select a courier → Review the price breakdown → Click Pay
+4. Complete a test payment via Razorpay → Booking confirmed with real AWB number
+5. Go to My Shipments → shipment appears in the list with correct status
+6. Click Track → See tracking timeline loaded from real DB records
+7. Open Profile → Wallet top-up works → Balance updates
 
 **✅ Week 2 Final Checklist:**
 ```
 [ ] GET /users/profile returns real user data from DB
-[ ] PUT /users/profile updates name/email in DB
+[ ] PUT /users/profile updates name and email in DB
 [ ] Address book CRUD all working
-[ ] POST /shipments/create creates real DB record + AWB
+[ ] POST /shipments/create creates real DB record with AWB
 [ ] POST /payments/initiate creates Razorpay order
-[ ] POST /payments/webhook verifies signature + updates shipment
-[ ] GET /tracking/:awb returns tracking events
-[ ] Complete booking flow works end-to-end on real frontend
+[ ] POST /payments/webhook verifies signature + updates shipment status
+[ ] GET /tracking/:awb returns tracking events from DB
+[ ] Courier rates come from real Delhivery API (not hardcoded)
+[ ] Wallet top-up works and balance updates atomically
 [ ] OTP delivered via real MSG91 SMS
-[ ] No hardcoded data remaining in any endpoint
+[ ] Complete booking flow works on real frontend with zero MSW mocks
 ```
 
 ---
 
-## ⚠️ Common Mistakes to Avoid
+## ⚠️ 7 Rules Every Developer Must Follow
 
-1. **Never commit your `.env` file to Git** — Add it to `.gitignore` immediately
-2. **Razorpay amounts must be in PAISE** — 1 rupee = 100 paise. Always multiply by 100
-3. **Verify webhook signatures** — Never trust a webhook without checking the signature
-4. **Use DB transactions for wallet operations** — Prevents double-spending bugs
-5. **Rate limit your OTP endpoint** — Max 3 OTPs per phone per hour to prevent abuse
-6. **Delete OTP from Redis after verification** — OTP should be one-time use only
-7. **Do not log JWT tokens or OTPs** — Security risk in production logs
+1. **Never commit `.env` to Git** — Add it to `.gitignore` on Day 1
+2. **Razorpay amounts are always in PAISE** — 1 rupee = 100 paise. Send `8900` not `89`
+3. **Always verify Razorpay webhook signatures** — Never trust a webhook without this check
+4. **Use DB transactions for wallet operations** — Prevents race conditions and double-spend bugs
+5. **Rate limit the OTP endpoint** — Maximum 3 requests per phone per hour
+6. **Delete OTP from Redis after verification** — OTPs must be one-time use only
+7. **Never log JWT tokens or raw OTPs** — These are security-sensitive values
