@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ToastProvider } from './components/ui/Toast';
 
 // Import all pages
 import LandingPage from './app/page';
@@ -36,7 +35,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <ToastProvider>
+    <>
       <Router>
         <AppLayout>
           <Routes>
@@ -70,7 +69,7 @@ function App() {
           </Routes>
         </AppLayout>
       </Router>
-    </ToastProvider>
+    </>
   )
 }
 

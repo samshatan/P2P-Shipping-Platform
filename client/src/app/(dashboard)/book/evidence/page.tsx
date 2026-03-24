@@ -5,8 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ShieldCheck, UploadCloud, Info, ArrowRight, ShieldAlert, Cpu, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/context/ToastContext";
 
 export default function EvidenceVault() {
+  const { showToast } = useToast();
   const [hash, setHash] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -20,8 +22,13 @@ export default function EvidenceVault() {
       setTimeout(() => {
         setHash("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
         setUploading(false);
+        showToast("File Uploaded Successfully!", "success");
       }, 2000);
     }
+  };
+
+  const handleSkip = () => {
+    showToast("Skipping Evidence not recommended", "info");
   };
 
   return (
@@ -96,7 +103,7 @@ export default function EvidenceVault() {
           <span className="text-sm font-medium text-muted-foreground sm:hidden">Skip at your own risk.</span>
         </div>
         <Link to="/book/review">
-          <Button variant="ghost" className="text-muted-foreground font-semibold hover:text-foreground">
+          <Button onClick={handleSkip} variant="ghost" className="text-muted-foreground font-semibold hover:text-foreground">
              Skip for now
           </Button>
         </Link>
