@@ -1,16 +1,51 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, Smartphone, Mail } from "lucide-react";
 
-import { useNavigate } from "react-router-dom";
 export default function LoginPage() {
   const navigate = useNavigate();
   const [timer, setTimer] = useState(45);
   const [otpSent, setOtpSent] = useState(false);
+  const [activeTab, setActiveTab] = useState<"mobile" | "email">("mobile");
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    height: "48px",
+    padding: "0 16px",
+    fontSize: "15px",
+    borderRadius: "12px",
+    border: "1.5px solid #d1d5db",
+    backgroundColor: "#ffffff",
+    outline: "none",
+    transition: "border-color 0.2s, box-shadow 0.2s",
+    color: "#1a1a1a",
+  };
+
+  const inputFocusHandler = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.style.borderColor = "#a33900";
+    e.target.style.boxShadow = "0 0 0 3px rgba(163, 57, 0, 0.1)";
+  };
+
+  const inputBlurHandler = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.style.borderColor = "#d1d5db";
+    e.target.style.boxShadow = "none";
+  };
+
+  const otpInputStyle: React.CSSProperties = {
+    width: "48px",
+    height: "56px",
+    textAlign: "center" as const,
+    fontSize: "20px",
+    fontWeight: 700,
+    borderRadius: "12px",
+    border: "1.5px solid #d1d5db",
+    backgroundColor: "#ffffff",
+    outline: "none",
+    transition: "border-color 0.2s, box-shadow 0.2s",
+    color: "#1a1a1a",
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
@@ -58,72 +93,158 @@ export default function LoginPage() {
             <p className="text-muted-foreground mt-2">Log in to your PARCEL dashboard</p>
           </div>
 
-          <Tabs defaultValue="mobile" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8 bg-muted/50 p-1 rounded-xl">
-              <TabsTrigger value="mobile" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                <Smartphone className="w-4 h-4 mr-2" /> Phone
-              </TabsTrigger>
-              <TabsTrigger value="email" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                <Mail className="w-4 h-4 mr-2" /> Email
-              </TabsTrigger>
-            </TabsList>
+          {/* Custom Tab Switcher */}
+          <div style={{ width: "100%" }}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "4px",
+              padding: "4px",
+              borderRadius: "12px",
+              backgroundColor: "hsl(var(--muted) / 0.5)",
+              marginBottom: "32px",
+            }}>
+              <button
+                onClick={() => setActiveTab("mobile")}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "10px 16px",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  backgroundColor: activeTab === "mobile" ? "#ffffff" : "transparent",
+                  boxShadow: activeTab === "mobile" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                  color: activeTab === "mobile" ? "#1a1a1a" : "#6b7280",
+                }}
+              >
+                <Smartphone style={{ width: 16, height: 16 }} /> Phone
+              </button>
+              <button
+                onClick={() => setActiveTab("email")}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "10px 16px",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  backgroundColor: activeTab === "email" ? "#ffffff" : "transparent",
+                  boxShadow: activeTab === "email" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                  color: activeTab === "email" ? "#1a1a1a" : "#6b7280",
+                }}
+              >
+                <Mail style={{ width: 16, height: 16 }} /> Email
+              </button>
+            </div>
 
-            <TabsContent value="mobile" className="space-y-6">
-              {!otpSent ? (
-                <>
-                  <div className="space-y-2">
-                    <Label>Mobile Number</Label>
-                    <div className="flex relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">+91</span>
-                      <Input placeholder="98765 43210" className="pl-12 h-12 bg-white outline-variant border-border/80 focus-visible:ring-primary/20 transition-all rounded-xl" type="tel" maxLength={10} />
+            {/* Phone Tab Content */}
+            {activeTab === "mobile" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                {!otpSent ? (
+                  <>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Mobile Number</Label>
+                      <div style={{ position: "relative", width: "100%" }}>
+                        <span style={{
+                          position: "absolute",
+                          left: "16px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          color: "#6b7280",
+                          fontSize: "15px",
+                          fontWeight: 500,
+                          pointerEvents: "none",
+                        }}>+91</span>
+                        <input
+                          placeholder="98765 43210"
+                          type="tel"
+                          maxLength={10}
+                          style={{ ...inputStyle, paddingLeft: "52px" }}
+                          onFocus={inputFocusHandler}
+                          onBlur={inputBlurHandler}
+                        />
+                      </div>
                     </div>
+                    <Button
+                      className="w-full h-12 text-base font-semibold bg-foreground hover:bg-foreground/90 text-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5"
+                      onClick={() => setOtpSent(true)}
+                    >
+                      Send OTP
+                    </Button>
+                  </>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Enter 6-digit OTP</Label>
+                        <button onClick={() => setOtpSent(false)} className="text-xs text-primary font-semibold hover:underline" style={{ background: "none", border: "none", cursor: "pointer" }}>Change Number</button>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
+                        {[1,2,3,4,5,6].map(i => (
+                          <input
+                            key={i}
+                            maxLength={1}
+                            style={otpInputStyle}
+                            onFocus={inputFocusHandler}
+                            onBlur={inputBlurHandler}
+                          />
+                        ))}
+                      </div>
+                      <p style={{ fontSize: "14px", color: "#6b7280", textAlign: "center", marginTop: "8px" }}>
+                        Resend code in <span style={{ fontWeight: 600, color: "#1a1a1a" }}>00:{timer < 10 ? `0${timer}` : timer}</span>
+                      </p>
+                    </div>
+                    <Button onClick={() => navigate('/')} className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/25 transition-all">
+                      Verify & Log In
+                    </Button>
                   </div>
-                  <Button className="w-full h-12 text-base font-semibold bg-foreground hover:bg-foreground/90 text-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5" onClick={() => setOtpSent(true)}>
-                    Send OTP
-                  </Button>
-                </>
-              ) : (
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label>Enter 6-digit OTP</Label>
-                      <button onClick={() => setOtpSent(false)} className="text-xs text-primary font-semibold hover:underline">Change Number</button>
-                    </div>
-                    <div className="flex justify-between gap-2">
-                      {[1,2,3,4,5,6].map(i => (
-                        <Input key={i} className="h-14 w-12 text-center text-lg font-bold rounded-xl border-border/80 bg-white shadow-sm focus-visible:ring-primary focus-visible:border-primary" maxLength={1} />
-                      ))}
-                    </div>
-                    <p className="text-sm text-muted-foreground text-center mt-4">
-                      Resend code in <span className="font-semibold text-foreground">00:{timer < 10 ? `0${timer}` : timer}</span>
-                    </p>
-                  </div>
-                  <Button onClick={() => navigate('/dashboard')} className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/25 transition-all">
-                    Verify & Log In
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
+                )}
+              </div>
+            )}
 
-            <TabsContent value="email" className="space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Email Address</Label>
-                  <Input placeholder="name@company.com" className="h-12 bg-white rounded-xl" type="email" />
+            {/* Email Tab Content */}
+            {activeTab === "email" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Email Address</Label>
+                  <input
+                    placeholder="name@company.com"
+                    type="email"
+                    style={inputStyle}
+                    onFocus={inputFocusHandler}
+                    onBlur={inputBlurHandler}
+                  />
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Label>Password</Label>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Password</Label>
                     <Link to="#" className="text-xs text-primary font-semibold hover:underline">Forgot password?</Link>
                   </div>
-                  <Input placeholder="••••••••" className="h-12 bg-white rounded-xl" type="password" />
+                  <input
+                    placeholder="••••••••"
+                    type="password"
+                    style={inputStyle}
+                    onFocus={inputFocusHandler}
+                    onBlur={inputBlurHandler}
+                  />
                 </div>
-                <Button onClick={() => navigate('/dashboard')} className="w-full h-12 text-base font-semibold bg-foreground hover:bg-foreground/90 text-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5">
+                <Button onClick={() => navigate('/')} className="w-full h-12 text-base font-semibold bg-foreground hover:bg-foreground/90 text-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5">
                   Log In
                 </Button>
               </div>
-            </TabsContent>
-          </Tabs>
+            )}
+          </div>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -134,7 +255,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <Button onClick={() => navigate('/dashboard')} variant="outline" className="w-full h-12 bg-white rounded-xl font-medium border-border/80 text-foreground hover:bg-muted/50 transition-colors">
+          <Button onClick={() => navigate('/')} variant="outline" className="w-full h-12 bg-white rounded-xl font-medium border-border/80 text-foreground hover:bg-muted/50 transition-colors">
             <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
