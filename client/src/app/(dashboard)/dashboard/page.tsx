@@ -3,7 +3,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Truck, CheckCircle, IndianRupee, ExternalLink, Filter, Plus, FileText } from "lucide-react";
+import { Package, Truck, CheckCircle, IndianRupee, ExternalLink, Filter, Plus, FileText, RefreshCw, AlertCircle, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { getDashboardData } from "@/lib/api";
@@ -24,38 +24,37 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchDashboard() {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getDashboardData(1, 50, filter);
-        
-        // Map API fields to UI fields
-        const mappedShipments = (data.shipments || []).map((s: any) => {
-          // Status mapping format from API (e.g., in_transit -> In Transit)
-          const formatStatus = (st: string) => {
-            if (st === "cancelled") return "Failed";
-            return st.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-          };
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getDashboardData(1, 50, filter);
+      
+      const mappedShipments = (data.shipments || []).map((s: any) => {
+        const formatStatus = (st: string) => {
+          if (st === "cancelled") return "Failed";
+          return st.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        };
 
-          return {
-            id: s.awb_number || s.shipment_id, // UI uses SR123 AWB typically
-            courier: s.courier_name || s.courier_id,
-            status: formatStatus(s.status),
-            price: s.total_paise / 100,
-            date: new Date(s.created_at || new Date()).toLocaleString('en-US', { day: '2-digit', month: 'short' })
-          };
-        });
-        
-        setShipments(mappedShipments);
-      } catch (err: any) {
-        console.error(err);
-        setError("Unable to load shipments");
-      } finally {
-        setLoading(false);
-      }
+        return {
+          id: s.awb_number || s.shipment_id,
+          courier: s.courier_name || s.courier_id,
+          status: formatStatus(s.status),
+          price: s.total_paise / 100,
+          date: new Date(s.created_at || new Date()).toLocaleString('en-US', { day: '2-digit', month: 'short' })
+        };
+      });
+      
+      setShipments(mappedShipments);
+    } catch (err: any) {
+      console.error(err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchDashboard();
   }, [filter]);
 
@@ -160,19 +159,30 @@ export default function UserDashboard() {
              </div>
 
              {/* Shipment Table/List */}
-             <div className="flex-1 w-full overflow-x-auto relative min-h-[300px]">
-               {loading ? (
-                 <div className="absolute inset-0 z-10 bg-white/50 flex flex-col items-center justify-center">
-                   <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin mb-4" />
-                   <div className="text-muted-foreground font-semibold">Loading shipments...</div>
+             <div className="flex-1 w-full overflow-x-auto relative">
+               {loading && shipments.length === 0 ? (
+                 <div className="divide-y divide-border/60">
+                   {[1,2,3,4,5].map(i => (
+                     <div key={i} className="px-6 py-5 flex items-center justify-between animate-pulse">
+                        <div className="h-4 bg-muted rounded w-24" />
+                        <div className="h-4 bg-muted rounded w-32" />
+                        <div className="h-6 bg-muted rounded-full w-20" />
+                        <div className="h-4 bg-muted rounded w-16" />
+                        <div className="h-8 bg-muted rounded-lg w-20" />
+                     </div>
+                   ))}
                  </div>
                ) : null}
                
-               {error && !loading ? (
+               {error ? (
                  <div className="flex flex-col items-center justify-center py-24 text-center px-4">
-                   <div className="text-red-500 mb-2">❌</div>
+                   <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4 border border-red-100">
+                     <AlertCircle className="w-8 h-8" />
+                   </div>
                    <h3 className="font-heading font-bold text-xl text-foreground mb-2">{error}</h3>
-                   <Button onClick={() => setFilter("All")} variant="outline" className="mt-4">Try Again</Button>
+                   <Button onClick={fetchDashboard} variant="outline" className="mt-4 border-primary text-primary hover:bg-primary/5 font-bold px-6 py-2 rounded-xl">
+                      <RefreshCw className="w-4 h-4 mr-2" /> Retry
+                   </Button>
                  </div>
                ) : shipments.length > 0 ? (
                  <table className="w-full text-left min-w-[700px]">
@@ -220,9 +230,9 @@ export default function UserDashboard() {
                ) : (
                  <div className="flex flex-col items-center justify-center py-24 text-center px-4">
                    <div className="w-20 h-20 bg-muted/50 text-muted-foreground rounded-full flex items-center justify-center mb-6 border border-border">
-                     <Package className="w-10 h-10 opacity-50" />
+                     <Search className="w-10 h-10 opacity-50" />
                    </div>
-                   <h3 className="font-heading font-bold text-2xl text-foreground mb-2">📦 No shipments yet</h3>
+                   <h3 className="font-heading font-bold text-2xl text-foreground mb-2">No shipments found</h3>
                    <p className="text-muted-foreground mb-6 max-w-sm">You haven't booked any parcels {filter !== "All" && `that are ${filter.toLowerCase()}`} yet.</p>
                    {filter === "All" ? (
                      <Link to="/compare">

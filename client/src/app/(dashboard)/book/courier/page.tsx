@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ShieldCheck, Truck, MapPin, Search, ArrowRight, Activity, Clock, CheckCircle2, Info } from "lucide-react";
+import { ShieldCheck, Truck, MapPin, Search, ArrowRight, Activity, Clock, CheckCircle2, Info, RefreshCw, Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -20,50 +20,50 @@ export default function CourierSelection() {
   const { selectedCourier, setCourier, pickup: bPickup, delivery: bDelivery, packageDetails: bPackage } = useBooking();
   const [rates, setRates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSelecting, setIsSelecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("ALL");
   const [sort, setSort] = useState("PRICE");
 
+  const fetchRates = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const payload = {
+        pickup: bPickup.pincode || "110001",
+        delivery: bDelivery.pincode || "400001",
+        weight: Math.round(parseFloat(bPackage.weight || "1.5") * 1000), // weight in grams
+        is_cod: false
+      };
+      const data = await getCourierRates(payload);
+      
+      const adaptedRates = data.couriers.map((c: any) => ({
+        id: c.courier_id,
+        name: c.courier_name,
+        logo: c.logo_url,
+        price: c.price_paise / 100, // paise to rupees
+        etaDays: c.official_eta_days,
+        actualAvgDays: c.ai_eta_days,
+        pickupWindow: `Within ${c.pickup_sla_hours} hours`,
+        codAvailable: c.cod_available,
+        rating: c.rating,
+        tags: c.tags || []
+      }));
+
+      setRates(adaptedRates);
+      const cheapest = [...adaptedRates].sort((a, b) => a.price - b.price)[0];
+      if (cheapest && !selectedCourier) setCourier(cheapest);
+    } catch (err: any) {
+      console.error(err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const selectedRateId = selectedCourier?.id || null;
 
   useEffect(() => {
-    async function fetchRates() {
-      try {
-        setLoading(true);
-        setError(null);
-        // Hardcoded payload since we don't have form inputs here in CourierSelection
-        // In real app, these come from previous step
-        const payload = {
-          pickup: bPickup.pincode || "110001",
-          delivery: bDelivery.pincode || "400001",
-          weight: Math.round(parseFloat(bPackage.weight || "1.5") * 1000), // weight in grams
-          is_cod: false
-        };
-        const data = await getCourierRates(payload);
-        
-        const adaptedRates = data.couriers.map((c: any) => ({
-          id: c.courier_id,
-          name: c.courier_name,
-          logo: c.logo_url,
-          price: c.price_paise / 100, // paise to rupees
-          etaDays: c.official_eta_days,
-          actualAvgDays: c.ai_eta_days,
-          pickupWindow: `Within ${c.pickup_sla_hours} hours`,
-          codAvailable: c.cod_available,
-          rating: c.rating,
-          tags: c.tags || []
-        }));
-
-        setRates(adaptedRates);
-        const cheapest = [...adaptedRates].sort((a, b) => a.price - b.price)[0];
-        if (cheapest && !selectedCourier) setCourier(cheapest);
-      } catch (err: any) {
-        console.error(err);
-        setError("Unable to fetch courier rates");
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchRates();
   }, []);
 
@@ -105,8 +105,13 @@ export default function CourierSelection() {
         )}
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 text-sm font-semibold mb-6 flex items-center">
-            <Info className="w-5 h-5 mr-2" /> {error}
+          <div className="bg-red-50 text-red-600 p-5 rounded-xl border border-red-200 text-sm font-semibold mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center">
+              <Info className="w-5 h-5 mr-3 shrink-0" /> {error}
+            </div>
+            <Button variant="outline" size="sm" onClick={fetchRates} className="bg-white border-red-200 text-red-600 hover:bg-red-50 h-9 px-4 font-bold shrink-0">
+              <RefreshCw className="w-4 h-4 mr-2" /> Retry
+            </Button>
           </div>
         )}
 
@@ -244,12 +249,15 @@ export default function CourierSelection() {
                         <div className="font-heading font-extrabold text-2xl text-foreground">₹{rate.price}</div>
                         <div className="text-[10px] font-semibold text-muted-foreground">+18% GST</div>
                       </div>
-                      <Button onClick={() => {
+                      <Button disabled={isSelecting} onClick={async () => {
+                        setIsSelecting(true);
                         showToast("Courier Selected", "success");
                         setCourier(rate);
+                        // Small delay for UX feedback
+                        await new Promise(r => setTimeout(r, 600));
                         navigate('/book/address');
-                      }} className="bg-primary hover:bg-primary/90 text-white px-6 font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95">
-                        Select
+                      }} className="bg-primary hover:bg-primary/90 text-white px-6 font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95 min-w-[100px]">
+                        {isSelecting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Select"}
                       </Button>
                     </div>
                   </div>
@@ -390,13 +398,16 @@ export default function CourierSelection() {
               </div>
 
               <Button 
-                onClick={() => {
+                disabled={isSelecting}
+                onClick={async () => {
+                  setIsSelecting(true);
                   showToast("Courier Selected", "success");
+                  await new Promise(r => setTimeout(r, 600));
                   navigate('/book/address');
                 }} 
-                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-8 py-6 font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95 text-base sm:text-lg shrink-0"
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-8 py-6 font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95 text-base sm:text-lg shrink-0 min-w-[180px]"
               >
-                Continue <ArrowRight className="w-5 h-5 ml-2" />
+                {isSelecting ? <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Proceeding...</> : <>Continue <ArrowRight className="w-5 h-5 ml-2" /></>}
               </Button>
             </div>
           </motion.div>

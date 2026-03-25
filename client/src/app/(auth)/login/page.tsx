@@ -16,9 +16,26 @@ export default function LoginPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [activeTab, setActiveTab] = useState<"mobile" | "email">("mobile");
   const [phone, setPhone] = useState("");
+  const [phoneTouched, setPhoneTouched] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otpTouched, setOtpTouched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const validatePhone = (val: string) => {
+    if (!val) return "Phone number is required";
+    if (!/^\d{10}$/.test(val)) return "Enter valid 10-digit phone number";
+    return null;
+  };
+
+  const validateOtp = (val: string[]) => {
+    if (val.some(v => !v)) return "Enter valid OTP";
+    if (val.join("").length !== 6) return "Enter valid OTP";
+    return null;
+  };
+
+  const isPhoneValid = !validatePhone(phone);
+  const isOtpValid = !validateOtp(otp);
 
   useEffect(() => {
     let interval: any;
@@ -31,8 +48,10 @@ export default function LoginPage() {
   }, [otpSent, timer]);
 
   const handleSendOtp = async () => {
-    if (phone.length !== 10) {
-      setError("Please enter a valid 10-digit phone number");
+    setPhoneTouched(true);
+    const phoneError = validatePhone(phone);
+    if (phoneError) {
+      setError(phoneError);
       return;
     }
     
@@ -52,9 +71,11 @@ export default function LoginPage() {
   };
 
   const handleVerifyOtp = async () => {
+    setOtpTouched(true);
     const otpString = otp.join("");
-    if (otpString.length !== 6) {
-      setError("Please enter the 6-digit OTP");
+    const otpError = validateOtp(otp);
+    if (otpError) {
+      setError(otpError);
       return;
     }
 
@@ -80,10 +101,22 @@ export default function LoginPage() {
     newOtp[index] = value;
     setOtp(newOtp);
 
+    if (error) setError(null);
+
     // Auto focus next input
     if (value && index < 5) {
       const nextInput = document.getElementById(`otp-${index + 1}`);
       nextInput?.focus();
+    }
+  };
+
+  const handleBlur = (field: 'phone' | 'otp') => {
+    if (field === 'phone') {
+      setPhoneTouched(true);
+      setError(validatePhone(phone));
+    } else {
+      setOtpTouched(true);
+      setError(validateOtp(otp));
     }
   };
 
@@ -260,17 +293,30 @@ export default function LoginPage() {
                           type="tel"
                           maxLength={10}
                           value={phone}
-                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                          style={{ ...inputStyle, paddingLeft: "52px" }}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                            setPhone(val);
+                            if (error) setError(null);
+                          }}
+                          style={{ 
+                            ...inputStyle, 
+                            paddingLeft: "52px",
+                            borderColor: phoneTouched && validatePhone(phone) ? "#ef4444" : "#d1d5db"
+                          }}
                           onFocus={inputFocusHandler}
-                          onBlur={inputBlurHandler}
+                          onBlur={() => handleBlur('phone')}
                         />
                       </div>
+                      {phoneTouched && validatePhone(phone) && (
+                        <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1 mt-1">
+                          {validatePhone(phone)}
+                        </p>
+                      )}
                     </div>
                     <Button
-                      className="w-full h-12 text-base font-semibold bg-foreground hover:bg-foreground/90 text-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5"
+                      className="w-full h-12 text-base font-semibold bg-foreground hover:bg-foreground/90 text-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={handleSendOtp}
-                      disabled={isLoading}
+                      disabled={isLoading || (phoneTouched && !isPhoneValid)}
                     >
                       {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send OTP"}
                     </Button>
@@ -298,13 +344,22 @@ export default function LoginPage() {
                             value={digit}
                             onChange={(e) => handleOtpChange(i, e.target.value)}
                             onKeyDown={(e) => handleKeyDown(i, e)}
-                            style={otpInputStyle}
+                            style={{
+                              ...otpInputStyle,
+                              borderColor: otpTouched && validateOtp(otp) ? "#ef4444" : "#d1d5db"
+                            }}
                             onFocus={inputFocusHandler}
-                            onBlur={inputBlurHandler}
+                            onBlur={() => i === 5 && handleBlur('otp')}
+                            autoFocus={i === 0}
                           />
                         ))}
                       </div>
-                      <p style={{ fontSize: "14px", color: "#6b7280", textAlign: "center", marginTop: "8px" }}>
+                      {otpTouched && validateOtp(otp) && (
+                        <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider text-center mt-2">
+                          {validateOtp(otp)}
+                        </p>
+                      )}
+                      <p style={{ fontSize: "14px", color: "#6b7280", textAlign: "center", marginTop: "12px" }}>
                         {timer > 0 ? (
                           <>Resend code in <span style={{ fontWeight: 600, color: "#1a1a1a" }}>00:{timer < 10 ? `0${timer}` : timer}</span></>
                         ) : (
@@ -314,8 +369,8 @@ export default function LoginPage() {
                     </div>
                     <Button 
                       onClick={handleVerifyOtp} 
-                      disabled={isLoading}
-                      className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/25 transition-all"
+                      disabled={isLoading || (otpTouched && !isOtpValid)}
+                      className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify & Log In"}
                     </Button>

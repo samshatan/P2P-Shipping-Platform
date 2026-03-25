@@ -53,11 +53,15 @@ export default function TrackingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f7f9fb] flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-[#f7f9fb] flex flex-col items-center justify-center p-4">
         <Navbar />
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-primary animate-pulse" />
-          <div className="text-xl font-heading font-bold text-muted-foreground">Loading tracking data...</div>
+        <div className="flex flex-col items-center gap-4 bg-white p-10 rounded-3xl border border-border/60 shadow-sm">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+            <Activity className="w-6 h-6 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+          </div>
+          <div className="text-xl font-heading font-bold text-foreground">Fetching tracking data...</div>
+          <p className="text-muted-foreground text-sm font-medium">Connecting to courier servers</p>
         </div>
       </div>
     );
@@ -69,12 +73,12 @@ export default function TrackingPage() {
         <Navbar />
         <main className="flex-1 flex flex-col items-center justify-center p-4">
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-red-100 flex flex-col items-center max-w-md w-full text-center">
-             <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6">
-                <span className="text-4xl">❌</span>
+             <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6 border border-red-100">
+                <AlertCircle className="w-10 h-10" />
              </div>
-             <h1 className="font-heading font-bold text-2xl mb-2">Invalid Tracking ID</h1>
-             <p className="text-muted-foreground mb-8">{error || "Please check your AWB number and try again."}</p>
-             <Button onClick={() => navigate('/track')} className="w-full h-12 bg-foreground text-white rounded-xl hover:bg-foreground/90 transition-colors">Go Back</Button>
+             <h1 className="font-heading font-bold text-2xl mb-2 text-foreground">Invalid AWB number</h1>
+             <p className="text-muted-foreground mb-8 font-medium">{error || "Please check your AWB number and try again."}</p>
+             <Button onClick={() => navigate('/dashboard')} variant="outline" className="w-full h-12 border-primary text-primary hover:bg-primary/5 rounded-xl font-bold transition-all active:scale-95">Go Back</Button>
           </div>
         </main>
       </div>
