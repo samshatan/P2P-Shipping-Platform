@@ -3,13 +3,16 @@ import { MOCK_USER, MOCK_COURIERS, MOCK_SHIPMENTS, MOCK_TRACKING } from './mockD
 /// <reference types="vite/client" />
 const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
 
-// Use environment variable to toggle mocks
-const USE_MOCK = (import.meta as any).env?.VITE_USE_MOCK === 'true';
+// Environment configuration
+const ENV = (import.meta as any).env?.VITE_ENV || 'development';
+const IS_PROD = ENV === 'production';
+const USE_MOCK = !IS_PROD && (import.meta as any).env?.VITE_USE_MOCK === 'true';
 
+// Clear and professional logging
 if (USE_MOCK) {
-  console.log("%c[API MODE] Using MOCK data", "color: #ff5722; font-weight: bold; background: #fff2ef; padding: 2px 5px; border-radius: 4px;");
+  console.log("%c[API MODE]: MOCK", "color: #ff5722; font-weight: bold;");
 } else {
-  console.log("%c[API MODE] Using REAL API", "color: #2196f3; font-weight: bold; background: #e3f2fd; padding: 2px 5px; border-radius: 4px;");
+  console.log("%c[API MODE]: REAL", "color: #2196f3; font-weight: bold;");
 }
 
 function getMockResponse(endpoint: string) {
@@ -50,7 +53,10 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   const data = await response.json().catch(() => null);
   
   if (!response.ok) {
-    throw new Error(data?.error?.message || 'Something went wrong. Please try again.');
+    const errorMsg = data?.error?.message || 'Something went wrong. Please try again.';
+    // Only log errors in development
+    if (!IS_PROD) console.error(`[API Error] ${response.status} ${url}: ${errorMsg}`);
+    throw new Error(errorMsg);
   }
 
   return data;
