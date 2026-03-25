@@ -103,11 +103,34 @@ export default function ShipmentDetailPage() {
               "self-start sm:self-auto px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest",
               shipment.status === 'delivered' ? "bg-emerald-100 text-emerald-700 border-emerald-200" :
               shipment.status === 'in_transit' ? "bg-blue-100 text-blue-700 border-blue-200" :
+              shipment.status === 'failed_attempt' ? "bg-rose-100 text-rose-700 border-rose-200" :
               "bg-orange-100 text-orange-700 border-orange-200"
             )}>
-              {statusLabel}
+              {shipment.status === 'failed_attempt' ? "Delivery Attempt Failed" : statusLabel}
             </Badge>
           </div>
+
+          {shipment.status === 'failed_attempt' && (
+            <Card className="mb-8 p-6 bg-rose-50 border-rose-100 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm animate-in slide-in-from-top-4">
+              <div className="flex items-center gap-4 text-center md:text-left">
+                <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center shrink-0">
+                  <AlertCircle className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-rose-900 uppercase tracking-tight">Delivery Attempt Failed</h3>
+                  <p className="text-sm font-medium text-rose-700/80">Receiver was unavailable at the provided address. Courier will retry tomorrow.</p>
+                </div>
+              </div>
+              <div className="flex gap-3 w-full md:w-auto">
+                <Button className="flex-1 md:flex-none h-11 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl px-6">
+                  Reschedule
+                </Button>
+                <Button variant="outline" className="flex-1 md:flex-none h-11 border-rose-200 bg-white text-rose-700 font-bold rounded-xl px-6">
+                  Contact Support
+                </Button>
+              </div>
+            </Card>
+          )}
 
           <div className="grid md:grid-cols-3 gap-8">
             

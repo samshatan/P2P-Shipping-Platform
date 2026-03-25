@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Truck, Package, ArrowRightLeft, Home, Briefcase, Heart, Search, ArrowUpDown, ArrowRight, Loader2 } from "lucide-react";
+import { MapPin, Truck, Package, ArrowRightLeft, Home, Briefcase, Heart, Search, ArrowUpDown, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -174,6 +174,7 @@ export default function AddressInput() {
                 />
               </div>
               {touched.pickupPincode && errors.pickupPincode && <p className="text-xs text-red-500 mt-1 font-semibold">{errors.pickupPincode}</p>}
+              {pickup.pincode === "000000" && <p className="text-[10px] text-red-600 font-bold mt-1 animate-pulse">NOT SERVICEABLE • RESTRICTED AREA</p>}
             </div>
 
             <div className="space-y-2 sm:col-span-2">
@@ -265,6 +266,7 @@ export default function AddressInput() {
                 />
               </div>
               {touched.deliveryPincode && errors.deliveryPincode && <p className="text-xs text-red-500 mt-1 font-semibold">{errors.deliveryPincode}</p>}
+              {delivery.pincode === "000000" && <p className="text-[10px] text-red-600 font-bold mt-1 animate-pulse">NOT SERVICEABLE • RESTRICTED AREA</p>}
             </div>
 
             <div className="space-y-2 sm:col-span-2">
@@ -343,9 +345,12 @@ export default function AddressInput() {
         </Card>
         
         {apiError && (
-          <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 flex flex-col items-center justify-center shadow-sm">
-            <h4 className="font-bold flex items-center gap-2"><span className="text-xl">❌</span> Something went wrong</h4>
-            <p className="text-sm">Please try again</p>
+          <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 flex flex-col items-center justify-center shadow-sm animate-in fade-in slide-in-from-bottom-2 mb-6">
+            <h4 className="font-bold flex items-center gap-2 mb-1"><AlertCircle className="w-5 h-5" /> Pincode Not Serviceable</h4>
+            <p className="text-sm font-medium mb-3">Sorry, we don't serve this area yet. We're expanding fast!</p>
+            <Button variant="outline" size="sm" className="h-8 border-red-200 text-red-700 bg-white hover:bg-red-50 font-bold text-[10px] uppercase tracking-wider">
+              Check Serviceable Areas
+            </Button>
           </div>
         )}
 

@@ -5,7 +5,8 @@ export const MOCK_USER = {
   wallet: 200,
   shipments: 24,
   moneySaved: 340,
-  referrals: 5
+  referrals: 5,
+  kycVerified: false
 }
 
 export const MOCK_COURIERS = [

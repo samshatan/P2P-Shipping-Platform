@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  Users, Package, TrendingUp, AlertCircle, Search, Eye, ShieldCheck,
+  Users, User, Package, TrendingUp, AlertCircle, Search, Eye, ShieldCheck,
   Truck, DollarSign, Activity, Settings, RefreshCw, CheckCircle2, XCircle
 } from "lucide-react";
 import { MOCK_SHIPMENTS } from "@/lib/mockData";
@@ -132,6 +132,46 @@ export default function AdminDashboard() {
                         </Badge>
                         <Button onClick={() => navigate(`/track/${ship.awb}`)} variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Eye className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* Pending KYC Requests - NEW */}
+              <Card className="bg-white border-border shadow-sm rounded-2xl overflow-hidden mt-8">
+                <div className="p-5 border-b border-border/60 flex items-center justify-between">
+                  <h3 className="font-heading font-bold text-lg flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-purple-600" /> Pending KYC Approvals
+                  </h3>
+                  <Badge className="bg-purple-100 text-purple-700 border-0 uppercase text-[10px] font-extrabold px-3 py-1">3 Pending</Badge>
+                </div>
+                <div className="divide-y divide-border/60">
+                  {[
+                    { name: "Rahul S.", phone: "+91 98XXX XX210", doc: "aadhaar_front.jpg", time: "2h ago" },
+                    { name: "Anita K.", phone: "+91 99XXX XX345", doc: "pan_card.jpg", time: "5h ago" },
+                    { name: "Vikram P.", phone: "+91 97XXX XX901", doc: "aadhaar_front.jpg", time: "1d ago" }
+                  ].map((req, i) => (
+                    <div key={i} className="flex items-center justify-between p-4 hover:bg-muted/10 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-muted/40 rounded-xl flex items-center justify-center text-muted-foreground">
+                          <User className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-sm text-foreground">{req.name}</div>
+                          <div className="text-[10px] text-muted-foreground font-medium italic">{req.phone} • {req.time}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold uppercase border-border hover:bg-gray-50">
+                          View ID
+                        </Button>
+                        <Button size="sm" className="h-8 text-[10px] font-bold uppercase bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-sm">
+                          Approve
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-lg">
+                          <XCircle className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>

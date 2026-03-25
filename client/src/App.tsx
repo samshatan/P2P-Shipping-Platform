@@ -25,6 +25,9 @@ import InternationalBooking from './app/(dashboard)/book/international/page';
 import AnalyticsDashboard from './app/(dashboard)/analytics/page';
 import AdminDashboard from './app/(dashboard)/admin/page';
 import PartnerDashboard from './app/(dashboard)/partner/page';
+import NotificationsPage from './app/(dashboard)/notifications/page';
+import PaymentFailedPage from './app/(dashboard)/book/payment-failed/page';
+import KYCPage from './app/(dashboard)/profile/kyc/page';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   // A simple layout wrapper
@@ -61,6 +64,9 @@ function App() {
             <Route path="/shipments/:id" element={<ProtectedRoute><ShipmentDetailPage /></ProtectedRoute>} />
             <Route path="/track/:awb" element={<TrackingPage />} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/profile/kyc" element={<ProtectedRoute><KYCPage /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+            <Route path="/book/payment-failed" element={<ProtectedRoute><PaymentFailedPage /></ProtectedRoute>} />
             
             <Route path="/cod-returns" element={<CashOnDeliveryPortal />} />
             <Route path="/international" element={<InternationalBooking />} />

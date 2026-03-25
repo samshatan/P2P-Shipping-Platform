@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { Menu, X, User, LayoutDashboard, LogOut } from "lucide-react";
+import { Menu, X, User, LayoutDashboard, LogOut, Bell } from "lucide-react";
 import { useState } from "react";
 
 export function Navbar() {
@@ -36,11 +36,15 @@ export function Navbar() {
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <div className="hidden sm:flex items-center gap-3">
+                <Button onClick={() => navigate('/notifications')} variant="ghost" size="icon" className="relative group">
+                  <Bell className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-background"></span>
+                </Button>
                 <Button onClick={() => navigate('/dashboard')} variant="ghost" size="sm" className="items-center gap-2 text-sm font-medium">
                   <LayoutDashboard className="w-4 h-4" />
                   Dashboard
                 </Button>
-                <Button onClick={() => navigate('/profile')} variant="ghost" size="sm" className="items-center gap-2 text-sm font-medium">
+                <Button onClick={() => navigate('/profile')} variant="ghost" size="sm" className="items-center gap-2 text-sm font-medium border border-border/40 bg-white/50 shadow-sm">
                   <User className="w-4 h-4" />
                   Profile
                 </Button>

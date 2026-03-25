@@ -15,9 +15,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
   const { showToast } = useToast();
+  const [editingAddr, setEditingAddr] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'addresses'>('profile');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   
   // Profile state
   const [profile, setProfile] = useState<any>(null);
@@ -89,13 +91,39 @@ export default function ProfilePage() {
     }
   };
 
+  const handleUpdateAddress = async () => {
+    if (!editingAddr.name || !editingAddr.phone || !editingAddr.address || !editingAddr.pincode) {
+      showToast("Please fill all required fields", "error");
+      return;
+    }
+    try {
+      setIsAddingAddress(true);
+      // Mock update
+      setAddresses(prev => prev.map(a => a.id === editingAddr.id ? editingAddr : a));
+      setEditingAddr(null);
+      showToast("Address updated", "success");
+    } catch (err: any) {
+      showToast("Update failed", "error");
+    } finally {
+      setIsAddingAddress(false);
+    }
+  };
+
   const handleDeleteAddress = async (id: string) => {
+    if (confirmingDeleteId !== id) {
+      setConfirmingDeleteId(id);
+      setTimeout(() => setConfirmingDeleteId(null), 3000);
+      return;
+    }
+    
     try {
       await deleteAddress(id);
       setAddresses(prev => prev.filter(a => a.id !== id));
       showToast("Address removed", "success");
     } catch (err: any) {
       showToast("Failed to delete address", "error");
+    } finally {
+      setConfirmingDeleteId(null);
     }
   };
 
@@ -279,8 +307,20 @@ export default function ProfilePage() {
                                   {addr.city}, {addr.state} • {addr.pincode} • {addr.phone}
                                 </p>
                               </div>
-                              <button onClick={() => handleDeleteAddress(addr.id)} className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                                <Trash2 className="w-4 h-4" />
+                              <button 
+                                onClick={() => handleDeleteAddress(addr.id)} 
+                                className={cn(
+                                  "p-2 rounded-lg transition-all flex items-center gap-1",
+                                  confirmingDeleteId === addr.id 
+                                    ? "bg-rose-500 text-white px-3" 
+                                    : "text-muted-foreground hover:text-red-500 hover:bg-red-50"
+                                )}
+                              >
+                                {confirmingDeleteId === addr.id ? (
+                                  <span className="text-[10px] font-bold uppercase whitespace-nowrap">Confirm?</span>
+                                ) : (
+                                  <Trash2 className="w-4 h-4" />
+                                )}
                               </button>
                             </div>
                           ))

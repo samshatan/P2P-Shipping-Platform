@@ -242,10 +242,27 @@ export default function ReviewAndPay() {
               )}
             </div>
 
+            <div className="mb-6 p-4 bg-muted/20 rounded-xl border border-border/50">
+               <div className="flex items-center gap-2 mb-3 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                 <Tag className="w-3 h-3" /> Available Offers
+               </div>
+               <div className="space-y-2">
+                 {[
+                   { code: "PARCEL10", desc: "10% off on all shipments" },
+                   { code: "FIRST50", desc: "Flat ₹50 off on first booking" }
+                 ].map(offer => (
+                   <div key={offer.code} className="flex items-center justify-between group cursor-pointer" onClick={() => { setPromoInput(offer.code); setPromoStatus(false); }}>
+                     <div className="bg-primary/5 text-primary border border-primary/20 text-[10px] font-bold px-2 py-0.5 rounded uppercase group-hover:bg-primary group-hover:text-white transition-colors">{offer.code}</div>
+                     <span className="text-[10px] text-muted-foreground font-medium">{offer.desc}</span>
+                   </div>
+                 ))}
+               </div>
+            </div>
+
             <div className="flex items-center gap-2 mb-6 relative">
               <div className="relative flex-1">
                 <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input value={promoInput} onChange={e => setPromoInput(e.target.value.toUpperCase())} placeholder="Promo code (Try PARCEL10)" className={`pl-9 h-10 bg-gray-50/50 ${promoStatus === 'invalid' ? 'border-red-500 ring-1 ring-red-500' : ''}`} disabled={promoStatus === 'applied'} />
+                <Input value={promoInput} onChange={e => setPromoInput(e.target.value.toUpperCase())} placeholder="Promo code" className={`pl-9 h-10 bg-gray-50/50 ${promoStatus === 'invalid' ? 'border-red-500 ring-1 ring-red-500' : ''}`} disabled={promoStatus === 'applied'} />
               </div>
               <Button onClick={handleApplyPromo} variant={promoStatus === 'applied' ? "default" : "secondary"} className={`h-10 font-semibold ${promoStatus === 'applied' ? 'bg-emerald-600 hover:bg-emerald-600 text-white shadow-sm' : ''}`} disabled={promoStatus === 'applied'}>
                 {promoStatus === 'applied' ? 'Applied' : 'Apply'}
