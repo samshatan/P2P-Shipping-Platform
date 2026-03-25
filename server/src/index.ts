@@ -3,7 +3,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import { prisma } from './lib/prisma';
 import { redis } from './lib/redis';
 
 // Load environment variables
@@ -24,8 +23,6 @@ app.use(morgan('dev'));
 // Health Check Endpoint
 app.get('/health', async (req, res) => {
   try {
-    // Check DB
-    await prisma.$queryRaw`SELECT 1`;
     // Check Redis
     await redis.ping();
 
