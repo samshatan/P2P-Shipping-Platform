@@ -24,28 +24,53 @@ export const MOCK_COURIERS = [
 ]
 
 export const MOCK_SHIPMENTS = [
-  { awb:"SR2024031500123", from:"DEL", to:"BOM", fromCity:"New Delhi", 
+  { id: 1, shipment_id: "SR1", awb:"SR2024031500123", from:"DEL", to:"BOM", fromCity:"New Delhi", 
     toCity:"Mumbai", courier:"Delhivery", status:"Out for Delivery", 
     amount:114, date:"Mar 15, 2024", weight:"1kg", type:"Parcel",
     evidenceVault:true, cod:false },
-  { awb:"SR2024031400089", from:"BLR", to:"HYD", fromCity:"Bangalore", 
+  { id: 2, shipment_id: "SR2", awb:"SR2024031400089", from:"BLR", to:"HYD", fromCity:"Bangalore", 
     toCity:"Hyderabad", courier:"XpressBees", status:"In Transit", 
     amount:89, date:"Mar 14, 2024", weight:"500g", type:"Document",
     evidenceVault:false, cod:false },
-  { awb:"SR2024031200045", from:"DEL", to:"PNQ", fromCity:"New Delhi", 
+  { id: 3, shipment_id: "SR3", awb:"SR2024031200045", from:"DEL", to:"PNQ", fromCity:"New Delhi", 
     toCity:"Pune", courier:"Ecom Express", status:"Delivered", 
     amount:95, date:"Mar 12, 2024", weight:"2kg", type:"Parcel",
     evidenceVault:true, cod:true, codAmount:850 },
-  { awb:"SR2024031000007", from:"CCU", to:"DEL", fromCity:"Kolkata", 
+  { id: 4, shipment_id: "SR4", awb:"SR2024031000007", from:"CCU", to:"DEL", fromCity:"Kolkata", 
     toCity:"New Delhi", courier:"DTDC", status:"Exception", 
     amount:210, date:"Mar 10, 2024", weight:"3kg", type:"Parcel",
     evidenceVault:false, cod:false },
-  { awb:"SR2024030800212", from:"BOM", to:"MAA", fromCity:"Mumbai", 
+  { id: 5, shipment_id: "SR5", awb:"SR2024030800212", from:"BOM", to:"MAA", fromCity:"Mumbai", 
     toCity:"Chennai", courier:"Blue Dart", status:"Delivered", 
     amount:320, date:"Mar 8, 2024", weight:"1.5kg", type:"Fragile",
     evidenceVault:true, cod:false },
-  { awb:"RET-SR992", from:"PNQ", to:"DEL", fromCity:"Pune", 
+  { id: 6, shipment_id: "SR6", awb:"RET-SR992", from:"PNQ", to:"DEL", fromCity:"Pune", 
     toCity:"New Delhi", courier:"Delhivery", status:"Return Pending", 
     amount:0, date:"Mar 5, 2024", weight:"1kg", type:"Parcel",
     evidenceVault:false, cod:false }
 ]
+
+export const MOCK_TRACKING: Record<string, any> = {
+  "SR2024031500123": {
+    awb: "SR2024031500123",
+    status: "out_for_delivery",
+    courier: "Delhivery",
+    eta: "Today, by 6:00 PM",
+    events: [
+      { id: 1, status: "completed", location: "Mumbai HUB", description: "Package arrived at Mumbai local hub", timestamp: "2024-03-15T09:00:00Z" },
+      { id: 2, status: "active", location: "On the way", description: "Out for delivery - Rahul (9876543210)", timestamp: "2024-03-15T10:30:00Z" },
+      { id: 3, status: "pending", location: "Destination", description: "Delivered to recipient", timestamp: "" }
+    ]
+  },
+  "SR2024031400089": {
+    awb: "SR2024031400089",
+    status: "in_transit",
+    courier: "XpressBees",
+    eta: "Mar 17, 2024",
+    events: [
+      { id: 1, status: "completed", location: "Bangalore", description: "Pickup scheduled", timestamp: "2024-03-14T10:00:00Z" },
+      { id: 2, status: "completed", location: "Bangalore HUB", description: "In transit to Hyderabad", timestamp: "2024-03-14T18:00:00Z" },
+      { id: 3, status: "active", location: "Transit", description: "Arrived at Hyderabad sorting center", timestamp: "2024-03-15T04:00:00Z" }
+    ]
+  }
+};

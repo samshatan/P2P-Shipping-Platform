@@ -1,9 +1,41 @@
+import { MOCK_USER, MOCK_COURIERS, MOCK_SHIPMENTS, MOCK_TRACKING } from './mockData';
+
 /// <reference types="vite/client" />
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+
+// Use environment variable to toggle mocks
+const USE_MOCK = (import.meta as any).env?.VITE_USE_MOCK === 'true';
+
+if (USE_MOCK) {
+  console.log("%c[API MODE] Using MOCK data", "color: #ff5722; font-weight: bold; background: #fff2ef; padding: 2px 5px; border-radius: 4px;");
+} else {
+  console.log("%c[API MODE] Using REAL API", "color: #2196f3; font-weight: bold; background: #e3f2fd; padding: 2px 5px; border-radius: 4px;");
+}
+
+function getMockResponse(endpoint: string) {
+  if (endpoint.includes('/auth/send-otp')) return { data: { success: true } };
+  if (endpoint.includes('/auth/verify-otp')) return { data: { access_token: 'mock_token_123', user: MOCK_USER } };
+  if (endpoint.includes('/users/profile')) return { data: MOCK_USER };
+  if (endpoint.includes('/users/shipments')) return { data: { shipments: MOCK_SHIPMENTS, pagination: { total: MOCK_SHIPMENTS.length } } };
+  if (endpoint.includes('/users/addresses')) return { data: [] };
+  if (endpoint.includes('/couriers/rates')) return { data: MOCK_COURIERS };
+  if (endpoint.includes('/tracking')) {
+     const awb = endpoint.split('/').pop() || "";
+     const found = MOCK_TRACKING[awb];
+     return { data: found || Object.values(MOCK_TRACKING)[0] };
+  }
+  if (endpoint.includes('/shipments/')) return { data: MOCK_SHIPMENTS[0] };
+  
+  return { data: null };
+}
 
 export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   const url = `${API_URL}${endpoint}`;
   
+  if (USE_MOCK) {
+    return getMockResponse(endpoint);
+  }
+
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...options.headers
@@ -15,7 +47,6 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   }
 
   const response = await fetch(url, { ...options, headers });
-  
   const data = await response.json().catch(() => null);
   
   if (!response.ok) {
