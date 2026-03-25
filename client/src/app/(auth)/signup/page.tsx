@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Package, ArrowRight, CheckCircle2, User, Building2, Smartphone, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Package, ArrowRight, CheckCircle2, User, Building2, Smartphone, Mail, Lock, Eye, EyeOff, AtSign } from "lucide-react";
 import { clsx } from "clsx";
 
 export default function SignupPage() {
@@ -10,6 +10,11 @@ export default function SignupPage() {
   const [step, setStep] = useState(1);
   const [role, setRole] = useState("USER");
   const [showPassword, setShowPassword] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; username?: string; fullName?: string }>({});
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -32,6 +37,40 @@ export default function SignupPage() {
   const inputBlurHandler = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.style.borderColor = "#d1d5db";
     e.target.style.boxShadow = "none";
+  };
+
+  const validateStep2 = (): boolean => {
+    const newErrors: { email?: string; username?: string; fullName?: string } = {};
+    if (!fullName.trim()) {
+      newErrors.fullName = role === "BUSINESS" ? "Company name is required" : "Full name is required";
+    }
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    if (!username.trim()) {
+      newErrors.username = "Username is required";
+    } else if (username.trim().length < 3) {
+      newErrors.username = "Username must be at least 3 characters";
+    } else if (!/^[a-zA-Z0-9_]+$/.test(username.trim())) {
+      newErrors.username = "Username can only contain letters, numbers, and underscores";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleStep2Next = () => {
+    if (validateStep2()) {
+      setStep(3);
+    }
+  };
+
+  const getInputErrorStyle = (field: "email" | "username" | "fullName"): React.CSSProperties => {
+    if (errors[field]) {
+      return { borderColor: "#ef4444", boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.1)" };
+    }
+    return {};
   };
 
   return (
@@ -209,8 +248,10 @@ export default function SignupPage() {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Full Name / Company Name</Label>
+                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>
+                    {role === "BUSINESS" ? "Company Name" : "Full Name"} <span style={{ color: "#ef4444" }}>*</span>
+                  </Label>
                   <div style={{ position: "relative", width: "100%" }}>
                     <User style={{
                       position: "absolute",
@@ -219,20 +260,58 @@ export default function SignupPage() {
                       transform: "translateY(-50%)",
                       width: 18,
                       height: 18,
-                      color: "#9ca3af",
+                      color: errors.fullName ? "#ef4444" : "#9ca3af",
                       pointerEvents: "none",
                     }} />
                     <input
-                      placeholder="John Doe"
-                      style={{ ...inputStyle, paddingLeft: "44px" }}
+                      placeholder={role === "BUSINESS" ? "Acme Corp" : "John Doe"}
+                      value={fullName}
+                      onChange={(e) => { setFullName(e.target.value); setErrors(prev => ({ ...prev, fullName: undefined })); }}
+                      style={{ ...inputStyle, paddingLeft: "44px", ...getInputErrorStyle("fullName") }}
                       onFocus={inputFocusHandler}
                       onBlur={inputBlurHandler}
+                      required
                     />
                   </div>
+                  {errors.fullName && (
+                    <p style={{ fontSize: "12px", color: "#ef4444", margin: 0 }}>{errors.fullName}</p>
+                  )}
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Email Address</Label>
+                  <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>
+                    Username <span style={{ color: "#ef4444" }}>*</span>
+                  </Label>
+                  <div style={{ position: "relative", width: "100%" }}>
+                    <AtSign style={{
+                      position: "absolute",
+                      left: "14px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: 18,
+                      height: 18,
+                      color: errors.username ? "#ef4444" : "#9ca3af",
+                      pointerEvents: "none",
+                    }} />
+                    <input
+                      placeholder="johndoe_42"
+                      value={username}
+                      onChange={(e) => { setUsername(e.target.value); setErrors(prev => ({ ...prev, username: undefined })); }}
+                      style={{ ...inputStyle, paddingLeft: "44px", ...getInputErrorStyle("username") }}
+                      onFocus={inputFocusHandler}
+                      onBlur={inputBlurHandler}
+                      required
+                    />
+                  </div>
+                  {errors.username && (
+                    <p style={{ fontSize: "12px", color: "#ef4444", margin: 0 }}>{errors.username}</p>
+                  )}
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>
+                    Email Address <span style={{ color: "#ef4444" }}>*</span>
+                  </Label>
                   <div style={{ position: "relative", width: "100%" }}>
                     <Mail style={{
                       position: "absolute",
@@ -241,17 +320,23 @@ export default function SignupPage() {
                       transform: "translateY(-50%)",
                       width: 18,
                       height: 18,
-                      color: "#9ca3af",
+                      color: errors.email ? "#ef4444" : "#9ca3af",
                       pointerEvents: "none",
                     }} />
                     <input
                       placeholder="name@example.com"
                       type="email"
-                      style={{ ...inputStyle, paddingLeft: "44px" }}
+                      value={email}
+                      onChange={(e) => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: undefined })); }}
+                      style={{ ...inputStyle, paddingLeft: "44px", ...getInputErrorStyle("email") }}
                       onFocus={inputFocusHandler}
                       onBlur={inputBlurHandler}
+                      required
                     />
                   </div>
+                  {errors.email && (
+                    <p style={{ fontSize: "12px", color: "#ef4444", margin: 0 }}>{errors.email}</p>
+                  )}
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -270,6 +355,8 @@ export default function SignupPage() {
                     <input
                       placeholder="Create a strong password"
                       type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       style={{ ...inputStyle, paddingLeft: "44px", paddingRight: "44px" }}
                       onFocus={inputFocusHandler}
                       onBlur={inputBlurHandler}
@@ -304,7 +391,7 @@ export default function SignupPage() {
 
               <div style={{ display: "flex", gap: "12px" }}>
                 <Button variant="outline" onClick={() => setStep(1)} className="h-12 rounded-xl flex-1">Back</Button>
-                <Button onClick={() => setStep(3)} className="h-12 rounded-xl flex-[2] bg-primary hover:bg-primary/90 text-white font-semibold shadow-md shadow-primary/20">
+                <Button onClick={handleStep2Next} className="h-12 rounded-xl flex-[2] bg-primary hover:bg-primary/90 text-white font-semibold shadow-md shadow-primary/20">
                   Next Step
                 </Button>
               </div>
