@@ -1,4 +1,4 @@
-import { MOCK_USER, MOCK_COURIERS, MOCK_SHIPMENTS, MOCK_TRACKING } from './mockData';
+import { MOCK_USER, MOCK_COURIERS, MOCK_SHIPMENTS, MOCK_TRACKING, MOCK_ADDRESSES } from './mockData';
 
 /// <reference types="vite/client" />
 const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
@@ -15,12 +15,34 @@ if (USE_MOCK) {
   console.log("%c[API MODE]: REAL", "color: #2196f3; font-weight: bold;");
 }
 
-function getMockResponse(endpoint: string) {
+// In-memory mock address store for add/delete in mock mode
+let mockAddressStore = [...MOCK_ADDRESSES];
+let mockAddrIdCounter = MOCK_ADDRESSES.length + 1;
+
+function getMockResponse(endpoint: string, options?: RequestInit) {
+  const method = options?.method?.toUpperCase() || 'GET';
+
   if (endpoint.includes('/auth/send-otp')) return { data: { success: true } };
   if (endpoint.includes('/auth/verify-otp')) return { data: { access_token: 'mock_token_123', user: MOCK_USER } };
   if (endpoint.includes('/users/profile')) return { data: MOCK_USER };
   if (endpoint.includes('/users/shipments')) return { data: { shipments: MOCK_SHIPMENTS, pagination: { total: MOCK_SHIPMENTS.length } } };
-  if (endpoint.includes('/users/addresses')) return { data: [] };
+
+  // Address CRUD
+  if (endpoint.includes('/users/addresses')) {
+    if (method === 'POST') {
+      const body = options?.body ? JSON.parse(options.body as string) : {};
+      const newAddr = { id: String(mockAddrIdCounter++), ...body };
+      mockAddressStore.unshift(newAddr);
+      return { data: newAddr };
+    }
+    if (method === 'DELETE') {
+      const id = endpoint.split('/').pop();
+      mockAddressStore = mockAddressStore.filter(a => a.id !== id);
+      return { data: { success: true } };
+    }
+    return { data: mockAddressStore };
+  }
+
   if (endpoint.includes('/couriers/rates')) return { data: MOCK_COURIERS };
   if (endpoint.includes('/tracking')) {
      const awb = endpoint.split('/').pop() || "";
@@ -36,7 +58,7 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   const url = `${API_URL}${endpoint}`;
   
   if (USE_MOCK) {
-    return getMockResponse(endpoint);
+    return getMockResponse(endpoint, options);
   }
 
   const headers: HeadersInit = {

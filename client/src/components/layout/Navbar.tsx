@@ -1,8 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { Menu, X, User, LayoutDashboard, LogOut } from "lucide-react";
+import { useState } from "react";
 
 export function Navbar() {
   const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.03)] transition-all">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,7 +26,7 @@ export function Navbar() {
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-8">
             <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Pricing</Link>
             <Link to="/track" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Track Shipment</Link>
             <Link to="/international" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">International</Link>
@@ -28,12 +34,55 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button onClick={() => navigate('/login')} variant="ghost" className="hidden sm:inline-flex text-sm font-medium">Log in</Button>
+            {isAuthenticated ? (
+              <div className="hidden sm:flex items-center gap-3">
+                <Button onClick={() => navigate('/dashboard')} variant="ghost" size="sm" className="items-center gap-2 text-sm font-medium">
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Button>
+                <Button onClick={() => navigate('/profile')} variant="ghost" size="sm" className="items-center gap-2 text-sm font-medium">
+                  <User className="w-4 h-4" />
+                  Profile
+                </Button>
+              </div>
+            ) : (
+              <Button onClick={() => navigate('/login')} variant="ghost" size="sm" className="hidden sm:inline-flex text-sm font-medium">Log in</Button>
+            )}
+            
             <Button onClick={() => navigate('/compare')} className="hidden sm:inline-flex bg-gradient-to-r from-[#a33900] to-[#cc4900] hover:from-[#8c3100] hover:to-[#a33900] text-white shadow-lg shadow-primary/25 border-0 font-semibold rounded-lg px-6 transition-all hover:scale-105">
               Book Parcel
             </Button>
+            
+            {/* Mobile Menu Toggle */}
+            <button 
+              className="lg:hidden p-2 text-muted-foreground hover:bg-white/10 rounded-lg transition-colors"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu Content */}
+        {isMenuOpen && (
+          <div className="lg:hidden pb-6 pt-2 border-t border-white/10 flex flex-col gap-4 animate-in slide-in-from-top-2 duration-300">
+            <Link to="/pricing" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-base font-medium text-muted-foreground hover:text-primary transition-colors">Pricing</Link>
+            <Link to="/track" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-base font-medium text-muted-foreground hover:text-primary transition-colors">Track Shipment</Link>
+            <Link to="/international" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-base font-medium text-muted-foreground hover:text-primary transition-colors">International</Link>
+            <Link to="/partner" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-base font-medium text-muted-foreground hover:text-primary transition-colors">Couriers</Link>
+            <hr className="border-white/10 mx-4" />
+            {isAuthenticated ? (
+              <>
+                <Link to="/dashboard" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-base font-medium text-muted-foreground hover:text-primary transition-colors">Dashboard</Link>
+                <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-base font-medium text-muted-foreground hover:text-primary transition-colors">Profile</Link>
+                <button onClick={() => { logout(); setIsMenuOpen(false); }} className="px-4 py-2 text-left text-base font-medium text-red-400 hover:text-red-300 transition-colors">Logout</button>
+              </>
+            ) : (
+              <Link to="/login" onClick={() => setIsMenuOpen(false)} className="px-4 py-2 text-base font-medium text-muted-foreground hover:text-primary transition-colors">Log in</Link>
+            )}
+            <Link to="/compare" onClick={() => setIsMenuOpen(false)} className="mx-4 mt-2 py-3 bg-primary text-white text-center font-bold rounded-xl shadow-lg">Book Parcel</Link>
+          </div>
+        )}
       </div>
     </nav>
   );

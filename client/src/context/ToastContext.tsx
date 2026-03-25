@@ -25,7 +25,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const showToast = useCallback((message: string, type: ToastType) => {
-    console.log("Toast triggered:", message, type);
+    // Toast triggered
     const id = Math.random().toString(36).substr(2, 9);
     setToasts((prev) => [...prev, { id, message, type }]);
 

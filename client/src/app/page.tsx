@@ -13,6 +13,21 @@ import { useState } from "react";
 export default function Home() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('domestic');
+  const [pickup, setPickup] = useState('');
+  const [delivery, setDelivery] = useState('');
+  const [weight, setWeight] = useState('');
+
+  const handleGetRates = () => {
+    if (tab === 'international') {
+      navigate('/international');
+    } else {
+      const params = new URLSearchParams();
+      if (pickup) params.append('pickup', pickup);
+      if (delivery) params.append('delivery', delivery);
+      if (weight) params.append('weight', weight);
+      navigate(`/compare?${params.toString()}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f7f9fb] flex flex-col relative overflow-hidden">
@@ -79,14 +94,24 @@ export default function Home() {
                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pickup</label>
                        <div className="relative">
                          <div className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-tertiary"></div>
-                         <Input placeholder="Pincode e.g 400001" className="h-12 pl-8 border-border bg-white shadow-sm focus-visible:ring-primary/20" />
+                         <Input 
+                            value={pickup}
+                            onChange={(e) => setPickup(e.target.value)}
+                            placeholder="Pincode e.g 400001" 
+                            className="h-12 pl-8 border-border bg-white shadow-sm focus-visible:ring-primary/20" 
+                         />
                        </div>
                     </div>
                     <div className="space-y-2">
                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Delivery</label>
                        <div className="relative">
                          <div className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary"></div>
-                         <Input placeholder="Pincode e.g 110001" className="h-12 pl-8 border-border bg-white shadow-sm focus-visible:ring-primary/20" />
+                         <Input 
+                            value={delivery}
+                            onChange={(e) => setDelivery(e.target.value)}
+                            placeholder="Pincode e.g 110001" 
+                            className="h-12 pl-8 border-border bg-white shadow-sm focus-visible:ring-primary/20" 
+                         />
                        </div>
                     </div>
                   </div>
@@ -94,14 +119,21 @@ export default function Home() {
                   <div className="space-y-2">
                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Parcel Details</label>
                      <div className="flex flex-col sm:flex-row gap-4">
-                       <Input placeholder="Weight (kg)" type="number" step="0.1" className="h-12 border-border bg-white shadow-sm flex-1" />
+                       <Input 
+                          value={weight}
+                          onChange={(e) => setWeight(e.target.value)}
+                          placeholder="Weight (kg)" 
+                          type="number" 
+                          step="0.1" 
+                          className="h-12 border-border bg-white shadow-sm flex-1" 
+                       />
                        <div className="flex items-center justify-center h-12 px-4 border border-border bg-background rounded-md text-sm font-medium text-muted-foreground sm:w-1/3 cursor-not-allowed">
                          Document
                        </div>
                      </div>
                   </div>
 
-                  <Button onClick={() => navigate(tab === 'international' ? '/international' : '/compare')} className="w-full h-14 mt-4 bg-foreground text-white hover:bg-foreground/90 rounded-xl font-semibold text-lg shadow-[0_10px_30px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1">
+                  <Button onClick={handleGetRates} className="w-full h-14 mt-4 bg-foreground text-white hover:bg-foreground/90 rounded-xl font-semibold text-lg shadow-[0_10px_30px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1">
                     Get Best Rates
                   </Button>
                 </div>
