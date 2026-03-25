@@ -16,7 +16,7 @@ P2P-Shipping-Platform/
 
 ## 🖥️ Frontend (client/)
 
-**Status: 16/25 MVP screens complete**
+**Status: 23/25 MVP screens complete**
 
 ### Tech Stack
 | Technology | Version | Purpose |
@@ -38,32 +38,28 @@ P2P-Shipping-Platform/
 | `/pricing` | Pricing page | ✅ Done |
 | `/login` | Login + OTP | ✅ Done |
 | `/signup` | Sign up | ✅ Done |
-| `/verify-otp` | OTP verification | ✅ Done |
-| `/book/address` | Address input | ✅ Done |
+| `/verify-otp` | OTP verification (Resend + Expired) | ✅ Done |
+| `/book/address` | Address input (Pincode Error) | ✅ Done |
 | `/book/courier` | Courier comparison | ✅ Done |
 | `/book/evidence` | Evidence Vault | ✅ Done |
-| `/book/review` | Review & Pay | ✅ Done |
+| `/book/review` | Review & Pay (Promo Codes) | ✅ Done |
+| `/book/payment-failed` | Payment failed + retry | ✅ Done |
 | `/book/confirmed` | Booking confirmed | ✅ Done |
 | `/dashboard` | User dashboard | ✅ Done |
 | `/shipments` | My Shipments | ✅ Done |
 | `/track/:awb` | Tracking timeline | ✅ Done |
 | `/profile` | Profile + Wallet | ✅ Done |
+| `/profile/kyc` | KYC — Aadhaar input + Upload | ✅ Done |
+| `/notifications` | Notifications page | ✅ Done |
 | `/cod-returns` | COD & Remittance | ✅ Done |
 | `/international` | International booking | ✅ Done |
-| `/admin` | Admin control panel | ✅ Done |
+| `/admin` | Admin control panel (Manual KYC) | ✅ Done |
 | `/partner` | Courier partner portal | ✅ Done |
 | `/compare` | Public rate compare | ✅ Done |
 
-### MVP Screens Still Missing (9)
-- OTP Expired / Resend screen
-- KYC — Aadhaar input screen
-- Pincode not serviceable error
+### MVP Screens Still Missing (2)
 - Delivery attempt failed screen
-- Address book management (add/edit/delete)
-- Notifications page
-- Payment failed + retry
-- Apply promo code screen
-- Manual KYC Approval (Admin)
+- Address book management (dedicated add/edit/delete page)
 
 ### Running the Frontend
 ```bash
