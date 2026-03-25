@@ -7,13 +7,15 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/Toast";
 import { getUserProfile, updateUserProfile, getAddresses, addAddress, deleteAddress } from "@/lib/api";
-import { Copy, Wallet, Share2, MessageCircle, Gift, Trophy, ShieldCheck, CreditCard, Loader2, MapPin, Plus, Trash2, User } from "lucide-react";
+import { Copy, Wallet, Share2, MessageCircle, Gift, Trophy, ShieldCheck, CreditCard, Loader2, MapPin, Plus, Trash2, User, ExternalLink, Settings2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const [editingAddr, setEditingAddr] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'addresses'>('profile');
@@ -259,72 +261,44 @@ export default function ProfilePage() {
                 </>
               ) : (
                 <>
-                  <Card className="p-6 bg-white border-border shadow-sm rounded-2xl">
-                    <div className="flex items-center justify-between mb-8 border-b border-border/60 pb-4">
-                      <h3 className="font-heading font-bold text-xl flex items-center gap-2">
-                        <MapPin className="w-5 h-5 text-primary" /> Saved Addresses
-                      </h3>
-                      <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5">{addresses.length} Saved</Badge>
+                  <Card className="p-10 bg-white border-border shadow-sm rounded-3xl text-center relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+                    
+                    <div className="w-20 h-20 bg-primary/10 text-primary rounded-[2rem] flex items-center justify-center mx-auto mb-6 relative z-10">
+                      <MapPin className="w-10 h-10" />
+                    </div>
+                    
+                    <h3 className="font-heading font-extrabold text-2xl text-foreground mb-3 relative z-10">
+                      Address Management
+                    </h3>
+                    <p className="text-muted-foreground font-medium mb-8 max-w-sm mx-auto relative z-10">
+                      You have {addresses.length} addresses saved. Manage your labels, set defaults, and update contact details in our dedicated management portal.
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
+                      <Button 
+                        onClick={() => navigate('/profile/addresses')} 
+                        className="h-14 px-8 bg-foreground text-white hover:bg-foreground/90 font-bold rounded-2xl shadow-lg shadow-foreground/10 transition-all hover:scale-[1.02]"
+                      >
+                        <Settings2 className="w-5 h-5 mr-3" /> Manage Address Book
+                      </Button>
+                      <Button 
+                        onClick={() => navigate('/profile/addresses/add')} 
+                        variant="outline"
+                        className="h-14 px-8 border-border font-bold rounded-2xl hover:bg-muted/50"
+                      >
+                        <Plus className="w-5 h-5 mr-3" /> Add New
+                      </Button>
                     </div>
 
-                    <div className="space-y-6">
-                      {/* Add New Address Form */}
-                      <div className="bg-[#f7f9fb] p-6 rounded-[1.5rem] border border-dashed border-primary/30 relative">
-                        <h4 className="font-bold text-sm mb-4 uppercase tracking-wider text-primary">Add New Address</h4>
-                        <div className="grid sm:grid-cols-2 gap-4">
-                          <Input placeholder="Full Name" value={newAddr.name} onChange={e => setNewAddr({...newAddr, name: e.target.value})} className="h-11 bg-white" />
-                          <Input placeholder="Mobile" value={newAddr.phone} onChange={e => setNewAddr({...newAddr, phone: e.target.value})} className="h-11 bg-white" />
-                          <Input placeholder="Flat, Area, Landmark" value={newAddr.address} onChange={e => setNewAddr({...newAddr, address: e.target.value})} className="h-11 bg-white sm:col-span-2" />
-                          <Input placeholder="Pincode" value={newAddr.pincode} onChange={e => setNewAddr({...newAddr, pincode: e.target.value})} className="h-11 bg-white" />
-                          <Button onClick={handleAddAddress} disabled={isAddingAddress} className="h-11 bg-primary text-white hover:bg-primary/90 rounded-xl font-bold">
-                            {isAddingAddress ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Plus className="w-4 h-4 mr-2" /> Save Address</>}
-                          </Button>
-                        </div>
+                    <div className="mt-10 pt-8 border-t border-border/40 grid grid-cols-2 gap-8 relative z-10">
+                      <div className="text-center border-r border-border/40">
+                         <div className="text-2xl font-heading font-extrabold text-foreground">{addresses.filter(a => a.type === 'Home').length}</div>
+                         <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Home Locations</div>
                       </div>
-
-                      {/* Address List */}
-                      <div className="space-y-4">
-                        {addresses.length === 0 ? (
-                          <div className="py-20 text-center">
-                            <div className="w-16 h-16 bg-muted/40 rounded-full flex items-center justify-center mx-auto mb-4 opacity-40">
-                              <MapPin className="w-8 h-8" />
-                            </div>
-                            <p className="text-muted-foreground font-medium italic">No saved addresses yet.</p>
-                          </div>
-                        ) : (
-                          addresses.map(addr => (
-                            <div key={addr.id} className="group p-5 bg-white border border-border/80 rounded-2xl shadow-sm hover:border-primary/30 transition-all flex items-start gap-4 hover:shadow-md">
-                              <div className="w-10 h-10 bg-muted/40 text-muted-foreground rounded-xl flex items-center justify-center shrink-0 group-hover:bg-primary/5 group-hover:text-primary transition-colors">
-                                <MapPin className="w-5 h-5" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <h4 className="font-bold text-foreground">{addr.name}</h4>
-                                  {addr.is_default && <Badge className="bg-primary/10 text-primary hover:bg-primary/10 text-[10px] py-0 border-0 h-4">Default</Badge>}
-                                </div>
-                                <p className="text-sm text-foreground/80 leading-relaxed truncate">{addr.address}</p>
-                                <p className="text-[11px] font-bold text-muted-foreground mt-1 uppercase tracking-wide">
-                                  {addr.city}, {addr.state} • {addr.pincode} • {addr.phone}
-                                </p>
-                              </div>
-                              <button 
-                                onClick={() => handleDeleteAddress(addr.id)} 
-                                className={cn(
-                                  "p-2 rounded-lg transition-all flex items-center gap-1",
-                                  confirmingDeleteId === addr.id 
-                                    ? "bg-rose-500 text-white px-3" 
-                                    : "text-muted-foreground hover:text-red-500 hover:bg-red-50"
-                                )}
-                              >
-                                {confirmingDeleteId === addr.id ? (
-                                  <span className="text-[10px] font-bold uppercase whitespace-nowrap">Confirm?</span>
-                                ) : (
-                                  <Trash2 className="w-4 h-4" />
-                                )}
-                              </button>
-                            </div>
-                          ))
-                        )}
+                      <div className="text-center">
+                         <div className="text-2xl font-heading font-extrabold text-foreground">{addresses.filter(a => a.type === 'Office').length}</div>
+                         <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Work Locations</div>
                       </div>
                     </div>
                   </Card>

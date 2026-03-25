@@ -28,6 +28,9 @@ import PartnerDashboard from './app/(dashboard)/partner/page';
 import NotificationsPage from './app/(dashboard)/notifications/page';
 import PaymentFailedPage from './app/(dashboard)/book/payment-failed/page';
 import KYCPage from './app/(dashboard)/profile/kyc/page';
+import DelhiveryFailedPage from './app/track/[awb]/failed/page';
+import AddressBookPage from './app/(dashboard)/profile/addresses/page';
+import AddressFormPage from './app/(dashboard)/profile/addresses/add-edit/page';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   // A simple layout wrapper
@@ -63,8 +66,12 @@ function App() {
             <Route path="/shipments" element={<ProtectedRoute><ShipmentsPage /></ProtectedRoute>} />
             <Route path="/shipments/:id" element={<ProtectedRoute><ShipmentDetailPage /></ProtectedRoute>} />
             <Route path="/track/:awb" element={<TrackingPage />} />
+            <Route path="/track/:awb/failed" element={<DelhiveryFailedPage />} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/profile/kyc" element={<ProtectedRoute><KYCPage /></ProtectedRoute>} />
+            <Route path="/profile/addresses" element={<ProtectedRoute><AddressBookPage /></ProtectedRoute>} />
+            <Route path="/profile/addresses/add" element={<ProtectedRoute><AddressFormPage /></ProtectedRoute>} />
+            <Route path="/profile/addresses/edit/:id" element={<ProtectedRoute><AddressFormPage /></ProtectedRoute>} />
             <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
             <Route path="/book/payment-failed" element={<ProtectedRoute><PaymentFailedPage /></ProtectedRoute>} />
             
