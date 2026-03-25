@@ -95,3 +95,52 @@ export async function getUserProfile() {
   const data = await fetchAPI('/users/profile');
   return data.data;
 }
+
+export async function updateUserProfile(payload: { name?: string, email?: string }) {
+  const data = await fetchAPI('/users/profile', {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  });
+  return data.data;
+}
+
+export async function getAddresses() {
+  const data = await fetchAPI('/users/addresses');
+  return data.data;
+}
+
+export async function addAddress(payload: any) {
+  const data = await fetchAPI('/users/addresses', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+  return data.data;
+}
+
+export async function updateAddress(id: string, payload: any) {
+  const data = await fetchAPI(`/users/addresses/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+  return data.data;
+}
+
+export async function deleteAddress(id: string) {
+  const data = await fetchAPI(`/users/addresses/${id}`, {
+    method: 'DELETE'
+  });
+  return data.data;
+}
+
+export async function getShipmentDetail(id: string) {
+  const data = await fetchAPI(`/shipments/${id}`);
+  return data.data;
+}
+
+export async function searchAddresses(query: string) {
+  const data = await fetchAPI('/address/search', {
+    method: 'POST',
+    body: JSON.stringify({ query })
+  });
+  return data.data;
+}

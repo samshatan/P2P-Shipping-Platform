@@ -74,7 +74,7 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pickup</label>
                        <div className="relative">
@@ -93,9 +93,9 @@ export default function Home() {
 
                   <div className="space-y-2">
                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Parcel Details</label>
-                     <div className="flex gap-4">
-                       <Input placeholder="Weight (kg)" type="number" step="0.1" className="h-12 border-border bg-white shadow-sm" />
-                       <div className="flex items-center justify-center px-4 border border-border bg-background rounded-md text-sm font-medium text-muted-foreground w-1/3 cursor-not-allowed">
+                     <div className="flex flex-col sm:flex-row gap-4">
+                       <Input placeholder="Weight (kg)" type="number" step="0.1" className="h-12 border-border bg-white shadow-sm flex-1" />
+                       <div className="flex items-center justify-center h-12 px-4 border border-border bg-background rounded-md text-sm font-medium text-muted-foreground sm:w-1/3 cursor-not-allowed">
                          Document
                        </div>
                      </div>

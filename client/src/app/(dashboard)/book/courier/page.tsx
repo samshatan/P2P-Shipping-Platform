@@ -7,12 +7,15 @@ import { ShieldCheck, Truck, MapPin, Search, ArrowRight, Activity, Clock, CheckC
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-import { MOCK_COURIERS } from "@/lib/mockData";
 import { AiRecommendationCard } from "@/components/features/AiRecommendationCard";
 import { SavingsBanner } from "@/components/features/SavingsBanner";
 import { useToast } from "@/context/ToastContext";
 import { getCourierRates } from "@/lib/api";
 import { useBooking } from "@/context/BookingContext";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CourierSelection() {
   const navigate = useNavigate();
@@ -37,6 +40,11 @@ export default function CourierSelection() {
       };
       const data = await getCourierRates(payload);
       
+      if (!data.couriers || data.couriers.length === 0) {
+        setRates([]);
+        return;
+      }
+
       const adaptedRates = data.couriers.map((c: any) => ({
         id: c.courier_id,
         name: c.courier_name,
@@ -55,7 +63,7 @@ export default function CourierSelection() {
       if (cheapest && !selectedCourier) setCourier(cheapest);
     } catch (err: any) {
       console.error(err);
-      setError("Something went wrong. Please try again.");
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -105,80 +113,82 @@ export default function CourierSelection() {
         )}
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-5 rounded-xl border border-red-200 text-sm font-semibold mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center">
-              <Info className="w-5 h-5 mr-3 shrink-0" /> {error}
+          <ErrorState onRetry={fetchRates} message={error} />
+        )}
+
+        {!error && (
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white p-5 rounded-2xl shadow-sm border border-border">
+            <div className="flex flex-wrap gap-2 w-full">
+              {filters.map(f => (
+                <Badge 
+                  key={f} 
+                  variant={filter === f ? "default" : "outline"}
+                  className={cn("cursor-pointer px-4 py-1.5 text-[10px] font-bold rounded-full uppercase transition-all whitespace-nowrap", filter === f ? "bg-foreground text-background" : "hover:bg-muted")}
+                  onClick={() => setFilter(f)}
+                >
+                  {f}
+                </Badge>
+              ))}
             </div>
-            <Button variant="outline" size="sm" onClick={fetchRates} className="bg-white border-red-200 text-red-600 hover:bg-red-50 h-9 px-4 font-bold shrink-0">
-              <RefreshCw className="w-4 h-4 mr-2" /> Retry
-            </Button>
+            <div className="flex gap-4 items-center text-sm font-bold text-muted-foreground w-full lg:w-auto border-t lg:border-t-0 pt-4 lg:pt-0">
+              <span className="uppercase tracking-widest text-[10px]">Sort By:</span>
+              <div className="flex gap-2">
+                {sorts.map(s => (
+                  <button 
+                    key={s} 
+                    onClick={() => setSort(s)}
+                    className={cn("px-3 py-1 rounded-lg transition-colors text-xs whitespace-nowrap", sort === s ? "bg-primary/10 text-primary" : "hover:bg-muted")}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-border">
-          <div className="flex flex-wrap gap-2">
-            {filters.map(f => (
-              <Badge 
-                key={f} 
-                variant={filter === f ? "default" : "outline"}
-                className={cn("cursor-pointer px-3 py-1 text-xs font-semibold rounded-full uppercase transition-all", filter === f ? "bg-foreground text-background" : "hover:bg-muted")}
-                onClick={() => setFilter(f)}
-              >
-                {f}
-              </Badge>
-            ))}
-          </div>
-          <div className="flex gap-2 items-center text-sm font-semibold text-muted-foreground w-full sm:w-auto">
-            <span className="uppercase tracking-wider text-xs">Sort:</span>
-            {sorts.map(s => (
-              <button 
-                key={s} 
-                onClick={() => setSort(s)}
-                className={cn("px-2 py-1 rounded-md transition-colors", sort === s ? "bg-primary/10 text-primary" : "hover:bg-muted")}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {loading ? (
-          <div className="space-y-4">
+          <div className="space-y-4 relative min-h-[400px]">
             {[1,2,3].map(i => (
-              <Card key={i} className="bg-white/50 animate-pulse border-border rounded-2xl p-6 relative overflow-hidden">
+              <Card key={i} className="bg-white border-border rounded-2xl p-6 relative overflow-hidden">
                 <div className="flex flex-col sm:flex-row gap-6 items-center">
                   <div className="flex items-center gap-4 w-full sm:w-1/4">
-                    <div className="w-12 h-12 bg-muted rounded-full shrink-0" />
+                    <Skeleton className="w-12 h-12 rounded-full shrink-0" />
                     <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-muted rounded w-24" />
-                      <div className="h-3 bg-muted rounded w-16" />
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-16" />
                     </div>
                   </div>
                   <div className="flex-1 grid grid-cols-2 gap-4 w-full">
                     <div className="space-y-2">
-                      <div className="h-3 bg-muted rounded w-16" />
-                      <div className="h-4 bg-muted rounded w-12" />
+                      <Skeleton className="h-3 w-16" />
+                      <Skeleton className="h-4 w-12" />
                     </div>
                     <div className="space-y-2">
-                      <div className="h-3 bg-muted rounded w-16" />
-                      <div className="h-4 bg-muted rounded w-12" />
+                      <Skeleton className="h-3 w-16" />
+                      <Skeleton className="h-4 w-12" />
                     </div>
                   </div>
                   <div className="w-full sm:w-auto mt-4 sm:mt-0">
-                    <div className="h-10 w-24 bg-muted rounded-xl" />
+                    <Skeleton className="h-10 w-24 rounded-xl" />
                   </div>
                 </div>
               </Card>
             ))}
+            <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[1px] z-10 rounded-2xl">
+              <LoadingState message="Calculating Best Rates" />
+            </div>
           </div>
-        ) : (
+        ) : !error && (
           <div className="space-y-4">
-            {!loading && finalRates.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-2xl border border-border flex flex-col items-center justify-center shadow-sm">
-                <div className="text-5xl mb-4">🚫</div>
-                <h3 className="text-xl font-heading font-bold text-foreground mb-2">No couriers available for this route</h3>
-                <p className="text-muted-foreground font-medium">Try a different pincode or package weight</p>
-              </div>
+            {finalRates.length === 0 ? (
+              <EmptyState 
+                title="No couriers available" 
+                description="We couldn't find any couriers for this route and criteria. Try a different pincode or weight."
+                icon={Truck}
+                actionText="Check different route"
+                onAction={() => navigate('/book/address')}
+              />
             ) : finalRates.map((rate, idx) => (
               <Card 
                 key={rate.id} 

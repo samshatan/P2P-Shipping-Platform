@@ -9,6 +9,10 @@ import { useToast } from "@/components/ui/Toast";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { getTracking } from "@/lib/api";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { AnimatedTimeline } from "@/components/features/AnimatedTimeline";
 
@@ -24,12 +28,11 @@ export default function TrackingPage() {
 
   const fetchTracking = async () => {
     try {
-      setIsRefreshing(true);
+      if (!loading) setIsRefreshing(true);
       setError(null);
       const data = await getTracking(awb);
       setTrackingData(data);
     } catch (err: any) {
-      console.error(err);
       setError(err.message || "Invalid Tracking ID");
     } finally {
       setIsRefreshing(false);
@@ -53,16 +56,24 @@ export default function TrackingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f7f9fb] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-[#f7f9fb] flex flex-col">
         <Navbar />
-        <div className="flex flex-col items-center gap-4 bg-white p-10 rounded-3xl border border-border/60 shadow-sm">
-          <div className="relative">
-            <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-            <Activity className="w-6 h-6 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+        <main className="flex-1 flex flex-col items-center justify-center p-4">
+          <LoadingState message="Connecting to courier servers..." />
+          <div className="mt-8 w-full max-w-4xl space-y-6 opacity-40 grayscale pointer-events-none">
+            <Skeleton className="h-20 w-full rounded-2xl" />
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="md:col-span-2 space-y-6">
+                <Skeleton className="h-40 w-full rounded-3xl" />
+                <Skeleton className="h-96 w-full rounded-3xl" />
+              </div>
+              <div className="space-y-6">
+                <Skeleton className="h-64 w-full rounded-2xl" />
+                <Skeleton className="h-32 w-full rounded-2xl" />
+              </div>
+            </div>
           </div>
-          <div className="text-xl font-heading font-bold text-foreground">Fetching tracking data...</div>
-          <p className="text-muted-foreground text-sm font-medium">Connecting to courier servers</p>
-        </div>
+        </main>
       </div>
     );
   }
@@ -72,14 +83,18 @@ export default function TrackingPage() {
       <div className="min-h-screen bg-[#f7f9fb] flex flex-col">
         <Navbar />
         <main className="flex-1 flex flex-col items-center justify-center p-4">
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-red-100 flex flex-col items-center max-w-md w-full text-center">
-             <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6 border border-red-100">
-                <AlertCircle className="w-10 h-10" />
-             </div>
-             <h1 className="font-heading font-bold text-2xl mb-2 text-foreground">Invalid AWB number</h1>
-             <p className="text-muted-foreground mb-8 font-medium">{error || "Please check your AWB number and try again."}</p>
-             <Button onClick={() => navigate('/dashboard')} variant="outline" className="w-full h-12 border-primary text-primary hover:bg-primary/5 rounded-xl font-bold transition-all active:scale-95">Go Back</Button>
-          </div>
+          <ErrorState 
+            message={error || "Tracking data not found"} 
+            onRetry={fetchTracking}
+            title={error?.includes("Invalid") ? "Invalid AWB Number" : "Tracking Error"}
+          />
+          <Button 
+            onClick={() => navigate('/dashboard')} 
+            variant="ghost" 
+            className="mt-4 text-muted-foreground font-bold hover:bg-transparent"
+          >
+            ← Back to Dashboard
+          </Button>
         </main>
       </div>
     );

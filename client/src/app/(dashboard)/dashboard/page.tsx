@@ -3,10 +3,14 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Truck, CheckCircle, IndianRupee, ExternalLink, Filter, Plus, FileText, RefreshCw, AlertCircle, Search } from "lucide-react";
+import { Package, Truck, CheckCircle, IndianRupee, ExternalLink, Plus, FileText, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { getDashboardData } from "@/lib/api";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function getStatusColor(status: string) {
   switch (status) {
@@ -21,6 +25,7 @@ function getStatusColor(status: string) {
 export default function UserDashboard() {
   const [filter, setFilter] = useState("All");
   const [shipments, setShipments] = useState<any[]>([]);
+  const [stats, setStats] = useState({ total: 0, pending: 0, delivered: 0, savings: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,6 +43,7 @@ export default function UserDashboard() {
 
         return {
           id: s.awb_number || s.shipment_id,
+          db_id: s.shipment_id,
           courier: s.courier_name || s.courier_id,
           status: formatStatus(s.status),
           price: s.total_paise / 100,
@@ -46,8 +52,12 @@ export default function UserDashboard() {
       });
       
       setShipments(mappedShipments);
+      
+      // Basic stats from the data if available, or calculate
+      if (data.pagination) {
+        setStats(prev => ({ ...prev, total: data.pagination.total }));
+      }
     } catch (err: any) {
-      console.error(err);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -92,7 +102,9 @@ export default function UserDashboard() {
                 </div>
               </div>
               <div>
-                <div className="text-3xl font-heading font-extrabold text-foreground">24</div>
+                <div className="text-3xl font-heading font-extrabold text-foreground">
+                  {loading ? <Skeleton className="h-8 w-12" /> : stats.total || shipments.length}
+                </div>
                 <div className="text-sm font-bold text-muted-foreground uppercase tracking-wider mt-1">Total Shipments</div>
               </div>
             </Card>
@@ -101,10 +113,12 @@ export default function UserDashboard() {
               <div className="flex justify-between items-start mb-4">
                 <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
                   <Truck className="w-5 h-5" />
-             </div>
+                </div>
               </div>
               <div>
-                <div className="text-3xl font-heading font-extrabold text-foreground">5</div>
+                <div className="text-3xl font-heading font-extrabold text-foreground">
+                  {loading ? <Skeleton className="h-8 w-12" /> : shipments.filter(s => s.status === 'In Transit').length}
+                </div>
                 <div className="text-sm font-bold text-muted-foreground uppercase tracking-wider mt-1">In Transit</div>
               </div>
             </Card>
@@ -116,7 +130,9 @@ export default function UserDashboard() {
                 </div>
               </div>
               <div>
-                <div className="text-3xl font-heading font-extrabold text-foreground">18</div>
+                <div className="text-3xl font-heading font-extrabold text-foreground">
+                  {loading ? <Skeleton className="h-8 w-12" /> : shipments.filter(s => s.status === 'Delivered').length}
+                </div>
                 <div className="text-sm font-bold text-muted-foreground uppercase tracking-wider mt-1">Delivered</div>
               </div>
             </Card>
@@ -159,31 +175,24 @@ export default function UserDashboard() {
              </div>
 
              {/* Shipment Table/List */}
-             <div className="flex-1 w-full overflow-x-auto relative">
+             <div className="flex-1 w-full overflow-x-auto relative min-h-[400px]">
                {loading && shipments.length === 0 ? (
                  <div className="divide-y divide-border/60">
                    {[1,2,3,4,5].map(i => (
-                     <div key={i} className="px-6 py-5 flex items-center justify-between animate-pulse">
-                        <div className="h-4 bg-muted rounded w-24" />
-                        <div className="h-4 bg-muted rounded w-32" />
-                        <div className="h-6 bg-muted rounded-full w-20" />
-                        <div className="h-4 bg-muted rounded w-16" />
-                        <div className="h-8 bg-muted rounded-lg w-20" />
+                     <div key={i} className="px-6 py-5 flex items-center justify-between">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-6 w-20 rounded-full" />
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-8 w-20 rounded-lg" />
                      </div>
                    ))}
-                 </div>
-               ) : null}
-               
-               {error ? (
-                 <div className="flex flex-col items-center justify-center py-24 text-center px-4">
-                   <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4 border border-red-100">
-                     <AlertCircle className="w-8 h-8" />
+                   <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
+                     <LoadingState message="Fetching Shipments" />
                    </div>
-                   <h3 className="font-heading font-bold text-xl text-foreground mb-2">{error}</h3>
-                   <Button onClick={fetchDashboard} variant="outline" className="mt-4 border-primary text-primary hover:bg-primary/5 font-bold px-6 py-2 rounded-xl">
-                      <RefreshCw className="w-4 h-4 mr-2" /> Retry
-                   </Button>
                  </div>
+               ) : error ? (
+                 <ErrorState onRetry={fetchDashboard} />
                ) : shipments.length > 0 ? (
                  <table className="w-full text-left min-w-[700px]">
                    <thead className="bg-muted/30 border-b border-border/80">
@@ -215,7 +224,9 @@ export default function UserDashboard() {
                          </td>
                          <td className="px-6 py-5 text-right">
                              <div className="flex justify-end items-center gap-2">
-                               <Button variant="ghost" size="sm" className="h-8 text-xs font-bold">View Details</Button>
+                               <Link to={`/shipments/${ship.db_id}`}>
+                                 <Button variant="ghost" size="sm" className="h-8 text-xs font-bold">View Details</Button>
+                               </Link>
                                <Link to={`/track/${ship.id}`}>
                                  <Button size="sm" className="h-8 text-xs font-bold bg-white text-foreground border border-border/80 hover:bg-muted/50 rounded-lg shadow-sm">
                                    Track <ExternalLink className="w-3 h-3 ml-1.5" />
@@ -228,24 +239,13 @@ export default function UserDashboard() {
                    </tbody>
                  </table>
                ) : (
-                 <div className="flex flex-col items-center justify-center py-24 text-center px-4">
-                   <div className="w-20 h-20 bg-muted/50 text-muted-foreground rounded-full flex items-center justify-center mb-6 border border-border">
-                     <Search className="w-10 h-10 opacity-50" />
-                   </div>
-                   <h3 className="font-heading font-bold text-2xl text-foreground mb-2">No shipments found</h3>
-                   <p className="text-muted-foreground mb-6 max-w-sm">You haven't booked any parcels {filter !== "All" && `that are ${filter.toLowerCase()}`} yet.</p>
-                   {filter === "All" ? (
-                     <Link to="/compare">
-                       <Button className="h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-8 shadow-sm transition-transform active:scale-95">
-                         Book your first parcel
-                       </Button>
-                     </Link>
-                   ) : (
-                     <Button variant="outline" onClick={() => setFilter("All")} className="h-12 px-8 rounded-xl font-bold">
-                       Clear Filters
-                     </Button>
-                   )}
-                 </div>
+                 <EmptyState 
+                   title="No shipments found" 
+                   description={`You haven't booked any parcels ${filter !== "All" ? `that are ${filter.toLowerCase()}` : ""} yet.`}
+                   icon={Search}
+                   actionText={filter === "All" ? "Book your first parcel" : "Clear Filters"}
+                   onAction={filter === "All" ? () => {} : () => setFilter("All")}
+                 />
                )}
              </div>
 

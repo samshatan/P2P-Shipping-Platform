@@ -17,6 +17,7 @@ import ConfirmedPage from './app/(dashboard)/book/confirmed/[awb]/page';
 
 import UserDashboard from './app/(dashboard)/dashboard/page';
 import ShipmentsPage from './app/(dashboard)/shipments/page';
+import ShipmentDetailPage from './app/(dashboard)/shipments/[id]/page';
 import TrackingPage from './app/track/[awb]/page';
 import ProfilePage from './app/(dashboard)/profile/page';
 import CashOnDeliveryPortal from './app/(dashboard)/finances/page';
@@ -57,7 +58,8 @@ function App() {
             
             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
             <Route path="/shipments" element={<ProtectedRoute><ShipmentsPage /></ProtectedRoute>} />
-            <Route path="/track/:awb" element={<ProtectedRoute><TrackingPage /></ProtectedRoute>} />
+            <Route path="/shipments/:id" element={<ProtectedRoute><ShipmentDetailPage /></ProtectedRoute>} />
+            <Route path="/track/:awb" element={<TrackingPage />} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             
             <Route path="/cod-returns" element={<CashOnDeliveryPortal />} />

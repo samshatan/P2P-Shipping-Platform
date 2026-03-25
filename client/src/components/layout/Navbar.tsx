@@ -29,7 +29,7 @@ export function Navbar() {
 
           <div className="flex items-center gap-4">
             <Button onClick={() => navigate('/login')} variant="ghost" className="hidden sm:inline-flex text-sm font-medium">Log in</Button>
-            <Button onClick={() => navigate('/compare')} className="bg-gradient-to-r from-[#a33900] to-[#cc4900] hover:from-[#8c3100] hover:to-[#a33900] text-white shadow-lg shadow-primary/25 border-0 font-semibold rounded-lg px-6 transition-all hover:scale-105">
+            <Button onClick={() => navigate('/compare')} className="hidden sm:inline-flex bg-gradient-to-r from-[#a33900] to-[#cc4900] hover:from-[#8c3100] hover:to-[#a33900] text-white shadow-lg shadow-primary/25 border-0 font-semibold rounded-lg px-6 transition-all hover:scale-105">
               Book Parcel
             </Button>
           </div>
