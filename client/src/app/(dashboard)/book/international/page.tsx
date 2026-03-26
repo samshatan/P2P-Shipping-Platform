@@ -62,11 +62,11 @@ export default function InternationalBooking() {
                          <SelectValue placeholder="Select Country" />
                        </SelectTrigger>
                        <SelectContent>
-                         <SelectItem value="US">🇺🇸 United States</SelectItem>
-                         <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
-                         <SelectItem value="AE">🇦🇪 United Arab Emirates</SelectItem>
-                         <SelectItem value="AU">🇦🇺 Australia</SelectItem>
-                         <SelectItem value="CA">🇨🇦 Canada</SelectItem>
+                         <SelectItem value="US">United States</SelectItem>
+                         <SelectItem value="GB">United Kingdom</SelectItem>
+                         <SelectItem value="AE">United Arab Emirates</SelectItem>
+                         <SelectItem value="AU">Australia</SelectItem>
+                         <SelectItem value="CA">Canada</SelectItem>
                        </SelectContent>
                      </Select>
                    </div>

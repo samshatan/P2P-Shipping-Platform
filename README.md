@@ -16,7 +16,7 @@ P2P-Shipping-Platform/
 
 ## 🖥️ Frontend (client/)
 
-**Status: 23/25 MVP screens complete**
+**Status: 25/25 MVP screens complete ✅**
 
 ### Tech Stack
 | Technology | Version | Purpose |
@@ -31,7 +31,7 @@ P2P-Shipping-Platform/
 | Zod + React Hook Form | latest | Form validation |
 | Recharts | 3 | Charts and analytics |
 
-### Pages Built (19 total)
+### Pages Built (21 total)
 | Route | Screen | Status |
 |---|---|---|
 | `/` | Landing page | ✅ Done |
@@ -48,8 +48,10 @@ P2P-Shipping-Platform/
 | `/dashboard` | User dashboard | ✅ Done |
 | `/shipments` | My Shipments | ✅ Done |
 | `/track/:awb` | Tracking timeline | ✅ Done |
+| `/track/:awb/failed` | Delivery attempt failed | ✅ Done |
 | `/profile` | Profile + Wallet | ✅ Done |
 | `/profile/kyc` | KYC — Aadhaar input + Upload | ✅ Done |
+| `/profile/addresses` | Address book management | ✅ Done |
 | `/notifications` | Notifications page | ✅ Done |
 | `/cod-returns` | COD & Remittance | ✅ Done |
 | `/international` | International booking | ✅ Done |
@@ -57,9 +59,8 @@ P2P-Shipping-Platform/
 | `/partner` | Courier partner portal | ✅ Done |
 | `/compare` | Public rate compare | ✅ Done |
 
-### MVP Screens Still Missing (2)
-- Delivery attempt failed screen
-- Address book management (dedicated add/edit/delete page)
+### MVP Screens Still Missing (0)
+- All frontend screens implemented successfully.
 
 ### Running the Frontend
 ```bash

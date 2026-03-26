@@ -32,6 +32,10 @@ const config: Config = {
         border: "#e2bfb2",
         input: "#e2bfb2",
         ring: "#a33900",
+        popover: "#ffffff",
+        "popover-foreground": "#191c1e",
+        accent: "#f2f4f6",
+        "accent-foreground": "#191c1e",
       },
       fontFamily: {
         heading: ["Plus Jakarta Sans", "sans-serif"],
