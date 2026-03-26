@@ -26,7 +26,15 @@ function getMockResponse(endpoint: string, options?: RequestInit) {
   if (endpoint.includes('/auth/verify-otp')) return { data: { access_token: 'mock_token_123', user: MOCK_USER } };
   if (endpoint.includes('/auth/google')) return { data: { access_token: 'mock_google_token', user: MOCK_USER } };
   if (endpoint.includes('/users/profile')) return { data: MOCK_USER };
-  if (endpoint.includes('/users/shipments')) return { data: { shipments: MOCK_SHIPMENTS, pagination: { total: MOCK_SHIPMENTS.length } } };
+  if (endpoint.includes('/users/shipments')) {
+    const urlParams = new URL(endpoint.startsWith('http') ? endpoint : `http://localhost${endpoint}`).searchParams;
+    const status = urlParams.get('status');
+    let filtered = MOCK_SHIPMENTS;
+    if (status) {
+      filtered = MOCK_SHIPMENTS.filter((s: any) => s.status === status);
+    }
+    return { data: { shipments: filtered, pagination: { total: filtered.length } } };
+  }
 
   // Address CRUD
   if (endpoint.includes('/users/addresses')) {
