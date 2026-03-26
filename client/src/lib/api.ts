@@ -24,6 +24,7 @@ function getMockResponse(endpoint: string, options?: RequestInit) {
 
   if (endpoint.includes('/auth/send-otp')) return { data: { success: true } };
   if (endpoint.includes('/auth/verify-otp')) return { data: { access_token: 'mock_token_123', user: MOCK_USER } };
+  if (endpoint.includes('/auth/google')) return { data: { access_token: 'mock_google_token', user: MOCK_USER } };
   if (endpoint.includes('/users/profile')) return { data: MOCK_USER };
   if (endpoint.includes('/users/shipments')) return { data: { shipments: MOCK_SHIPMENTS, pagination: { total: MOCK_SHIPMENTS.length } } };
 
@@ -146,6 +147,13 @@ export async function verifyOtp(phone: string, otp: string) {
   const data = await fetchAPI('/auth/verify-otp', {
     method: 'POST',
     body: JSON.stringify({ phone, otp })
+  });
+  return data.data;
+}
+
+export async function loginWithGoogle() {
+  const data = await fetchAPI('/auth/google', {
+    method: 'POST'
   });
   return data.data;
 }
