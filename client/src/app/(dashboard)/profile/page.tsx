@@ -14,6 +14,17 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const formatWalletBalance = (balance: number) => {
+  if (balance >= 10000000) {
+    return `${(balance / 10000000).toFixed(2)} Cr`;
+  } else if (balance >= 100000) {
+    return `${(balance / 100000).toFixed(2)} L`;
+  } else if (balance >= 1000) {
+    return `${(balance / 1000).toFixed(1)} k`;
+  }
+  return balance.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+};
+
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -318,7 +329,7 @@ export default function ProfilePage() {
                  </div>
                  
                  <div className="text-5xl font-heading font-extrabold relative z-10 mb-8 tracking-tighter">
-                   ₹{walletBalance.toFixed(2)}
+                   ₹{formatWalletBalance(walletBalance)}
                  </div>
 
                  <div className="relative z-10 bg-white/10 p-5 rounded-2xl backdrop-blur-sm border border-white/20">
