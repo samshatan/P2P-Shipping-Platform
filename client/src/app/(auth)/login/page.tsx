@@ -190,10 +190,18 @@ export default function LoginPage() {
           
           <div className="mt-12 flex items-center gap-4">
             <div className="flex -space-x-3">
-              {[1,2,3,4].map(i => (
-                <div key={i} className="w-10 h-10 rounded-full bg-white/10 border-2 border-secondary flex items-center justify-center text-xs font-bold backdrop-blur-sm">
-                  User
-                </div>
+              {[
+                "https://randomuser.me/api/portraits/men/32.jpg",
+                "https://randomuser.me/api/portraits/women/44.jpg",
+                "https://randomuser.me/api/portraits/men/68.jpg",
+                "https://randomuser.me/api/portraits/women/65.jpg"
+              ].map((imgSrc, i) => (
+                <img 
+                  key={i} 
+                  src={imgSrc} 
+                  alt="Trusted User" 
+                  className="w-10 h-10 rounded-full border-2 border-secondary object-cover shadow-sm"
+                />
               ))}
             </div>
             <div className="text-sm font-medium text-white/80">Trusted by top sellers</div>
