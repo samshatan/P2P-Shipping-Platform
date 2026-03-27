@@ -11,6 +11,16 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMemo } from "react";
+
+interface Shipment {
+  id: string;
+  db_id: string;
+  courier: string;
+  status: string;
+  price: number;
+  date: string;
+}
 
 function getStatusColor(status: string) {
   switch (status) {
@@ -24,7 +34,7 @@ function getStatusColor(status: string) {
 
 export default function UserDashboard() {
   const [filter, setFilter] = useState("All");
-  const [shipments, setShipments] = useState<any[]>([]);
+  const [shipments, setShipments] = useState<Shipment[]>([]);
   const [stats, setStats] = useState({ total: 0, pending: 0, delivered: 0, savings: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +79,16 @@ export default function UserDashboard() {
   }, [filter]);
 
   const filteredShipments = shipments;
+
+  const inTransitCount = useMemo(() => 
+    shipments.filter(s => s.status === 'In Transit').length, 
+    [shipments]
+  );
+
+  const deliveredCount = useMemo(() => 
+    shipments.filter(s => s.status === 'Delivered').length, 
+    [shipments]
+  );
 
   return (
     <div className="min-h-screen bg-[#f7f9fb] flex flex-col">
@@ -117,7 +137,7 @@ export default function UserDashboard() {
               </div>
               <div>
                 <div className="text-3xl font-heading font-extrabold text-foreground">
-                  {loading ? <Skeleton className="h-8 w-12" /> : shipments.filter(s => s.status === 'In Transit').length}
+                  {loading ? <Skeleton className="h-8 w-12" /> : inTransitCount}
                 </div>
                 <div className="text-sm font-bold text-muted-foreground uppercase tracking-wider mt-1">In Transit</div>
               </div>
@@ -131,7 +151,7 @@ export default function UserDashboard() {
               </div>
               <div>
                 <div className="text-3xl font-heading font-extrabold text-foreground">
-                  {loading ? <Skeleton className="h-8 w-12" /> : shipments.filter(s => s.status === 'Delivered').length}
+                  {loading ? <Skeleton className="h-8 w-12" /> : deliveredCount}
                 </div>
                 <div className="text-sm font-bold text-muted-foreground uppercase tracking-wider mt-1">Delivered</div>
               </div>
