@@ -62,6 +62,13 @@ P2P-Shipping-Platform/
 ### MVP Screens Still Missing (0)
 - All frontend screens implemented successfully.
 
+### Latest Improvements (v1.1)
+- **Strict TypeScript Typing**: Added interfaces for `User` and `Rate` objects across the app, replacing `any` types for better reliability.
+- **Dynamic Verification Flow**: Integrated `sessionStorage` to handle dynamic phone numbers in the OTP verification screen, replacing hardcoded placeholders.
+- **Performance Optimization**: Implemented `useMemo` hooks for expensive calculations in the Dashboard and Savings Banner.
+- **Security Audit Fixes**: Removed hardcoded secrets and implemented dynamic mock token generation for the development environment.
+- **Progress bar Fix**: Corrected a visual bug in the `AnimatedTimeline` where the progress bar was incorrectly rendered as semi-filled at 0%.
+
 ### Running the Frontend
 ```bash
 cd client
