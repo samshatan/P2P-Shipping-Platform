@@ -61,7 +61,7 @@ export default function InternationalBooking() {
                        <SelectTrigger className="h-12 bg-gray-50/50 rounded-xl">
                          <SelectValue placeholder="Select Country" />
                        </SelectTrigger>
-                       <SelectContent>
+                       <SelectContent alignItemWithTrigger={false}>
                          <SelectItem value="US">United States</SelectItem>
                          <SelectItem value="GB">United Kingdom</SelectItem>
                          <SelectItem value="AE">United Arab Emirates</SelectItem>
@@ -111,7 +111,7 @@ export default function InternationalBooking() {
                          <SelectTrigger className="h-12 bg-gray-50/50 rounded-xl">
                            <SelectValue placeholder="Category" />
                          </SelectTrigger>
-                         <SelectContent>
+                         <SelectContent alignItemWithTrigger={false}>
                            <SelectItem value="apparel">Apparel & Clothing</SelectItem>
                            <SelectItem value="electronics">Electronics</SelectItem>
                            <SelectItem value="documents">Documents</SelectItem>
