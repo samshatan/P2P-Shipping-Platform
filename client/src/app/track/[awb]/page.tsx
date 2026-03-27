@@ -189,7 +189,7 @@ export default function TrackingPage() {
                    <div className="absolute left-[31px] sm:left-[47px] top-6 h-1/2 w-0.5 bg-primary"></div>
 
                    <div className="space-y-8">
-                     {events.map((ev, i) => (
+                     {events.map((ev: { id: number; title: string; location: string; date: string; status: string; past: boolean }, i: number) => (
                        <div key={ev.id} className="relative flex items-start gap-6">
                          <div className={cn(
                            "w-8 h-8 rounded-full border-4 flex items-center justify-center shrink-0 mt-1 shadow-sm relative z-10",
