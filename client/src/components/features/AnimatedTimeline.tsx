@@ -36,6 +36,13 @@ export function AnimatedTimeline({ currentStatus, className }: AnimatedTimelineP
 
   const progressPercentage = ((currentStepIndex + 1) / steps.length) * 100;
 
+  const getProgressBar = (pct: number) => {
+    const totalBlocks = 12;
+    const filledBlocks = Math.round((pct / 100) * totalBlocks);
+    const emptyBlocks = totalBlocks - filledBlocks;
+    return "█".repeat(filledBlocks) + "░".repeat(emptyBlocks);
+  };
+
   return (
     <div className={cn("w-full py-8 px-4", className)}>
       <div className="relative">
@@ -97,7 +104,7 @@ export function AnimatedTimeline({ currentStatus, className }: AnimatedTimelineP
               </div>
               <div>
                   <div className="text-[10px] uppercase font-bold text-muted-foreground mb-0.5">Overall Progress</div>
-                  <div className="text-sm font-extrabold text-foreground tracking-tight pl-1 bg-muted/30 border border-muted py-1 mt-1 px-3 rounded-lg flex items-center gap-1.5"><span className="text-lg">████████░░░░</span> {Math.round(progressPercentage)}% Completed</div>
+                  <div className="text-sm font-extrabold text-foreground tracking-tight pl-1 bg-muted/30 border border-muted py-1 mt-1 px-3 rounded-lg flex items-center gap-1.5"><span className="text-lg font-mono tracking-tighter">{getProgressBar(progressPercentage)}</span> {Math.round(progressPercentage)}% Completed</div>
               </div>
           </div>
           
