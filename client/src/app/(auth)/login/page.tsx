@@ -59,6 +59,7 @@ export default function LoginPage() {
     setError(null);
     try {
       await loginUser(phone);
+      sessionStorage.setItem('pending_phone', phone);
       setOtpSent(true);
       setTimer(45);
       showToast("OTP sent successfully", "success");

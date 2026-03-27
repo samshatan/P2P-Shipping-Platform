@@ -1,12 +1,23 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getUserProfile } from '@/lib/api';
 
+export interface User {
+  name: string;
+  phone: string;
+  email: string;
+  wallet: number;
+  shipments: number;
+  moneySaved: number;
+  referrals: number;
+  kycVerified: boolean;
+}
+
 interface AuthContextType {
-  user: any;
+  user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (token: string) => void;
+  login: (token: string, userData?: User) => void;
   logout: () => void;
 }
 
@@ -14,7 +25,7 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('access_token'));
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,9 +44,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuth();
   }, [token]);
 
-  const login = (newToken: string) => {
+  const login = (newToken: string, userData?: User) => {
     localStorage.setItem('access_token', newToken);
     setToken(newToken);
+    if (userData) setUser(userData);
   };
 
   const logout = () => {

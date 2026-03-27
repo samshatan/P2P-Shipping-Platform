@@ -37,6 +37,21 @@ export default function VerifyOtpPage() {
     showToast("A new OTP has been sent to your device.", "success");
   };
 
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem('pending_phone');
+    if (stored) {
+      setPhoneNumber(stored);
+    }
+  }, []);
+
+  const maskPhone = (phone: string) => {
+    if (!phone) return "+91 XXXXX XXXXX";
+    const masked = phone.substring(0, 2) + "XXX XX" + phone.substring(7);
+    return `+91 ${masked}`;
+  };
+
   return (
     <div className="min-h-screen bg-[#f7f9fb] flex flex-col">
       <Navbar />
@@ -48,7 +63,7 @@ export default function VerifyOtpPage() {
           
           <h1 className="text-3xl font-heading font-extrabold text-foreground mb-2">Verify OTP</h1>
           <p className="text-muted-foreground font-medium mb-8">
-            Enter the 6-digit code sent to <span className="text-foreground font-bold">+91 98XXX XX210</span>
+            Enter the 6-digit code sent to <span className="text-foreground font-bold">{maskPhone(phoneNumber)}</span>
           </p>
 
           <div className="space-y-6">

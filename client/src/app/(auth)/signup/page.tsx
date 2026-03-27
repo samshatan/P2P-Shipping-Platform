@@ -14,6 +14,7 @@ export default function SignupPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<{ email?: string; username?: string; fullName?: string }>({});
 
   const inputStyle: React.CSSProperties = {
@@ -434,6 +435,8 @@ export default function SignupPage() {
                       placeholder="98765 43210"
                       type="tel"
                       maxLength={10}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
                       style={{ ...inputStyle, paddingLeft: "76px" }}
                       onFocus={inputFocusHandler}
                       onBlur={inputBlurHandler}
@@ -458,7 +461,12 @@ export default function SignupPage() {
 
                 <div style={{ display: "flex", gap: "12px" }}>
                   <Button variant="outline" onClick={() => setStep(2)} className="h-12 rounded-xl flex-1">Back</Button>
-                  <Button onClick={() => navigate('/')} className="h-12 rounded-xl flex-[2] bg-gradient-to-r from-[#a33900] to-[#cc4900] text-white font-semibold shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform">
+                  <Button onClick={() => {
+                    if (phone.length === 10) {
+                      sessionStorage.setItem('pending_phone', phone);
+                      navigate('/verify-otp');
+                    }
+                  }} className="h-12 rounded-xl flex-[2] bg-gradient-to-r from-[#a33900] to-[#cc4900] text-white font-semibold shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform">
                     Send OTP & Finish
                   </Button>
                 </div>
