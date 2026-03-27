@@ -332,10 +332,9 @@ export default function CourierSelection() {
 
       {/* Right Sidebar: Order Summary */}
       <div className="w-full lg:w-80 shrink-0 mt-8 lg:mt-0">
-        <ScrollArea className="h-[calc(100vh-120px)] pb-10">
-          <div className="space-y-6 pr-4">
+        <div className="space-y-6 sticky top-24">
             
-            <Card className="p-6 bg-white border-border shadow-sm rounded-2xl sticky top-0 z-10">
+            <Card className="p-6 bg-white border-border shadow-sm rounded-2xl">
               <h3 className="font-heading font-bold text-lg mb-4 border-b border-border/50 pb-2">Order Summary</h3>
               
               <div className="relative">
@@ -387,8 +386,7 @@ export default function CourierSelection() {
               </div>
             </Card>
 
-          </div>
-        </ScrollArea>
+        </div>
       </div>
 
       {/* Sticky Bottom Bar */}
