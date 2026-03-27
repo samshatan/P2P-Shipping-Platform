@@ -189,7 +189,7 @@ export default function TrackingPage() {
                    <div className="absolute left-[31px] sm:left-[47px] top-6 h-1/2 w-0.5 bg-primary"></div>
 
                    <div className="space-y-8">
-                     {events.map((ev, i) => (
+                     {events.map((ev: any, i: number) => (
                        <div key={ev.id} className="relative flex items-start gap-6">
                          <div className={cn(
                            "w-8 h-8 rounded-full border-4 flex items-center justify-center shrink-0 mt-1 shadow-sm relative z-10",
@@ -258,13 +258,13 @@ export default function TrackingPage() {
               </Card>
 
               <div className="bg-white border border-border/80 rounded-2xl p-4 text-center">
-                 <p className="text-sm font-semibold text-muted-foreground mb-3">Facing an issue?</p>
-                 <div className="flex gap-2">
-                   <Button onClick={() => window.open('tel:18001234567')} variant="outline" className="flex-1 text-foreground hover:bg-muted font-bold h-10 border-border/80 shadow-sm px-0">
-                     <Phone className="w-4 h-4 mr-1.5" /> Call
+                 <p className="text-sm font-bold text-muted-foreground mb-3">Facing an issue?</p>
+                 <div className="flex gap-2.5">
+                   <Button onClick={() => window.open('tel:18001234567')} variant="outline" className="flex-[0.85] text-foreground hover:bg-muted font-bold text-[11px] h-10 border-border/80 shadow-sm px-2">
+                     <Phone className="w-3.5 h-3.5 mr-1" /> Call
                    </Button>
-                   <Button onClick={() => window.open('mailto:support@parcel.in')} variant="outline" className="flex-1 text-foreground hover:bg-muted font-bold h-10 border-border/80 shadow-sm px-0">
-                     <Mail className="w-4 h-4 mr-1.5" /> Raise Issue
+                   <Button onClick={() => window.open('mailto:support@parcel.in')} variant="outline" className="flex-[1.15] text-foreground hover:bg-muted font-bold text-[11px] h-10 border-border/80 shadow-sm px-2">
+                     <Mail className="w-3.5 h-3.5 mr-1" /> Raise Issue
                    </Button>
                  </div>
               </div>
