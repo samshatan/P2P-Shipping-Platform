@@ -335,7 +335,7 @@ export default function CourierSelection() {
         <ScrollArea className="h-[calc(100vh-120px)] pb-10">
           <div className="space-y-6 pr-4">
             
-            <Card className="p-6 bg-white border-border shadow-sm rounded-2xl sticky top-0">
+            <Card className="p-6 bg-white border-border shadow-sm rounded-2xl sticky top-0 z-10">
               <h3 className="font-heading font-bold text-lg mb-4 border-b border-border/50 pb-2">Order Summary</h3>
               
               <div className="relative">
