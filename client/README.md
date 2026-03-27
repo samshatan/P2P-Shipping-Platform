@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PARCEL: P2P Shipping Platform (Frontend)
 
-## Getting Started
+Welcome to the frontend of the PARCEL platform. This project is built using React 18, Vite, TypeScript, and TailwindCSS to provide a fast and robust user experience.
 
-First, run the development server:
+## 🚀 Quick Setup
+
+First, ensure you have the necessary dependencies installed:
+
+```bash
+cd client
+npm install
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be available at [http://localhost:5173](http://localhost:5173).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Framework**: React 18
+- **Build Tool**: Vite 8
+- **Language**: TypeScript 5
+- **Routing**: React Router 7
+- **Styling**: TailwindCSS 4
+- **Components**: Shadcn/UI + Base UI
+- **Animations**: Framer Motion 12
+- **Forms**: Zod + React Hook Form
+- **Charts**: Recharts 3
 
-## Learn More
+## 🏗️ Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+The project currently has 25 MVP screens implemented covering everything from landing pages to complex flows like shipment booking and tracking. The source code is organized generally as:
+- `/src/components`: Reusable UI components.
+- `/src/app`: Page views representing different routes.
+- `/src/lib`: Utility functions and shared helpers.
+- `/src/context`: React contexts for shared state (e.g. Auth, Bookings).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🌍 Environment Variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Create a `.env.local` file in the `client` directory (or modify the existing one) to include required variables:
 
-## Deploy on Vercel
+```
+VITE_API_URL=http://localhost:3001
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📝 Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev`: Starts the Vite development server.
+- `npm run build`: Compiles TypeScript and builds the application for production.
+- `npm run preview`: Previews the built production application locally.
