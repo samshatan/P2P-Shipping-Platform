@@ -63,7 +63,7 @@ export default function Home() {
                 <Button onClick={() => navigate('/compare')} size="lg" className="h-14 px-8 bg-gradient-to-r from-[#a33900] to-[#cc4900] hover:from-[#8c3100] hover:to-[#a33900] text-lg font-semibold rounded-xl text-white shadow-xl shadow-primary/25 transition-all hover:scale-105 group">
                   Compare Rates <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
-                <Button onClick={() => navigate('/track/SR2024031500123')} size="lg" variant="outline" className="h-14 px-8 text-lg font-medium rounded-xl border-border bg-white/50 backdrop-blur-sm hover:bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                <Button onClick={() => navigate('/track')} size="lg" variant="outline" className="h-14 px-8 text-lg font-medium rounded-xl border-border bg-white/50 backdrop-blur-sm hover:bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
                   Track Shipment
                 </Button>
               </div>

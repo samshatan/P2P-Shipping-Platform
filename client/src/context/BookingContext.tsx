@@ -59,8 +59,8 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     }
     return {
       selectedCourier: null,
-      pickup: { ...defaultAddress, pincode: "400001", address: "Flat 4B, Hill View", name: "Rahul Sharma", phone: "98765 43210" },
-      delivery: { ...defaultAddress, pincode: "110001" },
+      pickup: { ...defaultAddress },
+      delivery: { ...defaultAddress },
       packageDetails: defaultPackage,
       lastAwb: null,
     };

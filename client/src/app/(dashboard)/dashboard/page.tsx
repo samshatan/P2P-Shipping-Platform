@@ -12,6 +12,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface Shipment {
   id: string;
@@ -33,6 +34,7 @@ function getStatusColor(status: string) {
 }
 
 export default function UserDashboard() {
+  const { user } = useAuth();
   const [filter, setFilter] = useState("All");
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [stats, setStats] = useState({ total: 0, pending: 0, delivered: 0, savings: 0 });
@@ -100,7 +102,7 @@ export default function UserDashboard() {
           {/* HEADER SECTION */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
             <div>
-              <h1 className="text-3xl font-heading font-extrabold text-foreground">👋 Welcome back, User</h1>
+              <h1 className="text-3xl font-heading font-extrabold text-foreground">👋 Welcome back, {user?.name?.split(' ')[0] || 'User'}</h1>
               <p className="text-muted-foreground mt-1 text-sm font-medium">Here’s your shipment overview</p>
             </div>
 

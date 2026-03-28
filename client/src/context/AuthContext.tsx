@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getUserProfile } from '@/lib/api';
 
 export interface User {
@@ -28,6 +28,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const login = (newToken: string, userData?: User) => {
+    localStorage.setItem('access_token', newToken);
+    setToken(newToken);
+    if (userData) setUser(userData);
+  };
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('access_token');
+    setToken(null);
+    setUser(null);
+  }, []);
+
   useEffect(() => {
     async function initAuth() {
       if (token) {
@@ -42,19 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     }
     initAuth();
-  }, [token]);
-
-  const login = (newToken: string, userData?: User) => {
-    localStorage.setItem('access_token', newToken);
-    setToken(newToken);
-    if (userData) setUser(userData);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('access_token');
-    setToken(null);
-    setUser(null);
-  };
+  }, [token, logout]);
 
   return (
     <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, isLoading, login, logout }}>

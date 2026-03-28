@@ -19,6 +19,7 @@ import UserDashboard from './app/(dashboard)/dashboard/page';
 import ShipmentsPage from './app/(dashboard)/shipments/page';
 import ShipmentDetailPage from './app/(dashboard)/shipments/[id]/page';
 import TrackingPage from './app/track/[awb]/page';
+import TrackLandingPage from './app/track/page';
 import ProfilePage from './app/(dashboard)/profile/page';
 import CashOnDeliveryPortal from './app/(dashboard)/finances/page';
 import InternationalBooking from './app/(dashboard)/book/international/page';
@@ -65,6 +66,7 @@ function App() {
             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
             <Route path="/shipments" element={<ProtectedRoute><ShipmentsPage /></ProtectedRoute>} />
             <Route path="/shipments/:id" element={<ProtectedRoute><ShipmentDetailPage /></ProtectedRoute>} />
+            <Route path="/track" element={<TrackLandingPage />} />
             <Route path="/track/:awb" element={<TrackingPage />} />
             <Route path="/track/:awb/failed" element={<DelhiveryFailedPage />} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

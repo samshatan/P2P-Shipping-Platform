@@ -22,6 +22,25 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Email tab state
+  const [emailInput, setEmailInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+
+  const validateEmail = (val: string) => {
+    if (!val.trim()) return "Email is required";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())) return "Enter a valid email address";
+    return null;
+  };
+
+  const validatePassword = (val: string) => {
+    if (!val) return "Password is required";
+    if (val.length < 6) return "Password must be at least 6 characters";
+    return null;
+  };
+
   const validatePhone = (val: string) => {
     if (!val) return "Phone number is required";
     if (!/^\d{10}$/.test(val)) return "Enter valid 10-digit phone number";
@@ -104,6 +123,29 @@ export default function LoginPage() {
       navigate('/');
     } catch (err: any) {
       showToast(err.message || "Failed to log in", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmailLogin = async () => {
+    setEmailTouched(true);
+    setPasswordTouched(true);
+    const emailError = validateEmail(emailInput);
+    const passwordError = validatePassword(passwordInput);
+    const combinedError = [emailError, passwordError].filter(Boolean).join(" • ");
+    if (combinedError) {
+      setError(combinedError);
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Email/password login not yet implemented on the backend; show informative message
+      showToast("Email login coming soon. Please use Phone OTP.", "info");
+    } catch (err: any) {
+      setError(err.message || "Login failed. Please try again.");
+      showToast("Login failed", "error");
     } finally {
       setIsLoading(false);
     }
@@ -405,30 +447,66 @@ export default function LoginPage() {
             {/* Email Tab Content */}
             {activeTab === "email" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                {error && (
+                  <div className="flex items-center gap-2 text-red-500 text-xs font-bold bg-red-50 p-3 rounded-lg border border-red-100">
+                    <AlertCircle className="w-4 h-4" /> {error}
+                  </div>
+                )}
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Email Address</Label>
                   <input
                     placeholder="name@company.com"
                     type="email"
-                    style={inputStyle}
+                    value={emailInput}
+                    onChange={(e) => { setEmailInput(e.target.value); if (error) setError(null); }}
+                    onBlur={() => setEmailTouched(true)}
+                    style={{
+                      ...inputStyle,
+                      borderColor: emailTouched && validateEmail(emailInput) ? "#ef4444" : "#d1d5db"
+                    }}
                     onFocus={inputFocusHandler}
-                    onBlur={inputBlurHandler}
                   />
+                  {emailTouched && validateEmail(emailInput) && (
+                    <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1">{validateEmail(emailInput)}</p>
+                  )}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Label style={{ fontSize: "14px", fontWeight: 600, color: "#374151" }}>Password</Label>
                     <Link to="#" className="text-xs text-primary font-semibold hover:underline">Forgot password?</Link>
                   </div>
-                  <input
-                    placeholder="••••••••"
-                    type="password"
-                    style={inputStyle}
-                    onFocus={inputFocusHandler}
-                    onBlur={inputBlurHandler}
-                  />
+                  <div style={{ position: "relative" }}>
+                    <input
+                      placeholder="••••••••"
+                      type={showPassword ? "text" : "password"}
+                      value={passwordInput}
+                      onChange={(e) => { setPasswordInput(e.target.value); if (error) setError(null); }}
+                      onBlur={() => setPasswordTouched(true)}
+                      style={{
+                        ...inputStyle,
+                        paddingRight: "44px",
+                        borderColor: passwordTouched && validatePassword(passwordInput) ? "#ef4444" : "#d1d5db"
+                      }}
+                      onFocus={inputFocusHandler}
+                    />
+                    <button
+                      type="button"
+                      aria-label="Toggle password visibility"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af" }}
+                    >
+                      {showPassword ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      )}
+                    </button>
+                  </div>
+                  {passwordTouched && validatePassword(passwordInput) && (
+                    <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1">{validatePassword(passwordInput)}</p>
+                  )}
                 </div>
-                <Button onClick={handleGoogleLogin} disabled={isLoading} className="w-full h-12 text-base font-semibold bg-foreground hover:bg-foreground/90 text-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5">
+                <Button onClick={handleEmailLogin} disabled={isLoading} className="w-full h-12 text-base font-semibold bg-foreground hover:bg-foreground/90 text-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all hover:-translate-y-0.5">
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Log In"}
                 </Button>
               </div>
