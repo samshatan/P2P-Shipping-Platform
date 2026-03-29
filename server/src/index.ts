@@ -4,7 +4,15 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import redis from './Database/redis';
+import { apiLimiter, authLimiter } from './middleware/rateLimiter.middleware';
 import authRouter from './api/auth/routes/auth.routes';
+import usersRouter from './api/users/routes/users.routes';
+import couriersRouter from './api/couriers/routes/couriers.routes';
+import shipmentsRouter from './api/shipments/routes/shipments.routes';
+import paymentsRouter from './api/payments/routes/payments.routes';
+import trackingRouter from './api/tracking/routes/tracking.routes';
+import walletRouter from './api/wallet/routes/wallet.routes';
+import addressRouter, { pincodeRouter } from './api/addresses/routes/addresses.routes';
 
 // Load environment variables
 dotenv.config();
@@ -21,8 +29,19 @@ app.use(cors({
 app.use(express.json());
 app.use(morgan('dev'));
 
+// ── Rate Limiting ────────────────────────────────────────────
+app.use(apiLimiter);
+
 // ── Routes ──────────────────────────────────────────────────
-app.use('/auth', authRouter);
+app.use('/auth', authLimiter, authRouter);
+app.use('/users', usersRouter);
+app.use('/couriers', couriersRouter);
+app.use('/shipments', shipmentsRouter);
+app.use('/payments', paymentsRouter);
+app.use('/tracking', trackingRouter);
+app.use('/wallet', walletRouter);
+app.use('/address', addressRouter);
+app.use('/pincodes', pincodeRouter);
 
 // Health Check Endpoint
 app.get('/health', async (req, res) => {
