@@ -17,11 +17,24 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 
+export interface Rate {
+  id: string;
+  name: string;
+  logo: string;
+  price: number;
+  etaDays: number;
+  actualAvgDays: number;
+  pickupWindow: string;
+  codAvailable: boolean;
+  rating: number;
+  tags: string[];
+}
+
 export default function CourierSelection() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { selectedCourier, setCourier, pickup: bPickup, delivery: bDelivery, packageDetails: bPackage } = useBooking();
-  const [rates, setRates] = useState<any[]>([]);
+  const [rates, setRates] = useState<Rate[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSelecting, setIsSelecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +58,7 @@ export default function CourierSelection() {
         return;
       }
 
-      const adaptedRates = data.couriers.map((c: any) => ({
+      const adaptedRates: Rate[] = data.couriers.map((c: any) => ({
         id: c.courier_id,
         name: c.courier_name,
         logo: c.logo_url,
@@ -219,7 +232,7 @@ export default function CourierSelection() {
                           {rate.rating} ★
                         </div>
                         <div className="text-[10px] text-muted-foreground font-semibold">
-                          On-time: {90 + (rate.id % 8)}% • COD: {85 + (rate.id % 12)}%
+                          On-time: {90 + (Number(rate.id) % 8)}% • COD: {85 + (Number(rate.id) % 12)}%
                         </div>
                       </div>
                     </div>
@@ -319,10 +332,9 @@ export default function CourierSelection() {
 
       {/* Right Sidebar: Order Summary */}
       <div className="w-full lg:w-80 shrink-0 mt-8 lg:mt-0">
-        <ScrollArea className="h-[calc(100vh-120px)] pb-10">
-          <div className="space-y-6 pr-4">
+        <div className="space-y-6 sticky top-24">
             
-            <Card className="p-6 bg-white border-border shadow-sm rounded-2xl sticky top-0">
+            <Card className="p-6 bg-white border-border shadow-sm rounded-2xl">
               <h3 className="font-heading font-bold text-lg mb-4 border-b border-border/50 pb-2">Order Summary</h3>
               
               <div className="relative">
@@ -374,8 +386,7 @@ export default function CourierSelection() {
               </div>
             </Card>
 
-          </div>
-        </ScrollArea>
+        </div>
       </div>
 
       {/* Sticky Bottom Bar */}

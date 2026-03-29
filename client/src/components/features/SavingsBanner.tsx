@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { TrendingDown, IndianRupee, Truck, PartyPopper } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MOCK_COURIERS } from "@/lib/mockData";
+import { useMemo } from "react";
 
 interface SavingsBannerProps {
   selectedPrice?: number;
@@ -9,12 +10,15 @@ interface SavingsBannerProps {
 }
 
 export function SavingsBanner({ selectedPrice, className }: SavingsBannerProps) {
-  // Calculate average price from MOCK_COURIERS
-  const prices = MOCK_COURIERS.map(c => c.price);
-  const averagePrice = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
+  // Memoize calculations from MOCK_COURIERS
+  const { averagePrice, cheapestPrice, prices } = useMemo(() => {
+    const pricesList = MOCK_COURIERS.map(c => c.price);
+    const avg = Math.round(pricesList.reduce((a, b) => a + b, 0) / pricesList.length);
+    const cheap = Math.min(...pricesList);
+    return { averagePrice: avg, cheapestPrice: cheap, prices: pricesList };
+  }, []);
   
   // If no price selected, use the cheapest as default for calculation
-  const cheapestPrice = Math.min(...prices);
   const currentPrice = selectedPrice || cheapestPrice;
   
   const savings = averagePrice - currentPrice;

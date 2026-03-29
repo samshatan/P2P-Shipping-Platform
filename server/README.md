@@ -1,6 +1,6 @@
-# SwiftRoute: P2P Shipping Platform (Backend)
+# PARCEL: P2P Shipping Platform (Backend)
 
-Welcome to the SwiftRoute backend. This project is built with **Node.js, Express, TypeScript, and Prisma**.
+Welcome to the PARCEL backend. This project is built with **Node.js, Express, TypeScript, and Prisma**.
 
 ## 🚀 Quick Setup
 Run these commands to get your local environment ready:

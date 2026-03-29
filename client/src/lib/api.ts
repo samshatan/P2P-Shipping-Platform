@@ -19,12 +19,15 @@ if (USE_MOCK) {
 let mockAddressStore = [...MOCK_ADDRESSES];
 let mockAddrIdCounter = MOCK_ADDRESSES.length + 1;
 
+// Helper for dynamic mock tokens to avoid hardcoded secrets
+const generateMockToken = (prefix: string) => `${prefix}_${Math.random().toString(36).substring(2)}_${Date.now()}`;
+
 function getMockResponse(endpoint: string, options?: RequestInit) {
   const method = options?.method?.toUpperCase() || 'GET';
 
   if (endpoint.includes('/auth/send-otp')) return { data: { success: true } };
-  if (endpoint.includes('/auth/verify-otp')) return { data: { access_token: 'mock_token_123', user: MOCK_USER } };
-  if (endpoint.includes('/auth/google')) return { data: { access_token: 'mock_google_token', user: MOCK_USER } };
+  if (endpoint.includes('/auth/verify-otp')) return { data: { access_token: generateMockToken('mock_otp'), user: MOCK_USER } };
+  if (endpoint.includes('/auth/google')) return { data: { access_token: generateMockToken('mock_google'), user: MOCK_USER } };
   if (endpoint.includes('/users/profile')) return { data: MOCK_USER };
   if (endpoint.includes('/users/shipments')) {
     const urlParams = new URL(endpoint.startsWith('http') ? endpoint : `http://localhost${endpoint}`).searchParams;
