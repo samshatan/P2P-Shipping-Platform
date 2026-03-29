@@ -3,7 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import { redis } from './lib/redis';
+import redis from './Database/redis';
+import authRouter from './api/auth/routes/auth.routes';
 
 // Load environment variables
 dotenv.config();
@@ -19,6 +20,9 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(morgan('dev'));
+
+// ── Routes ──────────────────────────────────────────────────
+app.use('/auth', authRouter);
 
 // Health Check Endpoint
 app.get('/health', async (req, res) => {
