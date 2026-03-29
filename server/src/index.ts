@@ -27,8 +27,12 @@ app.use('/auth', authRouter);
 // Health Check Endpoint
 app.get('/health', async (req, res) => {
   try {
-    // Check Redis
+    // 1. Check Redis
     await redis.ping();
+
+    // 2. Check PostgreSQL
+    const { default: pool } = await import('./Database/db');
+    await pool.query('SELECT 1');
 
     res.json({
       status: 'ok',
@@ -37,6 +41,10 @@ app.get('/health', async (req, res) => {
         database: 'connected',
         redis: 'connected',
       },
+      integrations: {
+        razorpay: !!process.env.RAZORPAY_KEY_ID ? 'configured' : 'missing_keys',
+        msg91: !!process.env.MSG91_API_KEY ? 'configured' : 'missing_keys',
+      }
     });
   } catch (error) {
     res.status(503).json({
