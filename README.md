@@ -44,7 +44,7 @@ npm run dev # Opens at http://localhost:5173
 | **Runtime** | Node.js 20 + Express.js | ✅ Initialized |
 | **Database** | PostgreSQL (**Raw SQL** via `pg`) | ✅ Connected |
 | **Cache** | Redis (OTP & JWT storage) | ✅ Connected |
-| **Auth** | JWT (Access + Refresh Tokens) | 🟡 Refactoring (Split Secrets) |
+| **Auth** | JWT (Access + Refresh Tokens) | ✅ Hardened (Rotation & Revocation) |
 | **Integrations**| Razorpay & MSG91 | ✅ Initialized |
 | **Infrastructure** | Docker Compose | ✅ Configured |
 
@@ -181,9 +181,9 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 **Day 4**
 - [x] Create `POST /auth/send-otp` route with validation
 - [x] Create `POST /auth/verify-otp` route that returns access token and refresh token
-- [ ] Create `POST /auth/refresh` route
-- [ ] Create `POST /auth/logout` route
-- [ ] Test full OTP flow in Postman
+- [x] Create `POST /auth/refresh` route (with rotation and rotation storage in Redis)
+- [x] Create `POST /auth/logout` route (with session revocation in Redis)
+- [x] Test full OTP flow in Postman (Success)
 
 **Day 5**
 - [x] Create `middleware/auth.middleware.ts` that verifies JWT on every protected route
@@ -311,7 +311,9 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] All 6 database tables exist and visible in pgAdmin
 - [x] `GET /health` returns db ok, redis ok (Kafka/Mongo pending client setup)
 - [x] `POST /auth/send-otp` stores OTP in Redis and logs mock SMS
-- [x] `POST /auth/verify-otp` returns valid JWT access token
+- [x] `POST /auth/verify-otp` returns valid JWT access token and refresh token
+- [x] JWT Rotation enabled: `/auth/refresh` issues new pairs from valid sessions
+- [x] JWT Revocation enabled: `/auth/logout` kills sessions in Redis
 - [ ] `POST /users/register` saves user to PostgreSQL
 - [ ] `GET /users/profile` returns user data when JWT token provided
 - [ ] `GET /users/profile` returns 401 when no token provided
@@ -340,3 +342,104 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [ ] All 10 notification types send correct messages on correct channels
 - [ ] COD payout triggers Cashfree transfer after delivery confirmed
 - [ ] Postman collection with all endpoints shared with all 6 developers
+
+---
+
+## BE1 — Infrastructure Developer (Continued)
+
+### Week 3: Logistics & High-Velocity Storage
+*   **Day 11**: Configure **MinIO** ("Evidence Vault"). Implement **SHA256 Content-Addressable Storage** to prevent duplicate uploads of shipping labels/proof.
+*   **Day 12**: Design the **`tracking_events` schema in MongoDB**. Use **TTL Indexes** for 6-month retention and a shard key on `awb_number` for O(1) status lookups.
+*   **Day 13**: Implement **Kafka Producer/Consumer Group** logic. Topics: `shipment.status.updated`, `payment.webhook.received`, `notification.dispatch`.
+*   **Day 14**: Create Database **SQL Triggers** on the `weight_logs` table to auto-flag disputes when `actual_weight > volumetric_weight * 1.2`.
+*   **Day 15**: Build a **High-Performance Health Check**. Endpoint `GET /health` must verify Kafka Producer readiness and MongoDB replication lag.
+
+### Week 4: FinTech & Double-Entry Ledger
+*   **Day 16**: Build the **`wallet_ledger` (PostgreSQL)**. Core fields: `transaction_id`, `type` (DEBIT/CREDIT), `balance_before`, `balance_after`, `meta` (JSONB).
+*   **Day 17**: Implement **COD Reconciliation Logic**. Map courier status `DELIVERED` to `PAYOUT_ELIGIBLE` with a 7-day cooling period buffer.
+*   **Day 18**: Configure **Redis Hash Maps** for live courier rates. Format: `rate:{origin}:{dest}:{weight}`. Expiry: 15 mins (Match Courier API TTL).
+*   **Day 19**: Setup **Bulk Data Archiving**. Transfer completed shipments (status: `DELIVERED`) older than 180 days to **PostgreSQL Partitions** or S3 Glacier.
+*   **Day 20**: Implement **Admin Ledger Overrides**. All manual credits must log to `admin_action_audit` with `performed_by` (Admin ID) and `reason_code`.
+
+### Week 5: AI Forecasting & Admin Orchestration
+*   **Day 21**: Deploy **Pinecone Vector Index**. Use `text-embedding-3-small` for 1536-dim address vectors. Implement **Cosine Similarity** search > 0.85 for auto-fill.
+*   **Day 22**: Build the **OLAP Analytics Schema**. Create Materialized Views for **RTO (Return to Origin) %** and **NDR (Non-Delivery Report)** conversion rates.
+*   **Day 23**: Perform **SQL Query Optimization**. Add **GIN Indexes** on JSONB metadata and **B-Tree Indexes** on `created_at` for faster pagination.
+*   **Day 24**: Configure **Nginx/Load Balancer**. Implement **Rate Limiting** (100 req/min) on `/auth` routes and **Sticky Sessions** for tracking webhooks.
+*   **Day 25**: Final **Security Audit**. Implement **Helmet.js** CSP policies and verify **CORS configuration** restricts only the production frontend domain.
+
+---
+
+## BE2 — Business Logic Developer (Continued)
+
+### Week 3: Shipping & Webhooks
+*   **Day 11**: Build the **Booking Engine** — logic to transition Draft → Booked.
+*   **Day 12**: Implement **AWB Generation** and label data mapping.
+*   **Day 13**: Create the **Tracking API** — unified status from MongoDB.
+*   **Day 14**: Build **Webhook Handlers** for incoming status from Delhivery/DTDC.
+*   **Day 15**: Implement **Delivery OTP** flow for high-security packages.
+
+### Week 4: Payments & COD
+*   **Day 16**: Build **Razorpay Order Creation** and refund logic.
+*   **Day 17**: Implement the **Wallet Payment** gateway (internal credits).
+*   **Day 18**: Build **COD Payout** automation — checking delivery status before payout.
+*   **Day 19**: Create **Dispute Resolution** APIs for weight/damage claims.
+*   **Day 20**: Implement **Coupon & Referral** logic for shipping discounts.
+
+### Week 5: AI Prediction & Admin Control
+*   **Day 21**: Deploy the **LightGBM Predictor** (Python/FastAPI). Target: Predict EDD (Estimated Delivery Date) using `pincode_pair`, `weight`, and `courier_performance`.
+*   **Day 22**: Build the **Revenue Dashboard APIs**. Calculate **Daily Gross Merchandise Value (GMV)** and **Average Revenue Per Shipment (ARPS)**.
+*   **Day 23**: Implement **Bulk Courier Orchestration**. Route logic: If `Delhivery.rate < DTDC.rate` AND `Delhivery.pincode_serviceable`, auto-select Delhivery.
+*   **Day 24**: Build the **Courier API Configurator**. Allow admins to update **Markup %** and **API Keys** via the dashboard without server restarts.
+*   **Day 25**: Final **Load Testing with k6**. Simulate 500 concurrent users booking 500 shipments simultaneously. Benchmark < 200ms p95 latency.
+
+---
+
+## BE3 — Integrations Developer (Continued)
+
+### Week 3: Courier APIs
+*   **Day 11**: Integrate **Delhivery API** (Rates, Booking, Tracking).
+*   **Day 12**: Integrate **DTDC API** (Rates and AWB generation).
+*   **Day 13**: Integrate **XpressBees API** for tier-2 city coverage.
+*   **Day 14**: Build the **Rate Aggregator** — comparing all 3 in parallel.
+*   **Day 15**: Implement **Manifest Generation** (PDF) via Courier APIs.
+
+### Week 4: Multi-Channel Alerts
+*   **Day 16**: Integrate **Gupshup WhatsApp** for booking confirmations.
+*   **Day 17**: Integrate **Firebase Cloud Messaging** for real-time mobile push.
+*   **Day 18**: Integrate **SendGrid Email** for PDF receipts and invoices.
+*   **Day 19**: Build **Exotel IVR** stubs for automated delivery calls.
+*   **Day 20**: Implement **Cashfree Payouts** integration for user refunds.
+
+### Week 5: KYC & AI Embedding
+*   **Day 21**: Integrate **Digio (KYC)** for Aadhaar-based user verification.
+*   **Day 22**: Build the **Python Vectorizer** proxy for Pinecone search.
+*   **Day 23**: Build **Slack Webhook** integration for internal error alerts.
+*   **Day 24**: Implement **ULIP Vahan API** (Mock) for vehicle verification.
+*   **Day 25**: Final **Integration Testing** — ensuring all external APIs are resilient.
+
+---
+
+## Week 3 Exit Checklist
+- [ ] `GET /tracking/:awb` returns results from MongoDB.
+- [ ] Label Generation (PDF) working for at least one courier.
+- [ ] Webhook signature verification verified for Delhivery/DTDC.
+- [ ] Kafka events successfully broadcast for shipment transitions.
+
+## Week 4 Exit Checklist
+- [ ] Wallet Balance transactions are atomic and never fail mid-way.
+- [ ] COD collections are accurately tracked against AWB status.
+- [ ] WhatsApp, SMS, and Push notifications delivered on correct events.
+- [ ] Refunds processed through Cashfree/Razorpay APIs.
+
+## Week 5 Exit Checklist
+- [ ] AI EDD (Delivery Date) is accurate within +/- 24 hours.
+- [ ] Admin panel shows accurate real-time revenue and settlement data.
+- [ ] Address search supports landmarks via Vector DB.
+- [ ] Final End-to-End Stress Test completed (1,000 bookings/hour).
+
+---
+
+*This roadmap is a living document and will be updated as we complete each milestone.*
+
+
