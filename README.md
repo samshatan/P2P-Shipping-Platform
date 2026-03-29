@@ -91,7 +91,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] Clone the GitHub repository
 - [x] Run `docker compose up -d` and verify all 6 services show Up
 - [ ] Open pgAdmin, connect to localhost:5432
-- [ ] Run `schema.sql` to create all 6 database tables
+- [x] Run `schema.sql` to create all 6 database tables
 - [ ] Send screenshot of `docker compose ps` to team group
 
 **Day 2**
@@ -307,7 +307,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 ## Week 1 Exit Checklist — All Must Pass Before Week 2
 
 - [x] docker compose ps shows all 6 services running on every developer machine
-- [ ] All 6 database tables exist and visible in pgAdmin
+- [x] All 6 database tables exist and visible in pgAdmin
 - [x] `GET /health` returns db ok, redis ok, kafka ok, mongodb ok
 - [x] `POST /auth/send-otp` stores OTP in Redis and returns success
 - [x] `POST /auth/verify-otp` returns valid JWT access token
