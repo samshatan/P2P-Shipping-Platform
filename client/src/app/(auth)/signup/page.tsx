@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Package, ArrowRight, CheckCircle2, User, Building2, Smartphone, Mail, Lock, Eye, EyeOff, AtSign } from "lucide-react";
+import { Package, ArrowRight, CheckCircle2, User, Building2, Smartphone, Mail, Lock, Eye, EyeOff, AtSign, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
+import { loginUser } from "@/lib/api";
+import { useToast } from "@/context/ToastContext";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -15,7 +17,9 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; username?: string; fullName?: string }>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; username?: string; fullName?: string; phone?: string }>({});
+  const { showToast } = useToast();
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -461,12 +465,28 @@ export default function SignupPage() {
 
                 <div style={{ display: "flex", gap: "12px" }}>
                   <Button variant="outline" onClick={() => setStep(2)} className="h-12 rounded-xl flex-1">Back</Button>
-                  <Button onClick={() => {
-                    if (phone.length === 10) {
-                      sessionStorage.setItem('pending_phone', phone);
-                      navigate('/verify-otp');
-                    }
-                  }} className="h-12 rounded-xl flex-[2] bg-gradient-to-r from-[#a33900] to-[#cc4900] text-white font-semibold shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform">
+                  <Button 
+                    onClick={async () => {
+                      if (phone.length === 10) {
+                        setIsLoading(true);
+                        try {
+                          await loginUser(phone);
+                          sessionStorage.setItem('pending_phone', phone);
+                          showToast("OTP sent successfully", "success");
+                          navigate('/verify-otp');
+                        } catch (err: any) {
+                          showToast(err.message || "Failed to send OTP", "error");
+                        } finally {
+                          setIsLoading(false);
+                        }
+                      } else {
+                        setErrors(prev => ({ ...prev, phone: "Enter a valid 10-digit number" }));
+                      }
+                    }} 
+                    disabled={isLoading}
+                    className="h-12 rounded-xl flex-[2] bg-gradient-to-r from-[#a33900] to-[#cc4900] text-white font-semibold shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform disabled:opacity-70"
+                  >
+                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
                     Send OTP & Finish
                   </Button>
                 </div>
