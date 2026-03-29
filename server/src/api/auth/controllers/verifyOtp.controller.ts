@@ -1,30 +1,11 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import redis from '../../../Database/redis';
 import pool from '../../../Database/db';
+import { signTokens } from '../../../lib/jwt';
 
 const OTP_KEY = (phone: string) => `otp:${phone}`;
-
-const ACCESS_TOKEN_EXPIRY = '15m';
-const REFRESH_TOKEN_EXPIRY = '7d';
-
-function signTokens(userId: string, phone: string, role: string) {
-    const secret = process.env.JWT_SECRET!;
-
-    const accessToken = jwt.sign(
-        { userId, phone, role },
-        secret,
-        { expiresIn: ACCESS_TOKEN_EXPIRY }
-    );
-
-    const refreshToken = jwt.sign(
-        { userId },
-        secret,
-        { expiresIn: REFRESH_TOKEN_EXPIRY }
-    );
-
-    return { accessToken, refreshToken };
-}
+const REFRESH_TOKEN_KEY = (userId: string) => `refresh_token:${userId}`;
+const REFRESH_TOKEN_EXPIRY_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
 export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const { phone, otp } = req.body;
@@ -82,6 +63,9 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
 
     // ── Sign JWT tokens
     const { accessToken, refreshToken } = signTokens(user.id, user.phone, user.role);
+
+    // ── Store Refresh Token in Redis for Revocation (7 Days)
+    await redis.set(REFRESH_TOKEN_KEY(user.id), refreshToken, 'EX', REFRESH_TOKEN_EXPIRY_SECONDS);
 
     // ── Success response
     res.status(200).json({

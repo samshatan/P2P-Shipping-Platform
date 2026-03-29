@@ -30,7 +30,7 @@ export const authMiddleware = (
 
     // ── Verify JWT signature
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as {
             userId: string;
             phone: string;
             role: string;
