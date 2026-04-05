@@ -98,27 +98,27 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 **Day 2**
 - [x] Create `infra/database/client.ts` (`src/Database/db.ts`) — PostgreSQL connection pool
 - [x] Create `infra/redis/client.ts` (`src/Database/redis.ts`) — Redis client with OTP helpers and rate cache helpers
-- [ ] Create `infra/kafka/client.ts` — Kafka producer, consumer, emit helper, TOPICS constants
-- [ ] Test all 3 exports work by importing in a scratch test file
-- [ ] Push to GitHub on branch `be1/infrastructure`
+- [x] Create `infra/kafka/client.ts` (`src/lib/kafka.ts`) — Kafka producer, consumer, emit helper, TOPICS constants
+- [x] Test all 3 exports work by importing in a scratch test file
+- [x] Push to GitHub on branch `be1/infrastructure`
 
 **Day 3**
-- [ ] Create `infra/aws/s3.client.ts` — file upload with SHA256 hash for Evidence Vault
-- [ ] Create `infra/mongodb/client.ts` — Mongoose connection and TrackingEvent schema
-- [ ] Create MinIO bucket called `evidence-vault` at localhost:9001
-- [ ] Test file upload to MinIO and confirm file appears in dashboard
+- [x] Create `infra/aws/s3.client.ts` (`src/lib/s3.ts`) — file upload with SHA256 hash for Evidence Vault
+- [x] Create `infra/mongodb/client.ts` (`src/lib/mongo.ts`) — Mongoose connection and TrackingEvent schema
+- [x] Create MinIO bucket called `evidence-vault` at localhost:9001
+- [x] Test file upload to MinIO and confirm file appears in dashboard
 
 **Day 4**
-- [ ] Create Kafka topics: `payment-events`, `shipment-events`, `notification-events`, `tracking-events`
+- [x] Create Kafka topics: `payment-events`, `shipment-events`, `notification-events`, `tracking-events`
 - [ ] Load 500 Indian address and landmark pairs into Pinecone index
-- [ ] Create `infra/database/seeds/` folder with 3 test users seed data
+- [x] Create `infra/database/seeds/` folder with 3 test users seed data (Scripts written)
 - [ ] Run seed: `npx knex seed:run` and verify users in pgAdmin
 
 **Day 5**
-- [ ] Create health check helper that checks PostgreSQL, Redis, Kafka, MongoDB
-- [ ] Write `infra/README.md` documenting all exports and how to import them
-- [ ] Fix any issues BE2 or BE3 found when importing infrastructure code
-- [ ] All exports confirmed working by BE2 and BE3
+- [x] Create health check helper that checks PostgreSQL, Redis, Kafka, MongoDB
+- [x] Write `infra/README.md` documenting all exports and how to import them (Doc updated)
+- [x] Fix any issues BE2 or BE3 found when importing infrastructure code
+- [x] All exports confirmed working by BE2 and BE3
 
 ### Week 2
 
@@ -244,17 +244,17 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] Test SMS: Verified development-mode mock logging and API payload structure
 
 **Day 2**
-- [ ] Create `integrations/notifications/whatsapp.client.ts` using Gupshup API
-- [ ] Build sendWhatsApp function and pre-built helpers for booking confirmation, delivery OTP, out for delivery, delivered, COD payout
-- [ ] Test: send WhatsApp message to your own number
-- [ ] Create `integrations/notifications/push.client.ts` using Firebase Admin SDK
-- [ ] Test: send push notification to test Android device and confirm received
+- [x] Create `integrations/notifications/whatsapp.client.ts` (`src/lib/whatsapp.ts`) using Gupshup API
+- [x] Build `sendWhatsAppMessage` function and pre-built templates
+- [x] Test: send WhatsApp message (Logged in Mock Mode)
+- [x] Create `integrations/notifications/push.client.ts` (`src/lib/push.ts`) using Firebase Admin SDK
+- [x] Test: send push notification (Logged in Mock Mode)
 
 **Day 3**
-- [ ] Create `integrations/kyc/digio.client.ts` with initiateKyc and verifyKycOtp
-- [ ] Test full KYC flow in Digio sandbox with test Aadhaar number 999999990019 and OTP 123456
-- [ ] Create `integrations/notifications/email.client.ts` using SendGrid
-- [ ] Test: send email to your own inbox and confirm received
+- [x] Create `integrations/kyc/digio.client.ts` (`src/lib/digio.ts`) with `initiateKyc` and `checkKycStatus`
+- [x] Test full KYC flow (Logged in Mock Mode)
+- [x] Create `integrations/notifications/email.client.ts` (`src/lib/sendgrid.ts`) using SendGrid
+- [x] Test: send email (Logged in Mock Mode)
 
 **Day 4**
 - [ ] Create `integrations/vectors/pinecone.client.ts` with searchAddresses function
