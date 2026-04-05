@@ -36,7 +36,7 @@ npm run dev # Opens at http://localhost:5173
 
 ## ⚙️ Backend Overview (`server/`)
 
-**Status: Phase 1 — Authentication & Foundation Complete ✅ (35%)**
+**Status: Phase 1 — Authentication & Foundation Complete ✅ (35% — Frontend Auth Connection Verified)**
 
 ### Core Tech Stack
 | Layer | Technology | Status |
