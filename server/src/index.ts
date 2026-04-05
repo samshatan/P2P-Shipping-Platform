@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import redis from './Database/redis';
 import authRouter from './api/auth/routes/auth.routes';
+import usersRouter from './api/users/routes/users.routes';
 
 // Load environment variables
 dotenv.config();
@@ -23,6 +24,7 @@ app.use(morgan('dev'));
 
 // ── Routes ──────────────────────────────────────────────────
 app.use('/auth', authRouter);
+app.use('/users', usersRouter);
 
 // Health Check Endpoint
 app.get('/health', async (req, res) => {
