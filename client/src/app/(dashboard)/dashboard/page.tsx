@@ -115,9 +115,9 @@ export default function UserDashboard() {
 
           {/* STATS CARDS SECTION */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="p-6 bg-white border-border shadow-sm rounded-2xl flex flex-col justify-between group hover:border-slate-300 transition-colors">
+            <Card className="p-6 bg-surface-container-lowest border-border shadow-sm rounded-2xl flex flex-col justify-between group hover:border-primary/50 transition-colors">
               <div className="flex justify-between items-start mb-4">
-                <div className="w-10 h-10 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-muted text-muted-foreground rounded-xl flex items-center justify-center">
                   <Package className="w-5 h-5" />
                 </div>
               </div>
@@ -129,9 +129,9 @@ export default function UserDashboard() {
               </div>
             </Card>
 
-            <Card className="p-6 bg-white border-border shadow-sm rounded-2xl flex flex-col justify-between group hover:border-blue-300 transition-colors">
+            <Card className="p-6 bg-surface-container-lowest border-border shadow-sm rounded-2xl flex flex-col justify-between group hover:border-primary/50 transition-colors">
               <div className="flex justify-between items-start mb-4">
-                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-secondary-container text-tertiary rounded-xl flex items-center justify-center">
                   <Truck className="w-5 h-5" />
                 </div>
               </div>
@@ -143,9 +143,9 @@ export default function UserDashboard() {
               </div>
             </Card>
 
-            <Card className="p-6 bg-white border-border shadow-sm rounded-2xl flex flex-col justify-between group hover:border-green-300 transition-colors">
+            <Card className="p-6 bg-surface-container-lowest border-border shadow-sm rounded-2xl flex flex-col justify-between group hover:border-primary/50 transition-colors">
               <div className="flex justify-between items-start mb-4">
-                <div className="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-primary-fixed text-primary rounded-xl flex items-center justify-center">
                   <CheckCircle className="w-5 h-5" />
                 </div>
               </div>
@@ -157,15 +157,15 @@ export default function UserDashboard() {
               </div>
             </Card>
 
-            <Card className="p-6 bg-white border-border shadow-sm rounded-2xl flex flex-col justify-between group hover:border-emerald-300 transition-colors">
+            <Card className="p-6 bg-surface-container-lowest border-border shadow-sm rounded-2xl flex flex-col justify-between group hover:border-primary/50 transition-colors">
                <div className="flex justify-between items-start mb-4">
-                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-primary-fixed text-primary rounded-xl flex items-center justify-center">
                   <IndianRupee className="w-5 h-5" />
                 </div>
               </div>
               <div className="relative z-10">
-                <div className="text-3xl font-heading font-extrabold text-emerald-600">₹540</div>
-                <div className="text-sm font-bold text-emerald-700/80 uppercase tracking-wider mt-1">Total Savings</div>
+                <div className="text-3xl font-heading font-extrabold text-primary">₹540</div>
+                <div className="text-sm font-bold text-primary-container uppercase tracking-wider mt-1">Total Savings</div>
               </div>
             </Card>
           </div>
@@ -174,7 +174,7 @@ export default function UserDashboard() {
           <Card className="bg-white shadow-sm border-border rounded-2xl overflow-hidden flex flex-col">
              
              {/* Header & Filters */}
-             <div className="p-6 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-muted/20">
+             <div className="p-6 border-b border-border/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-muted/10">
                 <h2 className="font-heading font-bold text-xl flex items-center gap-2"><FileText className="w-5 h-5 text-primary" /> Active & Past Shipments</h2>
                 
                 <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
@@ -185,7 +185,7 @@ export default function UserDashboard() {
                       variant={filter === f ? "default" : "outline"}
                       className={cn(
                         "rounded-xl font-bold px-4 h-9 whitespace-nowrap shadow-sm",
-                        filter === f ? "bg-foreground text-white" : "bg-white text-muted-foreground border-border/60 hover:text-foreground"
+                        filter === f ? "bg-primary text-background" : "bg-background text-muted-foreground border-border/60 hover:text-foreground"
                       )}
                     >
                       {f}

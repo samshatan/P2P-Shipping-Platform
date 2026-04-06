@@ -16,40 +16,40 @@ export function FeatureBento() {
 
         <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {/* GPS Tracking Card - Dark Theme */}
-          <Card className="md:col-span-2 bg-[#191c1e] text-white p-8 rounded-3xl relative overflow-hidden border-0 shadow-2xl flex flex-col justify-between group">
+          <Card className="md:col-span-2 bg-foreground text-background p-8 rounded-3xl relative overflow-hidden border-0 shadow-2xl flex flex-col justify-between group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] group-hover:bg-primary/30 transition-colors duration-500"></div>
             
             <div className="relative z-10 max-w-md">
-              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-6">
+              <div className="w-12 h-12 bg-background/10 rounded-xl flex items-center justify-center mb-6">
                 <MapPin className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-2xl font-bold font-heading mb-3">Live Precision Tracking</h3>
-              <p className="text-white/70 text-lg leading-relaxed mb-8">
+              <h3 className="text-2xl font-bold font-heading mb-3 text-background">Live Precision Tracking</h3>
+              <p className="text-background/70 text-lg leading-relaxed mb-8">
                 Watch your parcel move on a live map. Our AI predicts exact delivery windows based on historical courier data for your route.
               </p>
             </div>
             
             {/* Mock UX Graphic inside card */}
-            <div className="relative z-10 w-full bg-white/5 border border-white/10 rounded-2xl p-4 mt-auto">
+            <div className="relative z-10 w-full bg-background/5 border border-background/10 rounded-2xl p-4 mt-auto">
               <div className="flex items-center gap-4">
                 <div className="relative w-2 h-2 rounded-full bg-emerald-500 animate-pulse ring-4 ring-emerald-500/20"></div>
-                <div className="text-sm font-medium text-white/80">Out for delivery • Reaching by 4:30 PM</div>
+                <div className="text-sm font-medium text-background/80">Out for delivery • Reaching by 4:30 PM</div>
               </div>
-              <div className="w-full h-1 bg-white/10 rounded-full mt-4 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-orange-400 w-[85%] rounded-full"></div>
+              <div className="w-full h-1 bg-background/10 rounded-full mt-4 overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary to-primary-container w-[85%] rounded-full"></div>
               </div>
             </div>
           </Card>
 
           {/* Swift Insurance Card */}
-          <Card className="bg-gradient-to-br from-tertiary to-blue-900 text-white p-8 rounded-3xl relative overflow-hidden border-0 shadow-xl group">
+          <Card className="bg-gradient-to-br from-tertiary to-blue-900 text-background p-8 rounded-3xl relative overflow-hidden border-0 shadow-xl group">
             <div className="absolute top-0 right-0 w-full h-full bg-[url('/grain.png')] opacity-20 mix-blend-overlay"></div>
             
             <div className="relative z-10 h-full flex flex-col">
-              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-6">
+              <div className="w-12 h-12 bg-background/10 rounded-xl flex items-center justify-center mb-6">
                 <ShieldCheck className="w-6 h-6 text-blue-300" />
               </div>
-              <h3 className="text-2xl font-bold font-heading mb-3">Evidence Vault</h3>
+              <h3 className="text-2xl font-bold font-heading mb-3 text-background">Evidence Vault</h3>
               <p className="text-blue-100/80 text-lg leading-relaxed flex-1">
                 Upload a photo before shipping. We generate a tamper-proof SHA-256 hash. Zero weight disputes.
               </p>
