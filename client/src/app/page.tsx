@@ -49,8 +49,8 @@ export default function Home() {
               </Badge>
               
               <h1 className="font-heading font-extrabold text-5xl sm:text-6xl md:text-7xl leading-[1.1] text-foreground tracking-tight">
-                Ship anything <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500">
+                Ship anything, <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-container">
                   anywhere across the globe.
                 </span>
               </h1>
@@ -60,7 +60,7 @@ export default function Home() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                <Button onClick={() => navigate('/compare')} size="lg" className="h-14 px-8 bg-gradient-to-r from-[#a33900] to-[#cc4900] hover:from-[#8c3100] hover:to-[#a33900] text-lg font-semibold rounded-xl text-white shadow-xl shadow-primary/25 transition-all hover:scale-105 group">
+                <Button onClick={() => navigate('/compare')} size="lg" className="h-14 px-8 bg-gradient-to-r from-primary to-primary-container hover:opacity-90 text-lg font-semibold rounded-xl text-white shadow-xl shadow-primary/25 transition-all hover:scale-105 group">
                   Compare Rates <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <Button onClick={() => navigate('/track/SR2024031500123')} size="lg" variant="outline" className="h-14 px-8 text-lg font-medium rounded-xl border-border bg-white/50 backdrop-blur-sm hover:bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
@@ -69,10 +69,18 @@ export default function Home() {
               </div>
 
               {/* Trust Bar Inline */}
-              <div className="flex items-center gap-6 mt-8 pt-8 border-t border-border/60">
+              <div className="flex items-center gap-8 mt-8 pt-8 border-t border-border/60">
                 <div>
                   <div className="font-heading font-bold text-2xl text-foreground">27k+</div>
                   <div className="text-sm text-muted-foreground font-medium">Pincodes</div>
+                </div>
+                <div>
+                  <div className="font-heading font-bold text-2xl text-foreground">10+</div>
+                  <div className="text-sm text-muted-foreground font-medium">Partners</div>
+                </div>
+                <div>
+                  <div className="font-heading font-bold text-2xl text-foreground">99%</div>
+                  <div className="text-sm text-muted-foreground font-medium">SLA Match</div>
                 </div>
               </div>
             </div>
@@ -125,15 +133,12 @@ export default function Home() {
                           placeholder="Weight (kg)" 
                           type="number" 
                           step="0.1" 
-                          className="h-12 border-border bg-white shadow-sm flex-1" 
+                          className="h-12 border-border bg-white shadow-sm flex-1 focus-visible:ring-primary/20"
                        />
-                       <div className="flex items-center justify-center h-12 px-4 border border-border bg-background rounded-md text-sm font-medium text-muted-foreground sm:w-1/3 cursor-not-allowed">
-                         Document
-                       </div>
                      </div>
                   </div>
 
-                  <Button onClick={handleGetRates} className="w-full h-14 mt-4 bg-foreground text-white hover:bg-foreground/90 rounded-xl font-semibold text-lg shadow-[0_10px_30px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1">
+                  <Button onClick={handleGetRates} className="w-full h-14 mt-6 bg-foreground text-white hover:bg-foreground/90 rounded-xl font-semibold text-lg shadow-[0_10px_30px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1">
                     Get Best Rates
                   </Button>
                 </div>

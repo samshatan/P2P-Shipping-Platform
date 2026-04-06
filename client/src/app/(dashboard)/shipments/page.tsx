@@ -129,7 +129,7 @@ export default function ShipmentsPage() {
                       </div>
                       <div>
                         <div className="font-mono font-bold text-foreground">{ship.awb}</div>
-                        <div className="text-xs font-semibold text-muted-foreground pt-0.5">{ship.date}</div>
+                        <div className="text-xs font-semibold text-muted-foreground pt-0.5">{new Date(ship.created_at).toLocaleDateString()}</div>
                       </div>
                     </div>
 
@@ -144,14 +144,14 @@ export default function ShipmentsPage() {
                     <div className="w-full md:w-1/4 flex flex-col sm:flex-row md:flex-col lg:flex-row justify-between md:justify-center items-start lg:items-center gap-2 px-2">
                        <div className="text-xs font-bold text-muted-foreground uppercase">{ship.courier}</div>
                        <Badge variant="outline" className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5", getStatusColor(ship.status))}>
-                         {ship.status}
+                         {ship.status.replace(/_/g, ' ')}
                        </Badge>
                     </div>
 
                     {/* Amount & Actions */}
                     <div className="w-full md:w-auto flex items-center justify-between md:justify-end gap-6 pl-2 mt-4 md:mt-0">
                        <div className="text-right border-r border-border/60 pr-6 mr-2 hidden sm:block">
-                         <div className="font-bold text-foreground">₹{ship.amount.toFixed(2)}</div>
+                         <div className="font-bold text-foreground">₹{(ship.total_paise / 100).toFixed(2)}</div>
                          <div className="text-[10px] uppercase font-semibold text-muted-foreground">{ship.weight} • {ship.type}</div>
                        </div>
                        
