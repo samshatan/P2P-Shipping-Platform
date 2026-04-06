@@ -195,7 +195,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 ### Week 2
 
 **Day 6**
-- [x] Create `POST /address/search` route calling BE3 searchAddresses function (Connector Ready)
+- [ ] Create `POST /address/search` route calling BE3 searchAddresses function
 - [ ] Create `GET /pincodes/check` route querying pincodes table
 - [ ] Create `POST /users/addresses` to save address
 - [ ] Create `GET /users/addresses` to list saved addresses
