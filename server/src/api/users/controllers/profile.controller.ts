@@ -16,7 +16,7 @@ export const getProfile = asyncHandler(async (req: AuthenticatedRequest, res: Re
 
     const result = await pool.query(
         `SELECT id, name, email, phone, role, kyc_status, wallet_balance, referral_code, created_at
-         FROM users WHERE id = $1`,
+        FROM users WHERE id = $1`,
         [userId]
     );
 

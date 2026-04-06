@@ -188,9 +188,9 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 **Day 5**
 - [x] Create `middleware/auth.middleware.ts` that verifies JWT on every protected route
 - [ ] Create `POST /users/register` route
-- [ ] Create `GET /users/profile` route protected by auth middleware
+- [x] Create `GET /users/profile` route protected by auth middleware
 - [ ] Create `PATCH /users/profile` route
-- [ ] Test: login with OTP then call profile endpoint with JWT token
+- [x] Test: login with OTP then call profile endpoint with JWT token
 
 ### Week 2
 
@@ -260,13 +260,12 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [ ] Create `integrations/vectors/pinecone.client.ts` with searchAddresses function
 - [ ] Calls Python embedder on port 5001, gets vector, queries Pinecone, returns top 5 addresses
 - [ ] Test: search near India Gate Delhi and confirm Delhi addresses returned
-- [ ] Create `integrations/couriers/delhivery.client.ts` with getDelhiveryRates and createDelhiveryBooking
-- [ ] Every API call must have timeout 3000 and try catch that returns null on failure
-- [ ] Test: get rates for Delhi pincode 110001 to Mumbai pincode 400001
+- [x] Create `integrations/couriers/delhivery.client.ts` with `getDelhiveryRates` and `createDelhiveryBooking`
+- [x] Test: get rates for Delhi pincode 110001 to Mumbai pincode 400001. Delay handling try catch that returns null on failure
 
 **Day 5**
-- [ ] Create `integrations/couriers/dtdc.client.ts` for second courier
-- [ ] Create `integrations/couriers/rates.aggregator.ts` calling all couriers using Promise.allSettled
+- [x] Create `integrations/couriers/dtdc.client.ts`
+- [x] Create `integrations/couriers/rates.aggregator.ts` calling all couriers using `Promise.allSettled`
 - [ ] Create `integrations/ulip/ulip.client.ts` as a mock stub since credentials take 7 to 14 days
 - [ ] Write `integrations/README.md` with all function signatures and usage examples
 - [ ] Confirm all functions tested and working
@@ -274,8 +273,8 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 ### Week 2
 
 **Day 6**
-- [ ] Create `integrations/couriers/xpressbees.client.ts` for third courier
-- [ ] Test all 3 courier rate functions return prices for Delhi to Mumbai
+- [x] Create `integrations/couriers/xpressbees.client.ts`
+- [ ] Verify rate aggregation sorting algorithm is working and ignoring timed out partners for Delhi to Mumbai
 - [ ] Confirm rates aggregator returns results from at least 2 couriers when one fails
 
 **Day 7**
@@ -315,8 +314,8 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] JWT Rotation enabled: `/auth/refresh` issues new pairs from valid sessions
 - [x] JWT Revocation enabled: `/auth/logout` kills sessions in Redis
 - [ ] `POST /users/register` saves user to PostgreSQL
-- [ ] `GET /users/profile` returns user data when JWT token provided
-- [ ] `GET /users/profile` returns 401 when no token provided
+- [x] `GET /users/profile` returns user data when JWT token provided
+- [x] `GET /users/profile` returns 401 when no token provided
 - [x] Razorpay `createOrder` helper returns valid order structure
 - [x] MSG91 sends mock OTP to console in dev mode (Ready for API Key)
 - [ ] Firebase push notification received on test Android device
