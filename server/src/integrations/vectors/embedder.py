@@ -15,14 +15,21 @@ app = FastAPI(title="SwiftRoute AI Embedder", version="1.0.0")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Request Model
+# Request Models
 class EmbedRequest(BaseModel):
     text: str
 
-# Response Model
+class EmbedBatchRequest(BaseModel):
+    texts: list[str]
+
+# Response Models
 class EmbedResponse(BaseModel):
     text: str
     vector: list[float]
+    dimensions: int
+
+class EmbedBatchResponse(BaseModel):
+    vectors: list[list[float]]
     dimensions: int
 
 # Load the ML model (loads on boot)
@@ -60,5 +67,26 @@ def get_embedding(req: EmbedRequest):
         logger.error(f"Embedding error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/embed-batch", response_model=EmbedBatchResponse)
+def get_embedding_batch(req: EmbedBatchRequest):
+    if not model:
+        raise HTTPException(status_code=503, detail="Model is not loaded")
+
+    if not req.texts or any(not text.strip() for text in req.texts):
+        raise HTTPException(status_code=400, detail="Texts list cannot be empty and elements cannot be empty strings")
+
+    try:
+        # Generate dense vectors for a batch
+        embeddings = model.encode(req.texts)
+        vectors = embeddings.tolist()
+
+        return EmbedBatchResponse(
+            vectors=vectors,
+            dimensions=len(vectors[0]) if vectors else 0
+        )
+    except Exception as e:
+        logger.error(f"Batch Embedding error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
-    uvicorn.run("embedder:app", host="0.0.0.0", port=5001, reload=True)
+    uvicorn.run("embedder:app", host="0.0.0.0", port=5001)

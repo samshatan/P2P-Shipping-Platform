@@ -1,4 +1,5 @@
 import axios from 'axios';
+import redisClient from '../Database/redis';
 
 // Interfaces
 export interface SearchAddressResult {
@@ -21,17 +22,43 @@ export async function searchAddresses(query: string, topK: number = 5): Promise<
   try {
     console.log(`[Pinecone] Searching vectors for: "${query}"`);
 
-    // 1. Get embedding from Python service
+    // 1. Check Redis Cache for existing embedding
+    const cacheKey = `embed:${query.toLowerCase().trim()}`;
     let vector: number[] = [];
+
     try {
-      const embedResponse = await axios.post(EMBEDDER_URL, { text: query }, { timeout: 5000 });
-      vector = embedResponse.data.vector;
-    } catch (embedError: any) {
-      console.warn(`[Pinecone] Failed to reach Python Embedder API: ${embedError.message}. Falling back to mock data...`);
-      return getMockAddresses(query);
+      if (redisClient && redisClient.status === 'ready') {
+        const cachedVector = await redisClient.get(cacheKey);
+        if (cachedVector) {
+          console.log(`[Pinecone] Cache hit for query: "${query}"`);
+          vector = JSON.parse(cachedVector);
+        }
+      }
+    } catch (cacheError: any) {
+      console.warn(`[Pinecone] Redis cache error: ${cacheError.message}`);
     }
 
-    // 2. Query Pinecone (if credentials provided)
+    // 2. Get embedding from Python service if not cached
+    if (vector.length === 0) {
+      try {
+        const embedResponse = await axios.post(EMBEDDER_URL, { text: query }, { timeout: 5000 });
+        vector = embedResponse.data.vector;
+
+        // Cache the new vector for 24 hours
+        try {
+          if (redisClient && redisClient.status === 'ready') {
+            await redisClient.set(cacheKey, JSON.stringify(vector), 'EX', 86400);
+          }
+        } catch (cacheSetError: any) {
+          console.warn(`[Pinecone] Failed to set Redis cache: ${cacheSetError.message}`);
+        }
+      } catch (embedError: any) {
+        console.warn(`[Pinecone] Failed to reach Python Embedder API: ${embedError.message}. Falling back to mock data...`);
+        return getMockAddresses(query);
+      }
+    }
+
+    // 3. Query Pinecone (if credentials provided)
     if (!PINECONE_API_KEY || !PINECONE_URL || process.env.NODE_ENV !== 'production') {
       console.log(`[Pinecone] No Pinecone credentials or running locally. Using mock results with generated vector.`);
       return getMockAddresses(query);
