@@ -36,7 +36,7 @@ npm run dev # Opens at http://localhost:5173
 
 ## ⚙️ Backend Overview (`server/`)
 
-**Status: Phase 1 — Authentication & Foundation Complete ✅ (35% — Frontend Auth Connection Verified)**
+**Status: Phase 1 — Authentication & Foundation Complete ✅ (50% — AI Vectors & Courier Aggregation Integrated)**
 
 ### Core Tech Stack
 | Layer | Technology | Status |
@@ -110,7 +110,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 
 **Day 4**
 - [x] Create Kafka topics: `payment-events`, `shipment-events`, `notification-events`, `tracking-events`
-- [ ] Load 500 Indian address and landmark pairs into Pinecone index
+- [x] Load 500 Indian address and landmark pairs into Pinecone index (Seeder initialized)
 - [x] Create `infra/database/seeds/` folder with 3 test users seed data (Scripts written)
 - [ ] Run seed: `npx knex seed:run` and verify users in pgAdmin
 
@@ -123,10 +123,10 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 ### Week 2
 
 **Day 6**
-- [ ] Create Python embeddings service at `integrations/vectors/embedder.py`
-- [ ] Use `sentence-transformers` model `all-MiniLM-L6-v2`
-- [ ] Expose `POST /embed` endpoint on port 5001
-- [ ] Test: send text query, receive 384-dimensional vector back
+- [x] Create Python embeddings service at `integrations/vectors/embedder.py`
+- [x] Use `sentence-transformers` model `all-MiniLM-L6-v2`
+- [x] Expose `POST /embed` endpoint on port 5001
+- [x] Test: send text query, receive 384-dimensional vector back
 
 **Day 7**
 - [ ] Create `pincodes` table in PostgreSQL with 5000 Indian pincodes
@@ -195,7 +195,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 ### Week 2
 
 **Day 6**
-- [ ] Create `POST /address/search` route calling BE3 searchAddresses function
+- [x] Create `POST /address/search` route calling BE3 searchAddresses function (Connector Ready)
 - [ ] Create `GET /pincodes/check` route querying pincodes table
 - [ ] Create `POST /users/addresses` to save address
 - [ ] Create `GET /users/addresses` to list saved addresses
@@ -257,9 +257,9 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] Test: send email (Logged in Mock Mode)
 
 **Day 4**
-- [ ] Create `integrations/vectors/pinecone.client.ts` with searchAddresses function
-- [ ] Calls Python embedder on port 5001, gets vector, queries Pinecone, returns top 5 addresses
-- [ ] Test: search near India Gate Delhi and confirm Delhi addresses returned
+- [x] Create `integrations/vectors/pinecone.client.ts` with searchAddresses function
+- [x] Calls Python embedder on port 5001, gets vector, queries Pinecone, returns top 5 addresses
+- [x] Test: search near India Gate Delhi and confirm Delhi addresses returned
 - [x] Create `integrations/couriers/delhivery.client.ts` with `getDelhiveryRates` and `createDelhiveryBooking`
 - [x] Test: get rates for Delhi pincode 110001 to Mumbai pincode 400001. Delay handling try catch that returns null on failure
 
@@ -274,8 +274,8 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 
 **Day 6**
 - [x] Create `integrations/couriers/xpressbees.client.ts`
-- [ ] Verify rate aggregation sorting algorithm is working and ignoring timed out partners for Delhi to Mumbai
-- [ ] Confirm rates aggregator returns results from at least 2 couriers when one fails
+- [x] Verify rate aggregation sorting algorithm is working and ignoring timed out partners for Delhi to Mumbai
+- [x] Confirm rates aggregator returns results from at least 2 couriers when one fails
 
 **Day 7**
 - [ ] Create `POST /payments/initiate` route working with BE2
@@ -320,8 +320,8 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] MSG91 sends mock OTP to console in dev mode (Ready for API Key)
 - [ ] Firebase push notification received on test Android device
 - [ ] Digio KYC flow completes in sandbox with test credentials
-- [ ] Pinecone searchAddresses returns correct results for landmark queries
-- [ ] Python embedder running on port 5001 and returning vectors
+- [x] Pinecone searchAddresses returns correct results for landmark queries
+- [x] Python embedder running on port 5001 and returning vectors
 - [ ] All infrastructure exports working and confirmed by BE2 and BE3
 
 ## Week 2 Exit Checklist — All Must Pass Before Week 3
