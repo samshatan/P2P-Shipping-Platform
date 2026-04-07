@@ -229,6 +229,20 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 18. Rate Cache Backup Table (warm fallback when Redis is cold)
+CREATE TABLE IF NOT EXISTS rate_cache (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    pickup_pincode VARCHAR(10) NOT NULL,
+    delivery_pincode VARCHAR(10) NOT NULL,
+    weight_grams INTEGER NOT NULL,
+    is_cod BOOLEAN DEFAULT false,
+    payload JSONB NOT NULL,       -- Full AggregatedRatesResult JSON
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (pickup_pincode, delivery_pincode, weight_grams, is_cod)
+);
+
 -- Create optimized indexes
 CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
 CREATE INDEX IF NOT EXISTS idx_shipments_user ON shipments(user_id);
@@ -238,3 +252,18 @@ CREATE INDEX IF NOT EXISTS idx_transactions_user ON wallet_transactions(user_id)
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_admin ON audit_logs(admin_id);
 CREATE INDEX IF NOT EXISTS idx_cod_status ON cod_collections(status);
+
+-- Additional indexes for high-query columns (BE1 Day 8)
+CREATE INDEX IF NOT EXISTS idx_shipments_status ON shipments(status);
+CREATE INDEX IF NOT EXISTS idx_shipments_payment_status ON shipments(payment_status);
+CREATE INDEX IF NOT EXISTS idx_shipments_courier ON shipments(courier_id);
+CREATE INDEX IF NOT EXISTS idx_shipments_created ON shipments(created_at);
+CREATE INDEX IF NOT EXISTS idx_pincodes_city ON pincodes(city);
+CREATE INDEX IF NOT EXISTS idx_pincodes_state ON pincodes(state);
+CREATE INDEX IF NOT EXISTS idx_pincodes_serviceable ON pincodes(is_serviceable);
+CREATE INDEX IF NOT EXISTS idx_rate_cache_expiry ON rate_cache(expires_at);
+CREATE INDEX IF NOT EXISTS idx_evidence_shipment ON evidence_vault(shipment_id);
+CREATE INDEX IF NOT EXISTS idx_disputes_status ON disputes(status);
+CREATE INDEX IF NOT EXISTS idx_disputes_user ON disputes(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications_log(type);
+CREATE INDEX IF NOT EXISTS idx_cod_collections_shipment ON cod_collections(shipment_id);

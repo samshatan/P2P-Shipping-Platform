@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import redis from './Database/redis';
 import authRouter from './api/auth/routes/auth.routes';
 import usersRouter from './api/users/routes/users.routes';
+import { startWorkers, stopWorkers } from './lib/workers';
+import { startNotificationConsumer } from './lib/notification-consumer';
 
 // Load environment variables
 dotenv.config();
@@ -36,6 +38,13 @@ app.get('/health', async (req, res) => {
     const { default: pool } = await import('./Database/db');
     await pool.query('SELECT 1');
 
+    // 3. Queue health (if workers are enabled)
+    let queueHealth = {};
+    if (process.env.ENABLE_WORKERS === 'true') {
+      const { getQueueHealth } = await import('./lib/queues');
+      queueHealth = await getQueueHealth();
+    }
+
     res.json({
       status: 'ok',
       timestamp: new Date().toISOString(),
@@ -46,7 +55,10 @@ app.get('/health', async (req, res) => {
       integrations: {
         razorpay: !!process.env.RAZORPAY_KEY_ID ? 'configured' : 'missing_keys',
         msg91: !!process.env.MSG91_API_KEY ? 'configured' : 'missing_keys',
-      }
+        workers: process.env.ENABLE_WORKERS === 'true' ? 'running' : 'disabled',
+        kafka_consumer: process.env.ENABLE_KAFKA_CONSUMER === 'true' ? 'running' : 'disabled',
+      },
+      queues: queueHealth,
     });
   } catch (error) {
     res.status(503).json({
@@ -58,6 +70,23 @@ app.get('/health', async (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
+
+  // Start BullMQ Workers (set ENABLE_WORKERS=true in .env to activate)
+  startWorkers();
+
+  // Start Kafka Notification Consumer (set ENABLE_KAFKA_CONSUMER=true in .env to activate)
+  await startNotificationConsumer();
 });
+
+// Graceful Shutdown
+process.on('SIGTERM', async () => {
+  console.log('⚠️  SIGTERM received — shutting down gracefully...');
+  await stopWorkers();
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
+});
+

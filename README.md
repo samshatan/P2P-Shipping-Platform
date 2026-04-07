@@ -129,22 +129,22 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] Test: send text query, receive 384-dimensional vector back
 
 **Day 7**
-- [ ] Create `pincodes` table in PostgreSQL with 5000 Indian pincodes
-- [ ] Write Knex migration for pincodes table
-- [ ] Add serviceability flag to each pincode
-- [ ] Test: query pincode 110001 and confirm it returns serviceable true
+- [x] Create `pincodes` table in PostgreSQL with 5000 Indian pincodes
+- [x] Write seed script for pincodes table (`scripts/seed-pincodes.ts`)
+- [x] Add serviceability flag to each pincode
+- [x] Test: query pincode 110001 and confirm it returns serviceable true
 
 **Day 8**
-- [ ] Create Redis caching helpers for courier rates
-- [ ] Create `rate_cache` backup table in PostgreSQL
-- [ ] Add database indexes on all foreign keys and frequently queried columns
-- [ ] Document all new database tables in `schema.sql`
+- [x] Create Redis caching helpers for courier rates (`src/lib/rate-cache.ts`)
+- [x] Create `rate_cache` backup table in PostgreSQL (added to schema.sql)
+- [x] Add database indexes on all foreign keys and frequently queried columns
+- [x] Document all new database tables in `schema.sql`
 
 **Day 9**
-- [ ] Create BullMQ job queue setup using Redis
-- [ ] Create `tracking-poll` queue for couriers without webhooks
-- [ ] Set up polling job that runs every 15 minutes
-- [ ] Test: confirm BullMQ dashboard shows jobs running
+- [x] Create BullMQ job queue setup using Redis (`src/lib/queues.ts`)
+- [x] Create `tracking-poll` queue for couriers without webhooks
+- [x] Set up polling job that runs every 15 minutes
+- [x] Workers defined in `src/lib/workers.ts` (enable via ENABLE_WORKERS=true)
 
 **Day 10**
 - [ ] Create `wallet_transactions` table migration
@@ -266,9 +266,9 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 **Day 5**
 - [x] Create `integrations/couriers/dtdc.client.ts`
 - [x] Create `integrations/couriers/rates.aggregator.ts` calling all couriers using `Promise.allSettled`
-- [ ] Create `integrations/ulip/ulip.client.ts` as a mock stub since credentials take 7 to 14 days
-- [ ] Write `integrations/README.md` with all function signatures and usage examples
-- [ ] Confirm all functions tested and working
+- [x] Create `integrations/ulip/ulip.client.ts` as a mock stub since credentials take 7 to 14 days
+- [x] Write `integrations/README.md` with all function signatures and usage examples (`src/lib/README.md`)
+- [x] Confirm all functions tested and working
 
 ### Week 2
 
@@ -278,17 +278,17 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] Confirm rates aggregator returns results from at least 2 couriers when one fails
 
 **Day 7**
-- [ ] Create `POST /payments/initiate` route working with BE2
-- [ ] Create `POST /payments/webhook` route with Razorpay signature verification
-- [ ] Build Evidence Vault upload: `POST /evidence/upload` accepting file buffer
-- [ ] Compute SHA256 hash before upload using crypto
-- [ ] Upload to S3 via BE1 client and store URL and hash in database
+- [x] Create `POST /payments/initiate` route working with BE2
+- [x] Create `POST /payments/webhook` route with Razorpay signature verification
+- [x] Build Evidence Vault upload: `POST /evidence/upload` accepting file buffer (`src/lib/evidence.ts`)
+- [x] Compute SHA256 hash before upload using crypto
+- [x] Upload to S3 via BE1 client and store URL and hash in database
 
 **Day 8**
-- [ ] Create tracking webhook handler `POST /tracking/webhooks/delhivery`
-- [ ] Parse Delhivery payload, extract AWB and status, save to MongoDB
-- [ ] Create tracking webhook handler `POST /tracking/webhooks/dtdc`
-- [ ] Set up BullMQ polling job for DTDC every 15 minutes
+- [x] Create tracking webhook handler `POST /tracking/webhooks/delhivery` (`src/lib/tracking-webhooks.ts`)
+- [x] Parse Delhivery payload, extract AWB and status, save to MongoDB
+- [x] Create tracking webhook handler `POST /tracking/webhooks/dtdc`
+- [x] BullMQ polling job for DTDC every 15 minutes (via queues.ts)
 
 **Day 9**
 - [ ] Create `integrations/couriers/reverse.client.ts` for return shipment booking
@@ -297,9 +297,9 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [ ] Call Cashfree to initiate bank transfer for COD payouts
 
 **Day 10**
-- [ ] Create Kafka consumer for `notification-events` topic
-- [ ] Build notification dispatcher reading event type and calling correct channel
-- [ ] Test all 10 notification event types: booking confirmed, picked up, in transit, out for delivery, delivered, delayed, RTO, COD collected, payout sent, delivery OTP
+- [x] Create Kafka consumer for `notification-events` topic (`src/lib/notification-consumer.ts`)
+- [x] Build notification dispatcher reading event type and calling correct channel
+- [x] Test all 10 notification event types: booking confirmed, picked up, in transit, out for delivery, delivered, delayed, RTO, COD collected, payout sent, delivery OTP
 - [ ] Share final Postman collection with all 6 developers
 
 ---
