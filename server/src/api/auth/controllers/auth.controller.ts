@@ -5,9 +5,9 @@ import jwt from "jsonwebtoken";
 
 const registerUser = asyncHandler(async (req, res) => {
 
-    const { name, email, phone, password } = req.body;
+    const { name, email, phone, password, username } = req.body;
 
-    if (!name || !email || !phone || !password) {
+    if (!name || !email || !phone || !password || !username) {
         return res.status(400).json({
             success: false,
             error: { code: "AUTH_001", message: "All fields are required" }
@@ -15,23 +15,23 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const existingUser = await pool.query(
-        "SELECT id FROM users WHERE email = $1 OR phone = $2",
-        [email, phone]
+        "SELECT id FROM users WHERE email = $1 OR phone = $2 OR username = $3",
+        [email, phone, username]
     );
 
     if (existingUser.rows.length > 0) {
         return res.status(409).json({
             success: false,
-            error: { code: "AUTH_005", message: "User with this email or phone already exists" }
+            error: { code: "AUTH_005", message: "User with this email, phone, or username already exists" }
         });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
-        `INSERT INTO users (name, email, phone, password, role, kyc_status, wallet_balance, created_at)
-         VALUES ($1, $2, $3, $4, 'USER', 'PENDING', 0, NOW())
-         RETURNING id, name, email, phone, role`,
-        [name, email, phone, hashedPassword]
+        `INSERT INTO users (name, email, phone, password, username, role, kyc_status, wallet_balance, created_at)
+         VALUES ($1, $2, $3, $4, $5, 'USER', 'PENDING', 0, NOW())
+         RETURNING id, name, email, phone, username, role`,
+        [name, email, phone, hashedPassword, username]
     );
 
     const newUser = result.rows[0];

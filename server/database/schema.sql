@@ -26,6 +26,7 @@ DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     phone VARCHAR(15) UNIQUE NOT NULL,
+    username VARCHAR(50) UNIQUE, -- Added for frontend compatibility
     name VARCHAR(100),
     email VARCHAR(255) UNIQUE,
     password VARCHAR(255), -- Added for email/password fallback

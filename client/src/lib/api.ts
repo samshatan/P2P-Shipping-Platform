@@ -146,6 +146,14 @@ export async function getDashboardData(page = 1, limit = 20, status?: string) {
   return data.data; 
 }
 
+export async function registerUser(payload: { name: string, email: string, phone: string, password?: string, username: string }) {
+  const data = await fetchAPI('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+  return data.data;
+}
+
 export async function loginUser(phone: string) {
   const data = await fetchAPI('/auth/send-otp', {
     method: 'POST',

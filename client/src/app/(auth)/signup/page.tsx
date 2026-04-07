@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Package, ArrowRight, CheckCircle2, User, Building2, Smartphone, Mail, Lock, Eye, EyeOff, AtSign, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
-import { loginUser } from "@/lib/api";
+import { loginUser, registerUser } from "@/lib/api";
 import { useToast } from "@/context/ToastContext";
 
 export default function SignupPage() {
@@ -470,12 +470,23 @@ export default function SignupPage() {
                       if (phone.length === 10) {
                         setIsLoading(true);
                         try {
+                          // 1. Call Register Backend
+                          await registerUser({
+                            name: fullName,
+                            username: username,
+                            email: email,
+                            phone: phone,
+                            password: password,
+                          });
+                          
+                          // 2. Trigger OTP for Login
                           await loginUser(phone);
+                          
                           sessionStorage.setItem('pending_phone', phone);
-                          showToast("OTP sent successfully", "success");
+                          showToast("Registration successful! OTP sent.", "success");
                           navigate('/verify-otp');
                         } catch (err: any) {
-                          showToast(err.message || "Failed to send OTP", "error");
+                          showToast(err.message || "Registration failed", "error");
                         } finally {
                           setIsLoading(false);
                         }
