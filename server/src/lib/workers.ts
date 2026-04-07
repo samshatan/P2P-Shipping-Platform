@@ -141,31 +141,63 @@ function createCodPayoutWorker() {
     'cod-payout',
     async (job: Job<CodPayoutJobData>) => {
       const { shipment_id, user_id, amount_paise, awb } = job.data;
-      console.log(`💸 [cod-payout] Processing payout for shipment ${shipment_id}, amount: ₹${amount_paise / 100}`);
+      const amountRupees = amount_paise / 100;
+      console.log(`💸 [cod-payout] Processing ₹${amountRupees} payout for shipment ${shipment_id}`);
 
       try {
-        // TODO: Call Cashfree payout API in production
-        // For now, mock the transfer and log
-        console.log(`[cod-payout] MOCK — Initiating Cashfree payout for user ${user_id}`);
-        console.log(`[cod-payout] Amount: ₹${amount_paise / 100} | AWB: ${awb}`);
+        const { addBeneficiary, initiatePayout } = await import('./cashfree');
+        const db = (await import('../Database/db')).default;
 
-        // In production:
-        // const payoutRef = await cashfreeClient.initiatePayout({ user_id, amount_paise });
-        // await db.query(
-        //   `UPDATE cod_remittances SET status = 'PROCESSING', bank_ref = $1 WHERE shipment_id = $2`,
-        //   [payoutRef, shipment_id]
-        // );
+        // 1. Fetch user bank details
+        const userResult = await db.query(
+          `SELECT name, phone, bank_account, bank_ifsc, email FROM users WHERE id = $1 LIMIT 1`,
+          [user_id]
+        );
 
-        console.log(`✅ [cod-payout] Payout mock completed for shipment ${shipment_id}`);
+        if (userResult.rows.length === 0) throw new Error(`User ${user_id} not found`);
+        const user = userResult.rows[0];
+
+        if (!user.bank_account || !user.bank_ifsc) {
+          console.warn(`[cod-payout] User ${user_id} has no bank details — skipping`);
+          await db.query(`UPDATE cod_remittances SET status = 'FAILED' WHERE shipment_id = $1`, [shipment_id]);
+          return;
+        }
+
+        // 2. Register beneficiary (idempotent)
+        await addBeneficiary({
+          beneficiary_id: user_id,
+          name: user.name,
+          account: user.bank_account,
+          ifsc: user.bank_ifsc,
+          phone: user.phone,
+          email: user.email,
+        });
+
+        // 3. Initiate transfer
+        const result = await initiatePayout({
+          transfer_id: `COD-${shipment_id}`,
+          amount: amountRupees,
+          beneficiary_name: user.name,
+          beneficiary_account: user.bank_account,
+          beneficiary_ifsc: user.bank_ifsc,
+          remarks: `SwiftRoute COD Payout — AWB ${awb}`,
+        });
+
+        if (!result) throw new Error('Cashfree transfer initiation failed');
+
+        // 4. Update cod_remittances
+        await db.query(
+          `UPDATE cod_remittances SET status = 'PROCESSING', bank_ref = $1 WHERE shipment_id = $2`,
+          [result.cashfree_ref, shipment_id]
+        );
+
+        console.log(`✅ [cod-payout] Payout initiated — Ref: ${result.cashfree_ref} | AWB: ${awb}`);
       } catch (err) {
         console.error(`❌ [cod-payout] Payout failed for shipment ${shipment_id}:`, err);
-        throw err; // BullMQ will retry once
+        throw err;
       }
     },
-    {
-      connection,
-      concurrency: 2, // Low concurrency — financial operations
-    }
+    { connection, concurrency: 2 }
   );
 }
 

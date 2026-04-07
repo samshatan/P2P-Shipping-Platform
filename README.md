@@ -291,10 +291,10 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] BullMQ polling job for DTDC every 15 minutes (via queues.ts)
 
 **Day 9**
-- [ ] Create `integrations/couriers/reverse.client.ts` for return shipment booking
-- [ ] Book return pickup with Delhivery and get return AWB number
-- [ ] Create COD payout automation querying pending collections
-- [ ] Call Cashfree to initiate bank transfer for COD payouts
+- [x] Create `integrations/couriers/reverse.client.ts` for return shipment booking
+- [x] Book return pickup with Delhivery and get return AWB number
+- [x] Create COD payout automation querying pending collections
+- [x] Call Cashfree to initiate bank transfer for COD payouts (`src/lib/cashfree.ts`)
 
 **Day 10**
 - [x] Create Kafka consumer for `notification-events` topic (`src/lib/notification-consumer.ts`)
