@@ -83,7 +83,8 @@ export type NotificationEvent =
   | 'RTO_INITIATED'
   | 'COD_COLLECTED'
   | 'PAYOUT_SENT'
-  | 'DELIVERY_OTP';
+  | 'DELIVERY_OTP'
+  | 'WELCOME_USER';
 
 // ─── Queue Helpers ────────────────────────────────────────────────────────────
 

@@ -102,6 +102,14 @@ const TEMPLATES: Record<string, {
     email_subject: 'SwiftRoute — COD Collected 💰',
     email_html: '<h2>💰 COD Collected</h2><p>₹{{amount}} collected for AWB {{awb}}.</p>',
   },
+  WELCOME_USER: {
+    sms: 'SwiftRoute: Welcome {{name}}! Your account is active. Start shipping at discounted rates today.',
+    whatsapp: '👋 *Welcome to SwiftRoute, {{name}}!*\nYour account is active. Check out our dashboard to book your first shipment.',
+    push_title: '👋 Welcome to SwiftRoute!',
+    push_body: 'Happy to have you, {{name}}! Start shipping now.',
+    email_subject: 'Welcome to SwiftRoute! 👋',
+    email_html: '<h2>👋 Welcome to SwiftRoute, {{name}}!</h2><p>Your account is ready. Start comparing courier rates and shipping today.</p>',
+  },
   PAYOUT_SENT: {
     sms: 'SwiftRoute: ₹{{amount}} payout initiated to your bank account. Ref: {{bank_ref}}.',
     whatsapp: '💸 *Payout Sent!*\nAmount: ₹{{amount}}\nRef: {{bank_ref}}\nExpected in 1-2 business days.',

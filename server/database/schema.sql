@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
     phone VARCHAR(15) UNIQUE NOT NULL,
     name VARCHAR(100),
     email VARCHAR(255) UNIQUE,
+    password VARCHAR(255), -- Added for email/password fallback
     role VARCHAR(20) DEFAULT 'USER', -- USER, ADMIN, PARTNER
     kyc_status VARCHAR(20) DEFAULT 'PENDING', -- PENDING, INITIATED, VERIFIED, REJECTED
     wallet_balance DECIMAL(15, 2) DEFAULT 0.00,

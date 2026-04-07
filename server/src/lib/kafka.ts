@@ -52,5 +52,6 @@ export const TOPICS = {
   SHIPMENT_UPDATED: 'shipment.status.updated',
   PAYMENT_RECEIVED: 'payment.webhook.received',
   NOTIFICATION_DISPATCH: 'notification.dispatch_request',
-  TRACKING_SYNC: 'tracking.manual_sync_trigger'
+  TRACKING_SYNC: 'tracking.manual_sync_trigger',
+  USER_REGISTERED: 'user.account.created'
 };

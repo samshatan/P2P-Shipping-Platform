@@ -36,6 +36,17 @@ const registerUser = asyncHandler(async (req, res) => {
 
     const newUser = result.rows[0];
 
+    // ── Emit Kafka Notification Event
+    const { emitEvent, TOPICS } = await import("../../../lib/kafka");
+    await emitEvent(TOPICS.NOTIFICATION_DISPATCH, {
+        user_id: newUser.id,
+        event_type: "WELCOME_USER",
+        channels: ["SMS", "EMAIL"],
+        payload: {
+            name: newUser.name || "User",
+        }
+    });
+
     return res.status(201).json({
         success: true,
         data: {

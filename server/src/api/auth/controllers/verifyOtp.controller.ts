@@ -59,6 +59,17 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
             [phone]
         );
         user = insertResult.rows[0];
+
+        // ── Emit Kafka Welcome Event for New Users
+        const { emitEvent, TOPICS } = await import('../../../lib/kafka');
+        await emitEvent(TOPICS.NOTIFICATION_DISPATCH, {
+            user_id: user.id,
+            event_type: 'WELCOME_USER',
+            channels: ['SMS'], // Phone only user, only SMS channel possible initially
+            payload: {
+                name: 'User',
+            }
+        });
     }
 
     // ── Sign JWT tokens
