@@ -5,9 +5,10 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import redis from './Database/redis';
 import authRouter from './api/auth/routes/auth.routes';
-import usersRouter from './api/users/routes/users.routes';
+import usersRouter,{addressRouter} from './api/users/routes/users.routes';
 import { startWorkers, stopWorkers } from './lib/workers';
 import { startNotificationConsumer } from './lib/notification-consumer';
+import { checkPincode } from './api/users/controllers/pincode.controller';
 
 // Load environment variables
 dotenv.config();
@@ -27,6 +28,8 @@ app.use(morgan('dev'));
 // ── Routes ──────────────────────────────────────────────────
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
+app.use('/address', addressRouter);
+app.get('/pincodes/check', checkPincode);
 
 // Health Check Endpoint
 app.get('/health', async (req, res) => {
