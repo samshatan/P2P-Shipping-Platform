@@ -361,21 +361,27 @@ async function seedPincodes() {
     await client.query('BEGIN');
 
     let inserted = 0;
-    let skipped = 0;
+    const CHUNK_SIZE = 1000;
 
-    for (const pc of PINCODES) {
-      const result = await client.query(
-        `INSERT INTO pincodes (pincode, city, state, zone, is_serviceable)
-         VALUES ($1, $2, $3, $4, $5)
-         ON CONFLICT (pincode) DO NOTHING`,
-        [pc.pincode, pc.city, pc.state, pc.zone, pc.is_serviceable]
-      );
-      if (result.rowCount && result.rowCount > 0) {
-        inserted++;
-      } else {
-        skipped++;
-      }
+    for (let i = 0; i < PINCODES.length; i += CHUNK_SIZE) {
+      const chunk = PINCODES.slice(i, i + CHUNK_SIZE);
+      const values = chunk.flatMap(pc => [pc.pincode, pc.city, pc.state, pc.zone, pc.is_serviceable]);
+      const placeholders = chunk.map((_, j) => {
+        const offset = j * 5;
+        return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5})`;
+      }).join(', ');
+
+      const query = `
+        INSERT INTO pincodes (pincode, city, state, zone, is_serviceable)
+        VALUES ${placeholders}
+        ON CONFLICT (pincode) DO NOTHING
+      `;
+
+      const result = await client.query(query, values);
+      inserted += result.rowCount || 0;
     }
+
+    const skipped = PINCODES.length - inserted;
 
     await client.query('COMMIT');
     console.log(`✅ Done! Inserted: ${inserted} | Skipped (already existed): ${skipped}`);
