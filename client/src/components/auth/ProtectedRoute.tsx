@@ -17,7 +17,6 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    // Redirect to login but save the attempted location
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS addresses (
     city VARCHAR(50) NOT NULL,
     area TEXT NOT NULL,
     flat VARCHAR(100),
+    country VARCHAR(100) DEFAULT 'India',
     is_default BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

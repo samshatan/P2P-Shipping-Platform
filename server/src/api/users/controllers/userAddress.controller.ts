@@ -8,7 +8,7 @@ export const getAddresses = asyncHandler(async (req: AuthenticatedRequest, res: 
 
     const result = await pool.query(
         `SELECT id, label, name, phone, flat, area, city, state, pincode, country, is_default
-         FROM user_addresses WHERE user_id = $1 ORDER BY is_default DESC, created_at DESC`,
+         FROM addresses WHERE user_id = $1 ORDER BY is_default DESC, created_at DESC`,
         [userId]
     );
 
@@ -38,13 +38,13 @@ export const addAddress = asyncHandler(async (req: AuthenticatedRequest, res: Re
 
     if (is_default) {
         await pool.query(
-            'UPDATE user_addresses SET is_default = false WHERE user_id = $1',
+            'UPDATE addresses SET is_default = false WHERE user_id = $1',
             [userId]
         );
     }
 
     const result = await pool.query(
-        `INSERT INTO user_addresses (user_id, label, name, phone, flat, area, city, state, pincode, country, is_default, created_at)
+        `INSERT INTO addresses (user_id, label, name, phone, flat, area, city, state, pincode, country, is_default, created_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
          RETURNING *`,
         [userId, label || 'Home', name, phone, flat, area, city, state, pincode, country, is_default]
@@ -62,7 +62,7 @@ export const updateAddress = asyncHandler(async (req: AuthenticatedRequest, res:
     const { label, name, phone, flat, area, city, state, pincode, country, is_default } = req.body;
 
     const existing = await pool.query(
-        'SELECT id FROM user_addresses WHERE id = $1 AND user_id = $2',
+        'SELECT id FROM addresses WHERE id = $1 AND user_id = $2',
         [id, userId]
     );
 
@@ -75,13 +75,13 @@ export const updateAddress = asyncHandler(async (req: AuthenticatedRequest, res:
 
     if (is_default) {
         await pool.query(
-            'UPDATE user_addresses SET is_default = false WHERE user_id = $1',
+            'UPDATE addresses SET is_default = false WHERE user_id = $1',
             [userId]
         );
     }
 
     const result = await pool.query(
-        `UPDATE user_addresses
+        `UPDATE addresses
          SET label = COALESCE($1, label),
              name = COALESCE($2, name),
              phone = COALESCE($3, phone),
@@ -108,7 +108,7 @@ export const deleteAddress = asyncHandler(async (req: AuthenticatedRequest, res:
     const { id } = req.params;
 
     const result = await pool.query(
-        'DELETE FROM user_addresses WHERE id = $1 AND user_id = $2 RETURNING id',
+        'DELETE FROM addresses WHERE id = $1 AND user_id = $2 RETURNING id',
         [id, userId]
     );
 
