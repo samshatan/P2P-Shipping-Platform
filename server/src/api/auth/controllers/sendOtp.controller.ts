@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import  redis  from '../../../Database/redis';
+import { sendMSG91Otp } from '../../../lib/msg91';
 
 // Keys used in Redis
 const OTP_KEY = (phone: string) => `otp:${phone}`;
