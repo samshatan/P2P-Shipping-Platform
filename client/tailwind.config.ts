@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,33 +10,39 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#a33900",
-        "primary-container": "#cc4900",
-        secondary: "#535f74",
-        tertiary: "#005da8",
-        surface: "#f7f9fb",
-        "surface-container-lowest": "#ffffff",
-        "surface-container-low": "#f2f4f6",
-        "surface-container": "#eceef0",
-        "surface-container-high": "#e6e8ea",
-        "surface-container-highest": "#e0e3e5",
-        "on-surface": "#191c1e",
-        "outline-variant": "#e2bfb2",
-        "primary-fixed": "#ffdbce",
-        "secondary-container": "#d4e0f9",
-        background: "#f7f9fb",
-        foreground: "#191c1e",
-        error: "#ba1a1a",
-        // Shadcn-compatible aliases
-        muted: "#f2f4f6",
-        "muted-foreground": "#535f74",
-        border: "#e2bfb2",
-        input: "#e2bfb2",
-        ring: "#a33900",
-        popover: "#ffffff",
-        "popover-foreground": "#191c1e",
-        accent: "#f2f4f6",
-        "accent-foreground": "#191c1e",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        error: {
+          DEFAULT: "hsl(var(--error))",
+          foreground: "hsl(var(--error-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
       },
       fontFamily: {
         heading: ["Plus Jakarta Sans", "sans-serif"],

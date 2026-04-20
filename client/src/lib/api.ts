@@ -170,6 +170,14 @@ export async function verifyOtp(phone: string, otp: string) {
   return data.data;
 }
 
+export async function verifyFirebaseToken(idToken: string) {
+  const data = await fetchAPI('/auth/firebase-verify', {
+    method: 'POST',
+    body: JSON.stringify({ idToken })
+  });
+  return data.data;
+}
+
 export async function loginWithGoogle() {
   const data = await fetchAPI('/auth/google', {
     method: 'POST'
@@ -229,4 +237,65 @@ export async function searchAddresses(query: string) {
     body: JSON.stringify({ query })
   });
   return data.data;
+}
+
+export async function bulkBookShipments(shipments: any[]) {
+  const data = await fetchAPI('/shipments/bulk-book', {
+    method: 'POST',
+    body: JSON.stringify({ shipments })
+  });
+  return data.data;
+}
+
+export async function getAdminRevenueStats(days = 30) {
+  const data = await fetchAPI(`/admin/revenue/dashboard?days=${days}`);
+  return data.data;
+}
+
+export async function getCourierConfigs() {
+  const data = await fetchAPI('/admin/couriers');
+  return data.data;
+}
+
+export async function updateCourierConfig(id: string, payload: { is_active?: boolean, markup_percentage?: number }) {
+  const data = await fetchAPI(`/admin/couriers/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  });
+  return data.data;
+}
+
+export async function initiateKYC(aadhaarNumber: string) {
+  const data = await fetchAPI('/users/kyc/initiate', {
+    method: 'POST',
+    body: JSON.stringify({ aadhaar_number: aadhaarNumber })
+  });
+  return data.data;
+}
+
+export async function verifyKYC(sessionId: string, otp: string) {
+  const data = await fetchAPI('/users/kyc/verify', {
+    method: 'POST',
+    body: JSON.stringify({ session_id: sessionId, otp })
+  });
+  return data.data;
+}
+
+export async function downloadShipmentLabel(shipmentId: string) {
+  const data = await fetchAPI(`/shipments/${shipmentId}/label`);
+  return data.data;
+}
+
+export async function downloadAdminReport() {
+  const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+  const token = localStorage.getItem('access_token');
+  
+  const response = await fetch(`${API_URL}/admin/revenue/report/pdf`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  
+  if (!response.ok) throw new Error('Failed to download report');
+  return response.blob();
 }

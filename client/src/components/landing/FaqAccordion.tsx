@@ -30,24 +30,24 @@ export function FaqAccordion() {
   ];
 
   return (
-    <section className="py-24 bg-[#f7f9fb]">
+    <section className="py-24 bg-muted/10 border-t border-border/10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-        <div className="text-center mb-12">
-          <h2 className="font-heading font-bold text-3xl md:text-5xl tracking-tight text-foreground mb-4">
-            Frequently Asked Questions
+        <div className="text-center mb-16">
+          <h2 className="font-heading font-bold text-3xl md:text-5xl tracking-tight text-foreground mb-4 uppercase italic">
+            FREQUENTLY ASKED <span className="text-primary not-italic">QUESTIONS</span>
           </h2>
-          <p className="text-lg text-muted-foreground font-medium">
-            Everything you need to know about the platform.
+          <p className="text-lg text-muted-foreground font-medium italic opacity-60">
+            Everything you need to know about the platform protocols.
           </p>
         </div>
         <div className="max-w-3xl mx-auto">
         <Accordion className="space-y-4">
           {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`} className="border-b-0 px-4 py-2 hover:bg-muted/30 rounded-lg transition-colors">
-              <AccordionTrigger className="text-left font-semibold text-lg hover:no-underline">
+            <AccordionItem key={index} value={`item-${index}`} className="border border-border/10 px-6 py-2 bg-background/50 backdrop-blur-sm rounded-[1.5rem] transition-all hover:bg-background shadow-sm hover:shadow-md">
+              <AccordionTrigger className="text-left font-black text-lg hover:no-underline uppercase italic tracking-tight gap-4">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground text-base leading-relaxed pt-2 pb-4">
+              <AccordionContent className="text-muted-foreground text-base leading-relaxed pt-2 pb-6 italic opacity-80">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>

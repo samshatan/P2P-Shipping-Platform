@@ -39,16 +39,16 @@ export function AiRecommendationCard({ rates }: AiRecommendationCardProps) {
       courier: cheapest,
       icon: <TrendingUp className="w-4 h-4" />,
       color: "text-emerald-600",
-      bgColor: "bg-emerald-50",
-      borderColor: "border-emerald-200"
+      bgColor: "bg-emerald-500/10",
+      borderColor: "border-emerald-500/20"
     },
     {
       label: "Fastest",
       courier: fastest,
       icon: <Zap className="w-4 h-4" />,
       color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200"
+      bgColor: "bg-blue-500/10",
+      borderColor: "border-blue-500/20"
     },
     {
       label: "Best Value",
@@ -61,7 +61,7 @@ export function AiRecommendationCard({ rates }: AiRecommendationCardProps) {
   ];
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border-primary/20 p-6 rounded-3xl shadow-xl shadow-primary/5 overflow-hidden relative">
+    <Card className="bg-card/80 backdrop-blur-sm border-primary/20 p-6 rounded-3xl shadow-xl shadow-primary/5 overflow-hidden relative">
       <div className="absolute top-0 right-0 p-4">
           <Sparkles className="w-8 h-8 text-primary/10 animate-pulse" />
       </div>
@@ -88,7 +88,7 @@ export function AiRecommendationCard({ rates }: AiRecommendationCardProps) {
             )}
           >
             <div className="flex items-center justify-between mb-3">
-              <Badge variant="outline" className={cn("bg-white border-none font-bold text-[10px] uppercase tracking-wider", rec.color)}>
+              <Badge variant="outline" className={cn("bg-card border-none font-bold text-[10px] uppercase tracking-wider", rec.color)}>
                 <span className="flex items-center gap-1">{rec.icon} {rec.label}</span>
               </Badge>
               {rec.label === "Best Value" && (
