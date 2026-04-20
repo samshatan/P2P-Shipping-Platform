@@ -111,7 +111,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 **Day 4**
 - [x] Create Kafka topics: `payment-events`, `shipment-events`, `notification-events`, `tracking-events`
 - [x] Load 500 Indian address and landmark pairs into Pinecone index (Seeder initialized)
-- [x] Create `infra/database/seeds/` folder with 3 test users seed data (Scripts written)
+- [ ] Create `infra/database/seeds/` folder with 3 test users seed data (Scripts written)
 - [ ] Run seed: `npx knex seed:run` and verify users in pgAdmin
 
 **Day 5**
@@ -202,29 +202,29 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] Create `PUT /users/addresses/:id` and `DELETE /users/addresses/:id`
 
 **Day 7**
-- [x] Create `GET /couriers/rates` route
-- [x] Check Redis cache first before calling courier APIs
-- [x] Call BE3 getAllRates using Promise.allSettled in parallel
-- [x] Cache results in Redis for 15 minutes
-- [x] Sort by price and return to frontend
+- [ ] Create `GET /couriers/rates` route
+- [ ] Check Redis cache first before calling courier APIs
+- [ ] Call BE3 getAllRates using Promise.allSettled in parallel
+- [ ] Cache results in Redis for 15 minutes
+- [ ] Sort by price and return to frontend
 
 **Day 8**
-- [ ] Create `POST /shipments/create` route saving draft shipment to PostgreSQL
-- [ ] Create `GET /shipments/:id` route
-- [ ] Create `GET /users/shipments` route with pagination and status filter
-- [ ] Create `GET /shipments/search` route
+- [x] Create `POST /shipments/create` route saving draft shipment to PostgreSQL
+- [x] Create `GET /shipments/:id` route
+- [x] Create `GET /users/shipments` route with pagination and status filter
+- [x] Create `GET /shipments/search` route
 
 **Day 9**
-- [ ] Create `POST /payments/initiate` route calling BE3 createOrder
-- [ ] Create `POST /payments/webhook` route with Razorpay signature verification
-- [ ] Webhook flow: verify signature, update payment status, call courier booking, get AWB, save to DB, emit Kafka notification event
-- [ ] This is the most critical flow — test it end to end
+- [x] Create `POST /payments/initiate` route calling BE3 createOrder
+- [x] Create `POST /payments/webhook` route with Razorpay signature verification
+- [x] Webhook flow: verify signature, update payment status, call courier booking, get AWB, save to DB, emit Kafka notification event
+- [x] This is the most critical flow — test it end to end
 
 **Day 10**
-- [ ] Create `GET /tracking/:awb` route reading from MongoDB
-- [ ] Create `POST /tracking/webhooks/delhivery` to receive Delhivery status updates
-- [ ] Create `POST /shipments/:id/confirm-delivery` with delivery OTP verification
-- [ ] Create `POST /users/kyc/initiate` and `POST /users/kyc/verify` routes
+- [x] Create `GET /tracking/:awb` route reading from MongoDB
+- [x] Create `POST /tracking/webhooks/delhivery` to receive Delhivery status updates
+- [x] Create `POST /shipments/:id/confirm-delivery` with delivery OTP verification
+- [x] Create `POST /users/kyc/initiate` and `POST /users/kyc/verify` routes
 
 ---
 
@@ -280,7 +280,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 **Day 7**
 - [x] Create `POST /payments/initiate` route working with BE2
 - [x] Create `POST /payments/webhook` route with Razorpay signature verification
-- [x] Build Evidence Vault upload: `POST /evidence/upload` accepting file buffer (`src/lib/evidence.ts`)
+- [ ] Build Evidence Vault upload: `POST /evidence/upload` accepting file buffer (`src/lib/evidence.ts`)
 - [x] Compute SHA256 hash before upload using crypto
 - [x] Upload to S3 via BE1 client and store URL and hash in database
 
@@ -326,16 +326,16 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 
 ## Week 2 Exit Checklist — All Must Pass Before Week 3
 
-- [x] `GET /couriers/rates` returns prices from at least 2 couriers in under 3 seconds
-- [x] Second request to `GET /couriers/rates` returns cached result instantly
-- [ ] `POST /shipments/create` saves draft shipment to PostgreSQL (Logic built in DB, route pending)
+- [ ] `GET /couriers/rates` returns prices from at least 2 couriers in under 3 seconds
+- [ ] Second request to `GET /couriers/rates` returns cached result instantly
+- [x] `POST /shipments/create` saves draft shipment to PostgreSQL (Logic built in DB, route built)
 - [x] `POST /payments/initiate` returns Razorpay order ID
 - [x] `POST /payments/webhook` verifies signature and updates payment status
-- [ ] After payment webhook AWB number saved to shipment record
+- [x] After payment webhook AWB number saved to shipment record
 - [x] `GET /tracking/:awb` returns tracking events from MongoDB
 - [x] Delhivery webhook received and saved to MongoDB
 - [x] Delivery OTP event type built into notification consumer
-- [x] Evidence Vault file upload saves to MinIO and returns SHA256 hash
+- [ ] Evidence Vault file upload saves to MinIO and returns SHA256 hash
 - [x] Address search returns results for landmark queries
 - [x] Pincode check returns serviceable true for major Indian cities
 - [x] All 10 notification types send correct messages on correct channels
@@ -420,7 +420,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 ---
 
 ## Week 3 Exit Checklist
-- [ ] `GET /tracking/:awb` returns results from MongoDB (MongoDB schema ✅, route pending BE2)
+- [x] `GET /tracking/:awb` returns results from MongoDB (MongoDB schema ✅, route built by BE2)
 - [ ] Label Generation (PDF) working for at least one courier — pending
 - [x] Webhook signature verification working — Delhivery HMAC (`x-delhivery-signature`) verified in `tracking-webhooks.ts`
 - [x] Kafka events broadcast on shipment status change — `emitEvent(TOPICS.SHIPMENT_UPDATED, ...)` called from webhook handlers
@@ -468,13 +468,16 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 | `GET /users/profile` | Authenticated user profile retrieval | ✅ Live |
 | `/users/addresses` | CRUD operations for saved addresses | ✅ Live |
 | `/users/search` | AI-powered landmark & address search | ✅ Logic Built |
-| `/couriers/rates` | Multi-courier rate aggregator | ✅ Logic Built |
+| `/couriers/rates` | Multi-courier rate aggregator | ❌ Pending Route |
+| `/shipments/*` | Create, filter, search shipments | ✅ Live |
+| `/payments/*` | Checkout & Webhook flow | ✅ Live |
+| `/tracking/*` | Delivery updates & Mongo integration | ✅ Live |
 
 ### ⏳ Pending / Upcoming
 | Item | Requirement |
 |---|---|
-| **Shipment Booking** | Mounting Draft → Booked state transitions |
-| **Tracking API** | Mounting unified status route from MongoDB |
+| **FinTech Ledger** | Atomic Wallet Balance transactions |
+| **Label Generation** | PDF Manifest generation for courier |
 | **Live Credentials** | Transitioning MSG91/Digio/ULIP from Mock to Live |
 | **Admin Panel** | Revenue & Management APIs (Sprint 3) |
 
