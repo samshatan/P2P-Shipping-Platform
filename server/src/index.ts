@@ -5,10 +5,14 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import redis from './Database/redis';
 import authRouter from './api/auth/routes/auth.routes';
-import usersRouter,{addressRouter} from './api/users/routes/users.routes';
+import usersRouter, { addressRouter } from './api/users/routes/users.routes';
+import shipmentsRouter from './api/shipments/routes/shipments.routes';
+import paymentsRouter from './api/payments/routes/payments.routes';
+import trackingRouter from './api/tracking/routes/tracking.routes';
 import { startWorkers, stopWorkers } from './lib/workers';
 import { startNotificationConsumer } from './lib/notification-consumer';
 import { checkPincode } from './api/users/controllers/pincode.controller';
+
 
 // Load environment variables
 dotenv.config();
@@ -22,6 +26,13 @@ app.use(cors({
   origin: 'http://localhost:5173', // Frontend URL
   credentials: true,
 }));
+// ⚠️  Raw body capture for Razorpay webhook — MUST be before express.json()
+// Razorpay signature verification requires the original raw bytes
+app.use('/payments/webhook', express.raw({ type: 'application/json' }), (req: any, _res, next) => {
+  req.rawBody = req.body.toString();
+  next();
+});
+
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -29,6 +40,9 @@ app.use(morgan('dev'));
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/address', addressRouter);
+app.use('/shipments', shipmentsRouter);
+app.use('/payments', paymentsRouter);
+app.use('/tracking', trackingRouter);
 app.get('/pincodes/check', checkPincode);
 
 // Health Check Endpoint

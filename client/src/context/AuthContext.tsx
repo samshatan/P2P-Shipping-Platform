@@ -10,6 +10,7 @@ export interface User {
   moneySaved: number;
   referrals: number;
   kycVerified: boolean;
+  role?: string;
 }
 
 interface AuthContextType {

@@ -2,42 +2,53 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 // Import all pages
-import LandingPage from './app/page';
-import PricingPage from './app/pricing/page';
-import LoginPage from './app/(auth)/login/page';
-import SignupPage from './app/(auth)/signup/page';
-import VerifyOtpPage from './app/(auth)/verify-otp/page';
+import LandingPage from './pages/LandingPage';
+import PricingPage from './pages/PricingPage';
+import LoginPage from './pages/auth/LoginPage';
+import SignupPage from './pages/auth/SignupPage';
+import VerifyOtpPage from './pages/auth/VerifyOtpPage';
 
-import CourierSelection from './app/(dashboard)/book/courier/page';
-import AddressInput from './app/(dashboard)/book/address/page';
-import EvidenceVault from './app/(dashboard)/book/evidence/page';
-import ReviewAndPay from './app/(dashboard)/book/review/page';
-// The Confirmed route technically had [awb] we'll route it as /book/confirmed or /book/confirmed/:awb
-import ConfirmedPage from './app/(dashboard)/book/confirmed/[awb]/page';
+import CourierSelection from './pages/booking/CourierSelectionPage';
+import AddressInput from './pages/booking/AddressInputPage';
+import EvidenceVault from './pages/booking/EvidenceVaultPage';
+import ReviewAndPay from './pages/booking/ReviewAndPayPage';
+import ConfirmedPage from './pages/booking/ConfirmedPage';
+import BulkShipmentPage from './pages/booking/BulkShipmentPage';
 
-import UserDashboard from './app/(dashboard)/dashboard/page';
-import ShipmentsPage from './app/(dashboard)/shipments/page';
-import ShipmentDetailPage from './app/(dashboard)/shipments/[id]/page';
-import TrackingPage from './app/track/[awb]/page';
-import ProfilePage from './app/(dashboard)/profile/page';
-import CashOnDeliveryPortal from './app/(dashboard)/finances/page';
-import InternationalBooking from './app/(dashboard)/book/international/page';
-import AnalyticsDashboard from './app/(dashboard)/analytics/page';
-import AdminDashboard from './app/(dashboard)/admin/page';
-import PartnerDashboard from './app/(dashboard)/partner/page';
-import NotificationsPage from './app/(dashboard)/notifications/page';
-import PaymentFailedPage from './app/(dashboard)/book/payment-failed/page';
-import KYCPage from './app/(dashboard)/profile/kyc/page';
-import DelhiveryFailedPage from './app/track/[awb]/failed/page';
-import AddressBookPage from './app/(dashboard)/profile/addresses/page';
-import AddressFormPage from './app/(dashboard)/profile/addresses/add-edit/page';
+import UserDashboard from './pages/dashboard/DashboardPage';
+import ShipmentsPage from './pages/shipments/ShipmentsListPage';
+import ShipmentDetailPage from './pages/shipments/ShipmentDetailPage';
+import TrackingPage from './pages/tracking/TrackingPage';
+import ProfilePage from './pages/profile/ProfilePage';
+import CashOnDeliveryPortal from './pages/dashboard/FinancesPage';
+import InternationalBooking from './pages/booking/InternationalBookingPage';
+import AnalyticsDashboard from './pages/dashboard/AnalyticsDashboardPage';
+import AdminDashboard from './pages/admin/AdminDashboardPage';
+import PartnerDashboard from './pages/dashboard/PartnerDashboardPage';
+import NotificationsPage from './pages/dashboard/NotificationsPage';
+import PaymentFailedPage from './pages/booking/PaymentFailedPage';
+import KYCPage from './pages/profile/KYCPage';
+import DelhiveryFailedPage from './pages/tracking/TrackingFailedPage';
+import AddressBookPage from './pages/profile/AddressBookPage';
+import AddressFormPage from './pages/profile/AddressFormPage';
+
+import { useLocation } from 'react-router-dom';
+import { Navbar } from './components/layout/Navbar';
+import { Footer } from './components/layout/Footer';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
-  // A simple layout wrapper
+  const location = useLocation();
+  const authPaths = ['/login', '/signup', '/verify-otp'];
+  const isAuthPage = authPaths.includes(location.pathname);
+
   return (
-    <>
-      {children}
-    </>
+    <div className="flex flex-col min-h-screen">
+      {!isAuthPage && <Navbar />}
+      <main className={!isAuthPage ? "flex-1 pt-24" : "flex-1"}>
+        {children}
+      </main>
+      {!isAuthPage && <Footer />}
+    </div>
   );
 }
 
@@ -61,6 +72,7 @@ function App() {
             <Route path="/book/review" element={<ProtectedRoute><ReviewAndPay /></ProtectedRoute>} />
             <Route path="/book/confirmed" element={<ProtectedRoute><ConfirmedPage /></ProtectedRoute>} />
             <Route path="/book/confirmed/:awb" element={<ProtectedRoute><ConfirmedPage /></ProtectedRoute>} />
+            <Route path="/book/bulk" element={<ProtectedRoute><BulkShipmentPage /></ProtectedRoute>} />
             
             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
             <Route path="/shipments" element={<ProtectedRoute><ShipmentsPage /></ProtectedRoute>} />

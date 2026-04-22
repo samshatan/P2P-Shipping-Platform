@@ -29,6 +29,7 @@ interface BookingContextType extends BookingState {
   updatePackage: (details: Partial<PackageDetails>) => void;
   setLastAwb: (awb: string | null) => void;
   resetBooking: () => void;
+  fetchRates: () => Promise<any[]>;
 }
 
 const defaultAddress: AddressDetails = {
@@ -101,6 +102,19 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('booking_state');
   };
 
+  const fetchRates = async () => {
+    // Artificial delay to simulate network latency
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Returning mock rates that match the UI requirements
+    return [
+      { id: "SRV_01", name: "SwiftAir Priority", price: 85.50, etaDays: "1", actualAvgDays: "1.2", rating: 4.9, recommendation: "FASTEST" },
+      { id: "SRV_02", name: "Standard Ground", price: 42.00, etaDays: "4", actualAvgDays: "3.8", rating: 4.7 },
+      { id: "SRV_03", name: "HeavyDuty Logistics", price: 120.00, etaDays: "2", actualAvgDays: "2.1", rating: 4.5 },
+      { id: "SRV_04", name: "Budget Route", price: 35.00, etaDays: "6", actualAvgDays: "5.5", rating: 4.2 }
+    ];
+  };
+
   return (
     <BookingContext.Provider value={{ 
       ...state, 
@@ -109,7 +123,8 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
       updateDelivery, 
       updatePackage,
       setLastAwb,
-      resetBooking 
+      resetBooking,
+      fetchRates
     }}>
       {children}
     </BookingContext.Provider>

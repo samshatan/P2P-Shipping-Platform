@@ -24,14 +24,14 @@ export function SavingsBanner({ selectedPrice, className }: SavingsBannerProps) 
   const savings = averagePrice - currentPrice;
 
   return (
-    <Card className={cn("bg-[#f8faff] border-primary/10 p-5 rounded-2xl shadow-sm overflow-hidden relative group", className)}>
+    <Card className={cn("bg-card border-primary/10 p-5 rounded-2xl shadow-sm overflow-hidden relative group", className)}>
       <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
           <TrendingDown className="w-16 h-16 text-primary" />
       </div>
 
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-white shadow-sm border border-border flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-background shadow-sm border border-border flex items-center justify-center shrink-0">
             <IndianRupee className="w-6 h-6 text-primary" />
           </div>
           <div>
@@ -55,7 +55,7 @@ export function SavingsBanner({ selectedPrice, className }: SavingsBannerProps) 
             <div className="font-heading font-extrabold text-xl text-foreground">₹{currentPrice}</div>
           </div>
 
-          <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl border border-primary/10 shadow-sm">
+          <div className="flex items-center gap-3 bg-card px-5 py-3 rounded-xl border border-primary/10 shadow-sm">
             {savings > 0 ? (
               <>
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">

@@ -63,8 +63,8 @@ export function AnimatedTimeline({ currentStatus, className }: AnimatedTimelineP
                 className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 relative z-10",
                   step.status === "completed" ? "bg-primary text-white shadow-lg shadow-primary/20 scale-110" :
-                  step.status === "current" ? "bg-white border-2 border-primary text-primary shadow-md scale-125" :
-                  "bg-white border-2 border-muted text-muted-foreground"
+                  step.status === "current" ? "bg-card border-2 border-primary text-primary shadow-md scale-125" :
+                  "bg-card border-2 border-muted text-muted-foreground"
                 )}
               >
                 {step.status === "completed" ? (
@@ -97,7 +97,7 @@ export function AnimatedTimeline({ currentStatus, className }: AnimatedTimelineP
       </div>
 
       {/* Stats row */}
-      <div className="mt-12 flex items-center justify-between bg-white/50 backdrop-blur-md p-4 rounded-2xl border border-border/60 shadow-sm">
+      <div className="mt-12 flex items-center justify-between bg-card/50 backdrop-blur-md p-4 rounded-2xl border border-border/60 shadow-sm">
           <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <Activity className="w-5 h-5 text-primary" />
