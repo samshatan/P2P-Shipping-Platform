@@ -41,7 +41,7 @@ export const createShipment = asyncHandler(async (req: AuthenticatedRequest, res
 
     // ── 2. Verify courier exists ──────────────────────────────
     const courierCheck = await pool.query(
-        'SELECT id FROM courier_partners WHERE id = $1 AND is_active = true',
+        'SELECT id FROM couriers WHERE id = $1 AND is_active = true',
         [courier_id]
     );
 
@@ -56,21 +56,24 @@ export const createShipment = asyncHandler(async (req: AuthenticatedRequest, res
     const awb = generateAwb();
 
     // ── 4. Save DRAFT shipment to PostgreSQL ──────────────────
+    // Note: Schema expects address IDs. For now, we assume frontend sends IDs 
+    // or we store as JSON if the schema was intended to be flexible.
+    // Based on schema.sql, it's pickup_address_id and delivery_address_id.
     const result = await pool.query(
         `INSERT INTO shipments (
-            user_id, awb_number, pickup_address, delivery_address,
-            courier_id, weight, dimensions, parcel_type,
-            is_cod, cod_amount, total_amount, status, created_at
+            user_id, awb, pickup_address_id, delivery_address_id,
+            courier_id, weight_grams, dimensions_cm, parcel_type,
+            is_cod, cod_amount, charge, status, created_at
         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'DRAFT',NOW())
-        RETURNING id, awb_number, status, total_amount, created_at`,
+        RETURNING id, awb, status, charge as total_amount, created_at`,
         [
             userId,
             awb,
-            JSON.stringify(pickup_address),
-            JSON.stringify(delivery_address),
+            pickup_address.id || pickup_address, // Use ID if object, or direct ID
+            delivery_address.id || delivery_address,
             courier_id,
             weight,
-            dimensions ?? null,
+            dimensions ? JSON.stringify(dimensions) : null,
             parcel_type ?? 'PARCEL',
             is_cod ?? false,
             cod_amount ?? 0,
@@ -84,7 +87,7 @@ export const createShipment = asyncHandler(async (req: AuthenticatedRequest, res
         success: true,
         data: {
             shipment_id: shipment.id,
-            awb: shipment.awb_number,
+            awb: shipment.awb,
             status: shipment.status,        // "DRAFT"
             amount_paise: shipment.total_amount,
             created_at: shipment.created_at,
@@ -102,12 +105,12 @@ export const getShipmentById = asyncHandler(async (req: AuthenticatedRequest, re
 
     const result = await pool.query(
         `SELECT
-            s.id, s.awb_number, s.status, s.pickup_address, s.delivery_address,
-            s.weight, s.dimensions, s.parcel_type, s.is_cod, s.cod_amount,
-            s.total_amount, s.created_at,
-            cp.name AS courier_name, cp.logo AS courier_logo
+            s.id, s.awb, s.status, s.pickup_address_id, s.delivery_address_id,
+            s.weight_grams, s.dimensions_cm, s.parcel_type, s.is_cod, s.cod_amount,
+            s.charge as total_amount, s.created_at,
+            c.name AS courier_name, c.api_config->>'logo' AS courier_logo
          FROM shipments s
-         LEFT JOIN courier_partners cp ON cp.id = s.courier_id
+         LEFT JOIN couriers c ON c.id = s.courier_id
          WHERE s.id = $1 AND s.user_id = $2`,
         [id, userId]
     );
@@ -173,11 +176,11 @@ export const getUserShipments = asyncHandler(async (req: AuthenticatedRequest, r
 
     const result = await pool.query(
         `SELECT
-            s.id, s.awb_number, s.status, s.total_amount,
+            s.id, s.awb, s.status, s.charge as total_amount,
             s.parcel_type, s.is_cod, s.created_at,
-            cp.name AS courier_name
+            c.name AS courier_name
          FROM shipments s
-         LEFT JOIN courier_partners cp ON cp.id = s.courier_id
+         LEFT JOIN couriers c ON c.id = s.courier_id
          WHERE ${whereClause}
          ORDER BY s.created_at DESC
          LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -215,16 +218,15 @@ export const searchShipments = asyncHandler(async (req: AuthenticatedRequest, re
 
     const result = await pool.query(
         `SELECT
-            s.id, s.awb_number, s.status, s.total_amount,
+            s.id, s.awb, s.status, s.charge as total_amount,
             s.parcel_type, s.created_at,
-            cp.name AS courier_name
+            c.name AS courier_name
          FROM shipments s
-         LEFT JOIN courier_partners cp ON cp.id = s.courier_id
+         LEFT JOIN couriers c ON c.id = s.courier_id
          WHERE s.user_id = $1
            AND (
-             s.awb_number ILIKE $2
-             OR s.delivery_address::text ILIKE $2
-             OR s.pickup_address::text ILIKE $2
+             s.awb ILIKE $2
+             OR s.status ILIKE $2
            )
          ORDER BY s.created_at DESC
          LIMIT 20`,

@@ -7,13 +7,14 @@ import redis from './Database/redis';
 import authRouter from './api/auth/routes/auth.routes';
 import usersRouter, { addressRouter } from './api/users/routes/users.routes';
 import shipmentsRouter from './api/shipments/routes/shipments.routes';
-import paymentsRouter from './api/payments/routes/payments.routes';
 import trackingRouter from './api/tracking/routes/tracking.routes';
 import couriersRouter from './api/couriers/routes/couriers.routes';
+import disputesRouter from './api/disputes/routes/disputes.routes';
+import adminRouter from './api/admin/routes/admin.routes';
 import { startWorkers, stopWorkers } from './lib/workers';
 import { startNotificationConsumer } from './lib/notification-consumer';
+import { connectMongoDB } from './lib/mongo';
 import { checkPincode } from './api/users/controllers/pincode.controller';
-
 
 // Load environment variables
 dotenv.config();
@@ -21,19 +22,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Base Middlewares
+// ── Base Middlewares ─────────────────────────────────────────
 app.use(helmet());
 app.use(cors({
-  origin: 'http://localhost:5173', // Frontend URL
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true,
 }));
-// ⚠️  Raw body capture for Razorpay webhook — MUST be before express.json()
-// Razorpay signature verification requires the original raw bytes
-app.use('/payments/webhook', express.raw({ type: 'application/json' }), (req: any, _res, next) => {
-  req.rawBody = req.body.toString();
-  next();
-});
-
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -42,12 +36,13 @@ app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/address', addressRouter);
 app.use('/shipments', shipmentsRouter);
-app.use('/payments', paymentsRouter);
 app.use('/tracking', trackingRouter);
-app.use('/couriers', couriersRouter);  // Day 7 + Day 22-24
+app.use('/couriers', couriersRouter);
+app.use('/disputes', disputesRouter);
+app.use('/admin', adminRouter);
 app.get('/pincodes/check', checkPincode);
 
-// Health Check Endpoint
+// ── Health Check ─────────────────────────────────────────────
 app.get('/health', async (req, res) => {
   try {
     // 1. Check Redis
@@ -72,7 +67,6 @@ app.get('/health', async (req, res) => {
         redis: 'connected',
       },
       integrations: {
-        razorpay: !!process.env.RAZORPAY_KEY_ID ? 'configured' : 'missing_keys',
         msg91: !!process.env.MSG91_API_KEY ? 'configured' : 'missing_keys',
         workers: process.env.ENABLE_WORKERS === 'true' ? 'running' : 'disabled',
         kafka_consumer: process.env.ENABLE_KAFKA_CONSUMER === 'true' ? 'running' : 'disabled',
@@ -88,18 +82,20 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// Start Server
+// ── Start Server ─────────────────────────────────────────────
 const server = app.listen(PORT, async () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 
-  // Start BullMQ Workers (set ENABLE_WORKERS=true in .env to activate)
+  await connectMongoDB();
   startWorkers();
-
-  // Start Kafka Notification Consumer (set ENABLE_KAFKA_CONSUMER=true in .env to activate)
-  await startNotificationConsumer();
+  if (process.env.KAFKA_BROKERS) {
+    await startNotificationConsumer();
+  } else {
+    console.log('ℹ️  Kafka consumer skipped (Using BullMQ fallback for notifications)');
+  }
 });
 
-// Graceful Shutdown
+// ── Graceful Shutdown ────────────────────────────────────────
 process.on('SIGTERM', async () => {
   console.log('⚠️  SIGTERM received — shutting down gracefully...');
   await stopWorkers();
@@ -108,4 +104,3 @@ process.on('SIGTERM', async () => {
     process.exit(0);
   });
 });
-

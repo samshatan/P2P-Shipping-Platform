@@ -32,7 +32,6 @@ async function callCourierBookingApi(
 // ─────────────────────────────────────────────────────────────
 // DAY 11: POST /shipments/:id/book
 // Booking Engine — transitions DRAFT → BOOKED
-// Called after successful Razorpay payment
 // ─────────────────────────────────────────────────────────────
 export const bookShipment = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user!.userId;
@@ -321,7 +320,7 @@ export const cancelShipment = asyncHandler(async (req: AuthenticatedRequest, res
     // Clean up delivery OTP from Redis
     await redis.del(DELIVERY_OTP_KEY(id));
 
-    // Emit cancellation event (triggers refund flow in notification consumer)
+    // Emit cancellation event
     await emitEvent(TOPICS.SHIPMENT_UPDATED, {
         shipment_id: id,
         status: 'CANCELLED',

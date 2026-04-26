@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Package, Truck, CheckCircle, Plus, Search, 
-  ShieldCheck, Settings, History, Globe, Wallet,
-  Zap, Activity, Sparkles, LayoutGrid, Clock,
-  ChevronRight, ArrowUpRight, TrendingUp, Info
+  Package, Truck, CheckCircle, Plus, 
+  Settings, History, Globe, 
+  Zap, Activity, LayoutGrid,
+  ChevronRight, TrendingUp, Info, Box
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useMemo } from "react";
@@ -32,13 +32,18 @@ function getStatusColor(status: string) {
   return "bg-slate-500/10 text-slate-500 border-slate-500/20";
 }
 
+/**
+ * BE3 — Day 11: Updated Dashboard Page
+ * Removed Evidence Vault and Wallet references.
+ * Simplified metrics and quick actions.
+ */
 export default function UserDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { showToast } = useToast();
   const [filter, setFilter] = useState("All");
   const [shipments, setShipments] = useState<Shipment[]>([]);
-  const [stats, setStats] = useState({ total: 0, pending: 0, delivered: 0, savings: 0 });
+  const [stats, setStats] = useState({ total: 0, pending: 0, delivered: 0 });
   const [loading, setLoading] = useState(true);
 
   const fetchDashboard = async () => {
@@ -98,9 +103,8 @@ export default function UserDashboard() {
 
   const quickActions = [
     { title: "Book Parcel", icon: Plus, link: "/compare", color: "text-primary bg-primary/10", desc: "Dispatch new" },
-    { title: "Vault", icon: ShieldCheck, link: "/book/evidence", color: "text-blue-500 bg-blue-500/10", desc: "Security logs" },
+    { title: "Shipments", icon: Package, link: "/shipments", color: "text-blue-500 bg-blue-500/10", desc: "Active logs" },
     { title: "Lexicon", icon: Globe, link: "/profile/addresses", color: "text-purple-500 bg-purple-500/10", desc: "Manage nodes" },
-    { title: "Finances", icon: Wallet, link: "/finances", color: "text-emerald-500 bg-emerald-500/10", desc: "Wallet flux" },
     { title: "Protocol", icon: Activity, link: "/profile/kyc", color: "text-amber-500 bg-amber-500/10", desc: "Identity" },
     { title: "Engine", icon: Settings, link: "/profile", color: "text-slate-500 bg-slate-500/10", desc: "Configure" },
   ];
@@ -130,8 +134,8 @@ export default function UserDashboard() {
                    <TrendingUp className="w-5 h-5" />
                 </div>
                 <div>
-                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60">Revenue Yield</p>
-                   <p className="text-lg font-black tracking-tight">₹{user?.moneySaved || 540} saved</p>
+                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60">Impact</p>
+                   <p className="text-lg font-black tracking-tight">System Optimized</p>
                 </div>
              </div>
              <Button 
@@ -148,17 +152,13 @@ export default function UserDashboard() {
           
           {/* STATS MATRIX (Left 8) */}
           <div className="lg:col-span-8 space-y-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
-                { label: "Active Nodes", value: stats.total || shipments.length, icon: BoxSelect, color: "text-primary bg-primary/10" },
+                { label: "Active Nodes", value: stats.total || shipments.length, icon: Box, color: "text-primary bg-primary/10" },
                 { label: "Neural Link", value: inTransitCount, icon: Zap, color: "text-blue-500 bg-blue-500/10" },
                 { label: "Protocol End", value: deliveredCount, icon: CheckCircle, color: "text-emerald-500 bg-emerald-500/10" },
-                { label: "Wallet Flux", value: `₹${user?.wallet || 0}`, icon: Wallet, color: "text-amber-500 bg-amber-500/10", highlight: true },
               ].map((stat, i) => (
-                <div key={i} className={cn(
-                  "p-6 group cursor-default transition-all duration-300 relative overflow-hidden glass-card rounded-[2.5rem] border-border/50",
-                  stat.highlight && "bg-primary/5 ring-2 ring-primary/20 border-primary/30"
-                )}>
+                <div key={i} className="p-6 group cursor-default transition-all duration-300 relative overflow-hidden glass-card rounded-[2.5rem] border-border/50">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/5 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-150 transition-transform duration-700" />
                   <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-6 border border-border/40 shadow-sm transition-transform group-hover:-translate-y-1", stat.color)}>
                     {stat.icon && <stat.icon className="w-6 h-6" />}
@@ -182,7 +182,7 @@ export default function UserDashboard() {
                   </h3>
                   <div className="h-[1px] flex-1 bg-border/20 mx-6 hidden md:block" />
                </div>
-               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+               <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                   {quickActions.map((action, i) => (
                     <Link key={i} to={action.link} className="group flex flex-col items-center">
                       <div className="w-full aspect-square glass-card rounded-3xl p-6 flex items-center justify-center mb-3 transition-all group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] group-hover:-translate-y-2 group-hover:bg-muted/40 relative overflow-hidden border-border/30 group-hover:border-primary/50">
@@ -329,46 +329,11 @@ export default function UserDashboard() {
                </div>
             </Card>
 
-            {/* WALLET WIDGET */}
-            <Card 
-              onClick={() => navigate('/finances')}
-              className="glass-card rounded-[3rem] p-8 flex items-center justify-between group cursor-pointer hover:bg-primary/5 transition-all border-border/50 hover:border-primary/30"
-            >
-              <div className="flex items-center gap-6">
-                 <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center shadow-inner border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                    <Wallet className="w-8 h-8" />
-                 </div>
-                 <div>
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1 opacity-60">Logistics Credits</p>
-                    <p className="text-3xl font-black text-foreground tracking-tighter">₹{user?.wallet || 0}</p>
-                 </div>
-              </div>
-              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-muted/40 text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
-                 <Plus className="w-5 h-5" />
-              </div>
-            </Card>
-
-            {/* SECURITY ADVISORY (Alert Section) */}
-            <div className="glass-card rounded-[3rem] p-8 space-y-4 bg-blue-500/5 border-blue-500/30">
-               <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-6 h-6 text-blue-500 shrink-0" />
-                  <h4 className="font-heading font-black text-lg tracking-tight">SECURITY ADVISORY</h4>
-               </div>
-               <p className="text-xs font-semibold text-muted-foreground leading-relaxed opacity-80">
-                 The <span className="text-blue-500 font-black">Evidence Vault</span> has secured 100% of your recent transmissions. Your cross-chain logistics hash is verified and active.
-               </p>
-               <Link to="/book/evidence" className="block">
-                  <Button variant="link" className="p-0 text-blue-500 font-black text-[10px] tracking-widest uppercase flex items-center gap-1 hover:no-underline hover:gap-2 transition-all">
-                    System Intelligence <ArrowUpRight className="w-3 h-3" />
-                  </Button>
-               </Link>
-            </div>
-
             {/* QUICK SUPPORT TIP */}
             <div className="px-4 py-2 flex items-center gap-3 opacity-40 hover:opacity-100 transition-opacity">
                <Info className="w-4 h-4 text-muted-foreground" />
                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                 System Version: 2.4.0-STABLE <span className="mx-2">|</span> Nodes: Online
+                 System Version: 2.5.0-STABLE <span className="mx-2">|</span> Nodes: Online
                </p>
             </div>
 
@@ -378,30 +343,3 @@ export default function UserDashboard() {
     </div>
   );
 }
-
-// Add these custom icons to handle the mapping if BoxSelect is not the right one
-const BoxSelect = (props: any) => (
-  <svg 
-    {...props} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-  >
-    <path d="M5 3a2 2 0 0 0-2 2" />
-    <path d="M19 3a2 2 0 0 1 2 2" />
-    <path d="M21 19a2 2 0 0 1-2 2" />
-    <path d="M5 21a2 2 0 0 1-2-2" />
-    <path d="M9 3h1" />
-    <path d="M14 3h1" />
-    <path d="M3 9v1" />
-    <path d="M21 9v1" />
-    <path d="M3 14v1" />
-    <path d="M21 14v1" />
-    <path d="M9 21h1" />
-    <path d="M14 21h1" />
-    <rect x="8" y="8" width="8" height="8" rx="1" />
-  </svg>
-);

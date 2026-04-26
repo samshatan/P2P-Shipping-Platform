@@ -1,13 +1,12 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Check, MapPin, Truck, ShieldCheck, CreditCard, Activity, Zap, Navigation } from "lucide-react";
+import { Check, MapPin, Truck, ShieldCheck, CreditCard, Activity, Zap, Navigation, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
   { id: "courier", label: "NODE SELECTION", path: "/compare", icon: Radar },
   { id: "address", label: "COORDINATES", path: "/book/address", icon: MapPin },
-  { id: "evidence", label: "VAULT UPLINK", path: "/book/evidence", icon: ShieldCheck },
-  { id: "review", label: "COMMIT LOGS", path: "/book/review", icon: CreditCard },
+  { id: "review", label: "COMMIT LOGS", path: "/book/review", icon: FileText },
 ];
 
 function Radar(props: any) {
@@ -21,6 +20,11 @@ function Radar(props: any) {
   );
 }
 
+/**
+ * BE3 — Day 11: Updated Booking Stepper
+ * Removed 'Evidence Vault' step to streamline the booking flow.
+ * Steps: Courier Selection -> Address -> Review.
+ */
 export function BookingStepper() {
   const location = useLocation();
   const currentStepIndex = STEPS.findIndex(s => s.path === location.pathname);
@@ -28,8 +32,6 @@ export function BookingStepper() {
   return (
     <div className="w-full max-w-5xl mx-auto mb-16 px-4">
       <div className="relative">
-        {/* Technical Background Grid Effect (Optional if needed, but keeping it clean) */}
-        
         <div className="relative flex justify-between items-start">
           {/* Progress Bar Background */}
           <div className="absolute top-[22px] left-0 w-full h-1 bg-muted/20 rounded-full overflow-hidden">
@@ -46,7 +48,7 @@ export function BookingStepper() {
 
             return (
               <div key={step.id} className="relative flex flex-col items-center gap-4 group">
-                {/* Step Connector Label (Small logic number) */}
+                {/* Step Connector Label */}
                 <div className={cn(
                   "absolute -top-4 text-[9px] font-black tracking-widest transition-opacity duration-500",
                   isActive ? "opacity-100" : "opacity-0"
@@ -85,7 +87,7 @@ export function BookingStepper() {
                   )}
                 </div>
 
-                {/* Status Dot for completed ones */}
+                {/* Status Dot */}
                 {isCompleted && (
                    <div className="absolute top-[22px] right-0 translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary ring-2 ring-background z-20" />
                 )}

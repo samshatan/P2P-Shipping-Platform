@@ -10,7 +10,6 @@ import VerifyOtpPage from './pages/auth/VerifyOtpPage';
 
 import CourierSelection from './pages/booking/CourierSelectionPage';
 import AddressInput from './pages/booking/AddressInputPage';
-import EvidenceVault from './pages/booking/EvidenceVaultPage';
 import ReviewAndPay from './pages/booking/ReviewAndPayPage';
 import ConfirmedPage from './pages/booking/ConfirmedPage';
 import BulkShipmentPage from './pages/booking/BulkShipmentPage';
@@ -20,7 +19,6 @@ import ShipmentsPage from './pages/shipments/ShipmentsListPage';
 import ShipmentDetailPage from './pages/shipments/ShipmentDetailPage';
 import TrackingPage from './pages/tracking/TrackingPage';
 import ProfilePage from './pages/profile/ProfilePage';
-import CashOnDeliveryPortal from './pages/dashboard/FinancesPage';
 import InternationalBooking from './pages/booking/InternationalBookingPage';
 import AnalyticsDashboard from './pages/dashboard/AnalyticsDashboardPage';
 import AdminDashboard from './pages/admin/AdminDashboardPage';
@@ -36,6 +34,11 @@ import { useLocation } from 'react-router-dom';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 
+/**
+ * BE3 — Day 11: Updated App Routes
+ * Removed Evidence Vault and COD Returns routes.
+ * Streamlined booking flow.
+ */
 function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const authPaths = ['/login', '/signup', '/verify-otp'];
@@ -68,7 +71,6 @@ function App() {
             
             <Route path="/book/address" element={<ProtectedRoute><AddressInput /></ProtectedRoute>} />
             <Route path="/book/courier" element={<ProtectedRoute><CourierSelection /></ProtectedRoute>} />
-            <Route path="/book/evidence" element={<ProtectedRoute><EvidenceVault /></ProtectedRoute>} />
             <Route path="/book/review" element={<ProtectedRoute><ReviewAndPay /></ProtectedRoute>} />
             <Route path="/book/confirmed" element={<ProtectedRoute><ConfirmedPage /></ProtectedRoute>} />
             <Route path="/book/confirmed/:awb" element={<ProtectedRoute><ConfirmedPage /></ProtectedRoute>} />
@@ -87,12 +89,10 @@ function App() {
             <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
             <Route path="/book/payment-failed" element={<ProtectedRoute><PaymentFailedPage /></ProtectedRoute>} />
             
-            <Route path="/cod-returns" element={<CashOnDeliveryPortal />} />
             <Route path="/international" element={<InternationalBooking />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
             <Route path="/partner" element={<PartnerDashboard />} />
             
-            {/* Catch-all to dashboard or landing */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AppLayout>

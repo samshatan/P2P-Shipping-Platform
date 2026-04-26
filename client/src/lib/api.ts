@@ -146,7 +146,7 @@ export async function getDashboardData(page = 1, limit = 20, status?: string) {
   return data.data; 
 }
 
-export async function registerUser(payload: { name: string, email: string, phone: string, password?: string, username: string }) {
+export async function registerUser(payload: { name: string, email: string, phone?: string }) {
   const data = await fetchAPI('/auth/register', {
     method: 'POST',
     body: JSON.stringify(payload)
@@ -154,33 +154,26 @@ export async function registerUser(payload: { name: string, email: string, phone
   return data.data;
 }
 
-export async function loginUser(phone: string) {
+export async function loginUser(email: string) {
   const data = await fetchAPI('/auth/send-otp', {
     method: 'POST',
-    body: JSON.stringify({ phone })
+    body: JSON.stringify({ email })
   });
   return data.data;
 }
 
-export async function verifyOtp(phone: string, otp: string) {
+export async function verifyOtp(email: string, otp: string) {
   const data = await fetchAPI('/auth/verify-otp', {
     method: 'POST',
-    body: JSON.stringify({ phone, otp })
+    body: JSON.stringify({ email, otp })
   });
   return data.data;
 }
 
-export async function verifyFirebaseToken(idToken: string) {
-  const data = await fetchAPI('/auth/firebase-verify', {
+export async function loginWithGoogle(idToken: string) {
+  const data = await fetchAPI('/auth/google', {
     method: 'POST',
     body: JSON.stringify({ idToken })
-  });
-  return data.data;
-}
-
-export async function loginWithGoogle() {
-  const data = await fetchAPI('/auth/google', {
-    method: 'POST'
   });
   return data.data;
 }
@@ -265,6 +258,20 @@ export async function updateCourierConfig(id: string, payload: { is_active?: boo
   return data.data;
 }
 
+export async function getAdminUsers(kycStatus?: string) {
+  const query = kycStatus ? `?kyc_status=${kycStatus}` : '';
+  const data = await fetchAPI(`/admin/users${query}`);
+  return data.data;
+}
+
+export async function updateAdminUserKyc(userId: string, status: 'VERIFIED' | 'REJECTED') {
+  const data = await fetchAPI(`/admin/users/${userId}/kyc`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status })
+  });
+  return data.data;
+}
+
 export async function initiateKYC(aadhaarNumber: string) {
   const data = await fetchAPI('/users/kyc/initiate', {
     method: 'POST',
@@ -298,4 +305,9 @@ export async function downloadAdminReport() {
   
   if (!response.ok) throw new Error('Failed to download report');
   return response.blob();
+}
+
+export async function getAdminShipments(limit = 10, offset = 0) {
+  const data = await fetchAPI(`/admin/shipments?limit=${limit}&offset=${offset}`);
+  return data.data;
 }

@@ -5,11 +5,15 @@ import jwt from 'jsonwebtoken';
 export interface AuthenticatedRequest extends Request {
     user?: {
         userId: string;
-        phone: string;
+        email: string;
         role: string;
     };
 }
 
+/**
+ * BE3 — Day 3: Auth Middleware
+ * Decodes email-based JWT and attaches user to Request
+ */
 export const authMiddleware = (
     req: AuthenticatedRequest,
     res: Response,
@@ -32,14 +36,14 @@ export const authMiddleware = (
     try {
         const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as {
             userId: string;
-            phone: string;
+            email: string;
             role: string;
         };
 
         // Attach user to request — available in all downstream controllers
         req.user = {
             userId: decoded.userId,
-            phone: decoded.phone,
+            email: decoded.email,
             role: decoded.role,
         };
 
@@ -58,4 +62,30 @@ export const authMiddleware = (
             error: { code: 'INVALID_TOKEN', message: 'Invalid access token' },
         });
     }
+};
+
+/**
+ * Role-Based Access Control (RBAC) Middleware
+ * Restricts access to specific roles (e.g., ADMIN)
+ */
+export const roleMiddleware = (allowedRoles: string[]) => {
+    return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+        if (!req.user) {
+            res.status(401).json({
+                success: false,
+                error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
+            });
+            return;
+        }
+
+        if (!allowedRoles.includes(req.user.role)) {
+            res.status(403).json({
+                success: false,
+                error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
+            });
+            return;
+        }
+
+        next();
+    };
 };

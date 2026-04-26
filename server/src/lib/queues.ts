@@ -4,7 +4,6 @@
  * Queues:
  *  - tracking-poll  : Polls DTDC/XpressBees for shipment status every 15 mins
  *  - notification   : Dispatches notifications asynchronously (SMS, WA, Push, Email)
- *  - cod-payout     : Triggers Cashfree payouts for delivered COD shipments
  *
  * Uses ioredis connection already configured in redis.ts
  */
@@ -38,15 +37,6 @@ export const notificationQueue = new Queue('notification', {
   },
 });
 
-export const codPayoutQueue = new Queue('cod-payout', {
-  connection,
-  defaultJobOptions: {
-    removeOnComplete: { count: 100 },
-    removeOnFail: { count: 50 },
-    attempts: 2,
-    backoff: { type: 'fixed', delay: 10000 },
-  },
-});
 
 // ─── Job Type Definitions ─────────────────────────────────────────────────────
 
@@ -64,14 +54,7 @@ export interface NotificationJobData {
   payload: Record<string, string | number>;
 }
 
-export interface CodPayoutJobData {
-  shipment_id: string;
-  user_id: string;
-  amount_paise: number;
-  awb: string;
-}
-
-export type NotificationChannel = 'SMS' | 'WHATSAPP' | 'PUSH' | 'EMAIL';
+export type NotificationChannel = 'SMS' | 'WHATSAPP' | 'EMAIL' | 'PUSH';
 
 export type NotificationEvent =
   | 'BOOKING_CONFIRMED'
@@ -118,26 +101,12 @@ export async function enqueueNotification(data: NotificationJobData): Promise<vo
   console.log(`🔔 Notification enqueued: ${data.event_type} → user ${data.user_id}`);
 }
 
-/**
- * Enqueue a COD payout after delivery is confirmed.
- * @param data - Payout details
- * @param delayMs - Cooling period (default 7 days)
- */
-export async function enqueueCodPayout(
-  data: CodPayoutJobData,
-  delayMs: number = 7 * 24 * 60 * 60 * 1000
-): Promise<void> {
-  await codPayoutQueue.add(`payout:${data.shipment_id}`, data, { delay: delayMs });
-  console.log(`💸 COD payout enqueued for shipment: ${data.shipment_id} (delay: ${delayMs / 1000}s)`);
-}
-
 // ─── Graceful Shutdown ────────────────────────────────────────────────────────
 
 export async function closeQueues(): Promise<void> {
   await Promise.all([
     trackingPollQueue.close(),
     notificationQueue.close(),
-    codPayoutQueue.close(),
   ]);
   console.log('🛑 BullMQ queues closed');
 }
@@ -145,15 +114,13 @@ export async function closeQueues(): Promise<void> {
 // ─── Queue Health Check ───────────────────────────────────────────────────────
 
 export async function getQueueHealth(): Promise<Record<string, object>> {
-  const [trackingCounts, notifyCounts, payoutCounts] = await Promise.all([
+  const [trackingCounts, notifyCounts] = await Promise.all([
     trackingPollQueue.getJobCounts(),
     notificationQueue.getJobCounts(),
-    codPayoutQueue.getJobCounts(),
   ]);
 
   return {
     'tracking-poll': trackingCounts,
     notification: notifyCounts,
-    'cod-payout': payoutCounts,
   };
 }

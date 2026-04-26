@@ -3,9 +3,8 @@ import { getUserProfile } from '@/lib/api';
 
 export interface User {
   name: string;
-  phone: string;
   email: string;
-  wallet: number;
+  phone?: string;
   shipments: number;
   moneySaved: number;
   referrals: number;

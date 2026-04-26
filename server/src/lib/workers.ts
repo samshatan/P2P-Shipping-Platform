@@ -4,7 +4,6 @@
  * Processes jobs from queues defined in queues.ts
  * - Tracking Poll Worker: Polls courier APIs for status updates
  * - Notification Worker: Dispatches multi-channel notifications
- * - COD Payout Worker: Triggers Cashfree bank transfers
  *
  * Initialize with startWorkers() from server/src/index.ts
  */
@@ -12,7 +11,7 @@
 import { Worker, Job } from 'bullmq';
 import { redis } from './redis';
 import { TrackingEvent } from './mongo';
-import { TrackingPollJobData, NotificationJobData, CodPayoutJobData } from './queues';
+import { TrackingPollJobData, NotificationJobData } from './queues';
 
 // Lazy imports to avoid circular deps at startup
 const connection = redis;
@@ -96,17 +95,6 @@ function createNotificationWorker() {
               await sendWhatsAppMessage(payload.phone as string, message);
               break;
             }
-            case 'PUSH': {
-              const { sendPushNotification } = await import('./firebase');
-              const { title, body } = buildPushNotification(event_type, payload);
-              if (payload.fcm_token) {
-                await sendPushNotification(payload.fcm_token as string, title, body, {
-                  event_type,
-                  shipment_id: shipment_id || '',
-                });
-              }
-              break;
-            }
             case 'EMAIL': {
               const { sendEmail } = await import('./sendgrid');
               const { subject, html } = buildEmailContent(event_type, payload);
@@ -134,72 +122,6 @@ function createNotificationWorker() {
   );
 }
 
-// ─── COD Payout Worker ────────────────────────────────────────────────────────
-
-function createCodPayoutWorker() {
-  return new Worker<CodPayoutJobData>(
-    'cod-payout',
-    async (job: Job<CodPayoutJobData>) => {
-      const { shipment_id, user_id, amount_paise, awb } = job.data;
-      const amountRupees = amount_paise / 100;
-      console.log(`💸 [cod-payout] Processing ₹${amountRupees} payout for shipment ${shipment_id}`);
-
-      try {
-        const { addBeneficiary, initiatePayout } = await import('./cashfree');
-        const db = (await import('../Database/db')).default;
-
-        // 1. Fetch user bank details
-        const userResult = await db.query(
-          `SELECT name, phone, bank_account, bank_ifsc, email FROM users WHERE id = $1 LIMIT 1`,
-          [user_id]
-        );
-
-        if (userResult.rows.length === 0) throw new Error(`User ${user_id} not found`);
-        const user = userResult.rows[0];
-
-        if (!user.bank_account || !user.bank_ifsc) {
-          console.warn(`[cod-payout] User ${user_id} has no bank details — skipping`);
-          await db.query(`UPDATE cod_remittances SET status = 'FAILED' WHERE shipment_id = $1`, [shipment_id]);
-          return;
-        }
-
-        // 2. Register beneficiary (idempotent)
-        await addBeneficiary({
-          beneficiary_id: user_id,
-          name: user.name,
-          account: user.bank_account,
-          ifsc: user.bank_ifsc,
-          phone: user.phone,
-          email: user.email,
-        });
-
-        // 3. Initiate transfer
-        const result = await initiatePayout({
-          transfer_id: `COD-${shipment_id}`,
-          amount: amountRupees,
-          beneficiary_name: user.name,
-          beneficiary_account: user.bank_account,
-          beneficiary_ifsc: user.bank_ifsc,
-          remarks: `SwiftRoute COD Payout — AWB ${awb}`,
-        });
-
-        if (!result) throw new Error('Cashfree transfer initiation failed');
-
-        // 4. Update cod_remittances
-        await db.query(
-          `UPDATE cod_remittances SET status = 'PROCESSING', bank_ref = $1 WHERE shipment_id = $2`,
-          [result.cashfree_ref, shipment_id]
-        );
-
-        console.log(`✅ [cod-payout] Payout initiated — Ref: ${result.cashfree_ref} | AWB: ${awb}`);
-      } catch (err) {
-        console.error(`❌ [cod-payout] Payout failed for shipment ${shipment_id}:`, err);
-        throw err;
-      }
-    },
-    { connection, concurrency: 2 }
-  );
-}
 
 // ─── Message Builders ─────────────────────────────────────────────────────────
 
@@ -246,18 +168,6 @@ const EVENT_MESSAGES: Record<string, { title: string; body: string; whatsapp: st
     whatsapp: 'SwiftRoute alert: Your package (AWB: {{awb}}) could not be delivered and is being returned.',
     subject: 'SwiftRoute — Return to Origin ↩️',
   },
-  COD_COLLECTED: {
-    title: '💰 COD Collected',
-    body: 'COD amount of ₹{{amount}} collected for AWB: {{awb}}.',
-    whatsapp: 'SwiftRoute: Cash of ₹{{amount}} collected for your delivery (AWB: {{awb}}).',
-    subject: 'SwiftRoute — COD Collected 💰',
-  },
-  PAYOUT_SENT: {
-    title: '💸 Payout Sent!',
-    body: '₹{{amount}} has been transferred to your bank account.',
-    whatsapp: 'SwiftRoute: ₹{{amount}} COD payout has been initiated to your bank account.',
-    subject: 'SwiftRoute — Payout Transferred 💸',
-  },
   DELIVERY_OTP: {
     title: '🔑 Delivery OTP',
     body: 'Your delivery OTP is {{otp}}. Share with the delivery agent only.',
@@ -275,13 +185,6 @@ function buildWhatsAppMessage(event: string, payload: Record<string, string | nu
   return interpolate(template, payload);
 }
 
-function buildPushNotification(event: string, payload: Record<string, string | number>) {
-  const msg = EVENT_MESSAGES[event];
-  return {
-    title: msg?.title ?? 'SwiftRoute Notification',
-    body: interpolate(msg?.body ?? event, payload),
-  };
-}
 
 function buildEmailContent(event: string, payload: Record<string, string | number>) {
   const msg = EVENT_MESSAGES[event];
@@ -312,7 +215,6 @@ export function startWorkers(): void {
   workers = [
     createTrackingPollWorker(),
     createNotificationWorker(),
-    createCodPayoutWorker(),
   ];
 
   workers.forEach((w) => {
@@ -320,7 +222,7 @@ export function startWorkers(): void {
     w.on('failed', (job, err) => console.error(`❌ [${job?.queueName}] Job ${job?.id} failed:`, err));
   });
 
-  console.log('🏭 BullMQ workers started: tracking-poll | notification | cod-payout');
+  console.log('🏭 BullMQ workers started: tracking-poll | notification');
 }
 
 export async function stopWorkers(): Promise<void> {

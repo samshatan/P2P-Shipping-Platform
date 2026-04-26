@@ -2,10 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { Menu, X, User, LayoutDashboard, LogOut, Bell, Sun, Moon, Laptop, Wallet } from "lucide-react";
+import { Menu, X, User, LayoutDashboard, LogOut, Bell, Sun, Moon, Laptop, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
+/**
+ * BE3 — Day 11: Updated Navbar
+ * Removed Wallet balance display as per feature removal request.
+ */
 export function Navbar() {
   const navigate = useNavigate();
   const { isAuthenticated, logout, user } = useAuth();
@@ -61,11 +65,6 @@ export function Navbar() {
 
             {isAuthenticated ? (
               <div className="hidden sm:flex items-center gap-3">
-                <div onClick={() => navigate('/profile')} className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full border border-primary/20 cursor-pointer hover:bg-primary/20 transition-all font-bold text-sm">
-                  <Wallet className="w-4 h-4 text-primary" />
-                  ₹{user?.wallet || 0}
-                </div>
-                
                 <Button onClick={() => navigate('/notifications')} variant="ghost" size="icon" className="relative group rounded-full bg-muted/30 border border-border/20">
                   <Bell className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-primary rounded-full border-2 border-background animate-pulse"></span>
@@ -84,7 +83,14 @@ export function Navbar() {
               <Button onClick={() => navigate('/login')} variant="ghost" size="sm" className="hidden sm:inline-flex text-sm font-bold">Log in</Button>
             )}
             
-            {user?.role === 'admin' && (
+            {isAuthenticated && user?.role === 'ADMIN' && (
+              <Button onClick={() => navigate('/admin')} variant="outline" size="sm" className="hidden sm:inline-flex items-center gap-2 text-sm font-bold rounded-lg border-primary/40 text-primary hover:bg-primary/5">
+                <ShieldCheck className="w-4 h-4" />
+                Admin
+              </Button>
+            )}
+
+            {isAuthenticated && (
               <Button onClick={() => navigate('/compare')} className="hidden sm:inline-flex bg-primary text-primary-foreground hover:opacity-90 shadow-lg shadow-primary/20 font-bold rounded-xl px-6 transition-all hover:scale-105">
                 Book Parcel
               </Button>
@@ -111,10 +117,6 @@ export function Navbar() {
             {isAuthenticated ? (
               <>
                 <div className="flex items-center justify-between px-4 py-2">
-                   <div onClick={() => { navigate('/profile'); setIsMenuOpen(false); }} className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-xl border border-primary/20 font-bold cursor-pointer hover:bg-primary/20 transition-all">
-                    <Wallet className="w-4 h-4" />
-                    ₹{user?.wallet || 0}
-                  </div>
                   <Button onClick={() => navigate('/notifications')} variant="ghost" size="icon" className="relative group rounded-full bg-muted/30 border border-border/20">
                     <Bell className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                     <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-primary rounded-full border-2 border-background"></span>

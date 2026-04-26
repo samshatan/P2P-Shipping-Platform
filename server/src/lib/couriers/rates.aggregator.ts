@@ -2,6 +2,7 @@ import { CourierRateRequest, CourierRateResponse, AggregatedRatesResult } from '
 import { getDelhiveryRates } from './delhivery';
 import { getDtdcRates } from './dtdc';
 import { getXpressBeesRates } from './xpressbees';
+import { getShiprocketRates } from './shiprocket';
 
 export async function aggregateRates(req: CourierRateRequest): Promise<AggregatedRatesResult> {
   // 1. Fetch all rates in parallel
@@ -9,6 +10,7 @@ export async function aggregateRates(req: CourierRateRequest): Promise<Aggregate
     getDelhiveryRates(req),
     getDtdcRates(req),
     getXpressBeesRates(req),
+    getShiprocketRates(req),
   ]);
 
   // 2. Filter out failures and nulls

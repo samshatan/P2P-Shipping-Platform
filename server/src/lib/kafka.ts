@@ -2,32 +2,51 @@ import { Kafka, Partitioners } from 'kafkajs';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const KAFKA_BROKERS = process.env.KAFKA_BROKERS ? process.env.KAFKA_BROKERS.split(',') : ['localhost:9092'];
+const KAFKA_BROKERS = process.env.KAFKA_BROKERS ? process.env.KAFKA_BROKERS.split(',') : [];
 
 /**
  * SwiftRoute Kafka Client
- * Handles high-velocity event streaming for payments, shipping, and notifications.
+ * Handles high-velocity event streaming.
+ * If KAFKA_BROKERS is empty, it falls back to BullMQ for notifications.
  */
-export const kafka = new Kafka({
+export const kafka = KAFKA_BROKERS.length > 0 ? new Kafka({
   clientId: 'swiftroute-server',
   brokers: KAFKA_BROKERS,
   retry: {
     initialRetryTime: 100,
-    retries: 8
+    retries: 3
   }
-});
+}) : null;
 
 // Singleton Producer
-export const producer = kafka.producer({
+export const producer = kafka ? kafka.producer({
   createPartitioner: Partitioners.LegacyPartitioner
-});
+}) : null;
 
 /**
- * Emits a structured event to a Kafka topic
- * @param topic The target topic (e.g. shipment.status.updated)
- * @param payload The event data as an object
+ * Emits a structured event to a Kafka topic.
+ * REDIRECTS to BullMQ for NOTIFICATION_DISPATCH if Kafka is unavailable.
+ * @param topic The target topic
+ * @param payload The event data
  */
 export const emitEvent = async (topic: string, payload: any) => {
+  // ─── BullMQ Fallback for Notifications ──────────────────────────
+  if (topic === 'notification.dispatch_request') {
+    try {
+      const { enqueueNotification } = await import('./queues');
+      await enqueueNotification(payload);
+      return;
+    } catch (err) {
+      console.error('❌ BullMQ Fallback Failed:', err);
+    }
+  }
+
+  // ─── Kafka Emission ─────────────────────────────────────────────
+  if (!producer) {
+    console.log(`ℹ️ Kafka skipped [${topic}] (No brokers configured)`);
+    return;
+  }
+
   try {
     await producer.connect();
     await producer.send({
@@ -38,19 +57,14 @@ export const emitEvent = async (topic: string, payload: any) => {
     });
   } catch (error) {
     console.error(`❌ Kafka Emission Failed [${topic}]:`, error);
-    // In dev, we don't want to crash if Kafka is down
-    if (process.env.NODE_ENV === 'production') {
-      throw error;
-    }
   }
 };
 
 /**
- * Topic Constants - Follows service.entity.action pattern
+ * Topic Constants
  */
 export const TOPICS = {
   SHIPMENT_UPDATED: 'shipment.status.updated',
-  PAYMENT_RECEIVED: 'payment.webhook.received',
   NOTIFICATION_DISPATCH: 'notification.dispatch_request',
   TRACKING_SYNC: 'tracking.manual_sync_trigger',
   USER_REGISTERED: 'user.account.created',

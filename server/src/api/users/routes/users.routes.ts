@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getProfile } from '../controllers/profile.controller';
+import { getProfile, updateProfile } from '../controllers/profile.controller';
 import { getAddresses, addAddress, updateAddress, deleteAddress } from '../controllers/userAddress.controller';
 import { searchAddress } from '../controllers/address.controller';
 import { getUserShipments } from '../../shipments/controllers/shipment.controller';
@@ -10,6 +10,7 @@ const router = Router();
 
 // ── Profile ───────────────────────────────────────────────────
 router.get('/profile', authMiddleware, getProfile);
+router.patch('/profile', authMiddleware, updateProfile);
 
 // ── Saved Addresses (CRUD) ────────────────────────────────────
 router.get('/addresses', authMiddleware, getAddresses);

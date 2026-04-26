@@ -11,9 +11,9 @@ export const REFRESH_TOKEN_EXPIRY = '7d';
 /**
  * Generates both Access and Refresh tokens
  */
-export const signTokens = (userId: string, phone: string, role: string) => {
+export const signTokens = (userId: string, email: string, role: string) => {
     const accessToken = jwt.sign(
-        { userId, phone, role },
+        { userId, email, role },
         ACCESS_SECRET,
         { expiresIn: ACCESS_TOKEN_EXPIRY }
     );
