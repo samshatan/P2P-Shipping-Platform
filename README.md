@@ -173,7 +173,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] Confirm `GET /health` returns 200 at localhost:3001
 
 **Day 3**
-- [ ] Create `api/shared/types.ts` with User, Shipment interfaces and successResponse errorResponse helpers
+- [x] Create `api/shared/types.ts` with User, Shipment interfaces and successResponse errorResponse helpers
 - [x] Create auth service/controllers with sendOtp and verifyOtp functions
 - [x] `sendOtp` generates 6 digit OTP and stores in Redis with 5 minute expiry
 - [x] `verifyOtp` reads from Redis, compares, deletes after success, returns JWT
@@ -386,11 +386,11 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 *   **Day 20**: Implement **Coupon & Referral** logic for shipping discounts.
 
 ### Week 5: AI Prediction & Admin Control
-*   **Day 21**: Deploy the **LightGBM Predictor** (Python/FastAPI). Target: Predict EDD (Estimated Delivery Date) using `pincode_pair`, `weight`, and `courier_performance`.
+*   **Day 21** ✅: Deploy the **LightGBM Predictor** (`src/integrations/edd/predictor.py`) on port 5002. Predicts EDD using zone, pincode pair, weight, and courier performance. TypeScript client in `src/lib/edd.ts` with 3s timeout + rule-based fallback. Integrated into `GET /couriers/rates`.
 *   **Day 22** ✅: Build the **Revenue Dashboard APIs**. Daily GMV, ARPS, user growth, KYC funnel, RTO%, COD pending — in `src/api/couriers/controllers/admin.controller.ts`.
 *   **Day 23** ✅: Implement **Bulk Courier Orchestration**. Route logic: Cheapest non-sponsored courier for the route, auto-selected via `POST /couriers/auto-select` in `couriers.controller.ts`.
 *   **Day 24** ✅: Build the **Courier API Configurator**. Admins update **Markup %** and **Active Status** live via `PATCH /couriers/admin/couriers/:id` — no restart needed.
-*   **Day 25**: Final **Load Testing with k6**. Simulate 500 concurrent users booking 500 shipments simultaneously. Benchmark < 200ms p95 latency.
+*   **Day 25** ✅: Final **Load Testing with k6**. Script at `server/load-test.js` — ramps to 500 VUs, simulates full booking flow (OTP→verify→rates→create→pay→track). Thresholds: p95 < 200ms, error rate < 1%.
 
 ---
 
@@ -432,7 +432,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] Refunds via Razorpay (`initiateRazorpayRefund()` in `cashfree.ts`) and Cashfree payouts built
 
 ## Week 5 Exit Checklist
-- [ ] AI EDD (Delivery Date) prediction model — pending (LightGBM Python service)
+- [x] AI EDD (Delivery Date) prediction model — LightGBM Python service + TS client in `src/lib/edd.ts`
 - [x] Admin panel revenue APIs — GMV, ARPS, user growth, RTO% in `admin.controller.ts`
 - [x] Address search supports landmarks via Vector DB — Pinecone + Python embedder live
 - [ ] Final End-to-End Stress Test (1,000 bookings/hour) — pending

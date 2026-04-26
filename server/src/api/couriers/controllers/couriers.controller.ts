@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { asyncHandler } from '../../../middleware/asyncHandler';
 import { aggregateRates } from '../../../lib/couriers/rates.aggregator';
 import { getRate, setRate } from '../../../lib/rate-cache';
+import { predictEddBatch } from '../../../lib/edd';
 import pool from '../../../Database/db';
 
 // DAY 7: GET /couriers/rates
@@ -76,6 +77,25 @@ export const getCourierRates = asyncHandler(async (req: Request, res: Response) 
         console.error('⚠️ Rate cache write failed:', err)
     );
 
+    // ── 5. Enrich each courier with AI EDD prediction ─────────
+    try {
+        const eddRequests = live.couriers.map((c) => ({
+            pickup_pincode:   pickupPin,
+            delivery_pincode: deliveryPin,
+            courier_slug:     c.courier_id,
+            weight_grams:     weightGrams,
+        }));
+        const eddResults = await predictEddBatch(eddRequests);
+        live.couriers = live.couriers.map((c, i) => ({
+            ...c,
+            ai_eta_days:             eddResults[i]?.predicted_days ?? c.ai_eta_days,
+            predicted_delivery_date: eddResults[i]?.predicted_delivery_date ?? null,
+            edd_confidence:          eddResults[i]?.confidence ?? null,
+        }));
+    } catch {
+        // Non-fatal — rates still returned without EDD enrichment
+    }
+
     return res.status(200).json({
         success: true,
         data: {
@@ -84,6 +104,7 @@ export const getCourierRates = asyncHandler(async (req: Request, res: Response) 
         },
     });
 });
+
 
 // DAY 23: POST /couriers/auto-select
 // Bulk Courier Orchestration — auto-select cheapest serviceable courier
