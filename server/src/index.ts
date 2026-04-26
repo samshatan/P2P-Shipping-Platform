@@ -9,6 +9,7 @@ import usersRouter, { addressRouter } from './api/users/routes/users.routes';
 import shipmentsRouter from './api/shipments/routes/shipments.routes';
 import paymentsRouter from './api/payments/routes/payments.routes';
 import trackingRouter from './api/tracking/routes/tracking.routes';
+import couriersRouter from './api/couriers/routes/couriers.routes';
 import { startWorkers, stopWorkers } from './lib/workers';
 import { startNotificationConsumer } from './lib/notification-consumer';
 import { checkPincode } from './api/users/controllers/pincode.controller';
@@ -43,6 +44,7 @@ app.use('/address', addressRouter);
 app.use('/shipments', shipmentsRouter);
 app.use('/payments', paymentsRouter);
 app.use('/tracking', trackingRouter);
+app.use('/couriers', couriersRouter);  // Day 7 + Day 22-24
 app.get('/pincodes/check', checkPincode);
 
 // Health Check Endpoint

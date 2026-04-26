@@ -202,11 +202,11 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 - [x] Create `PUT /users/addresses/:id` and `DELETE /users/addresses/:id`
 
 **Day 7**
-- [ ] Create `GET /couriers/rates` route
-- [ ] Check Redis cache first before calling courier APIs
-- [ ] Call BE3 getAllRates using Promise.allSettled in parallel
-- [ ] Cache results in Redis for 15 minutes
-- [ ] Sort by price and return to frontend
+- [x] Create `GET /couriers/rates` route
+- [x] Check Redis cache first before calling courier APIs
+- [x] Call BE3 getAllRates using Promise.allSettled in parallel
+- [x] Cache results in Redis for 15 minutes
+- [x] Sort by price and return to frontend
 
 **Day 8**
 - [x] Create `POST /shipments/create` route saving draft shipment to PostgreSQL
@@ -326,8 +326,8 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 
 ## Week 2 Exit Checklist — All Must Pass Before Week 3
 
-- [ ] `GET /couriers/rates` returns prices from at least 2 couriers in under 3 seconds
-- [ ] Second request to `GET /couriers/rates` returns cached result instantly
+- [x] `GET /couriers/rates` returns prices from at least 2 couriers in under 3 seconds
+- [x] Second request to `GET /couriers/rates` returns cached result instantly
 - [x] `POST /shipments/create` saves draft shipment to PostgreSQL (Logic built in DB, route built)
 - [x] `POST /payments/initiate` returns Razorpay order ID
 - [x] `POST /payments/webhook` verifies signature and updates payment status
@@ -387,9 +387,9 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 
 ### Week 5: AI Prediction & Admin Control
 *   **Day 21**: Deploy the **LightGBM Predictor** (Python/FastAPI). Target: Predict EDD (Estimated Delivery Date) using `pincode_pair`, `weight`, and `courier_performance`.
-*   **Day 22**: Build the **Revenue Dashboard APIs**. Calculate **Daily Gross Merchandise Value (GMV)** and **Average Revenue Per Shipment (ARPS)**.
-*   **Day 23**: Implement **Bulk Courier Orchestration**. Route logic: If `Delhivery.rate < DTDC.rate` AND `Delhivery.pincode_serviceable`, auto-select Delhivery.
-*   **Day 24**: Build the **Courier API Configurator**. Allow admins to update **Markup %** and **API Keys** via the dashboard without server restarts.
+*   **Day 22** ✅: Build the **Revenue Dashboard APIs**. Daily GMV, ARPS, user growth, KYC funnel, RTO%, COD pending — in `src/api/couriers/controllers/admin.controller.ts`.
+*   **Day 23** ✅: Implement **Bulk Courier Orchestration**. Route logic: Cheapest non-sponsored courier for the route, auto-selected via `POST /couriers/auto-select` in `couriers.controller.ts`.
+*   **Day 24** ✅: Build the **Courier API Configurator**. Admins update **Markup %** and **Active Status** live via `PATCH /couriers/admin/couriers/:id` — no restart needed.
 *   **Day 25**: Final **Load Testing with k6**. Simulate 500 concurrent users booking 500 shipments simultaneously. Benchmark < 200ms p95 latency.
 
 ---
@@ -433,7 +433,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 
 ## Week 5 Exit Checklist
 - [ ] AI EDD (Delivery Date) prediction model — pending (LightGBM Python service)
-- [ ] Admin panel revenue APIs — pending BE2
+- [x] Admin panel revenue APIs — GMV, ARPS, user growth, RTO% in `admin.controller.ts`
 - [x] Address search supports landmarks via Vector DB — Pinecone + Python embedder live
 - [ ] Final End-to-End Stress Test (1,000 bookings/hour) — pending
 
