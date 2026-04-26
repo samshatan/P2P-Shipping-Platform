@@ -401,7 +401,7 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 *   **Day 12** ✅: DTDC API integrated — rates client + BullMQ polling fallback in `src/lib/couriers/dtdc.ts`.
 *   **Day 13** ✅: XpressBees API integrated — `src/lib/couriers/xpressbees.ts`.
 *   **Day 14** ✅: Rate Aggregator built — `Promise.allSettled` across all 3 couriers, sorted by price, timeout-safe in `rates.aggregator.ts`.
-*   **Day 15**: [ ] Manifest Generation (PDF) — pending.
+*   **Day 15** ✅: Manifest Generation (PDF) — `src/lib/manifest.ts` built. Handles per-courier batching, PDF creation via `pdfkit`, S3 storage, and Kafka event emission.
 
 ### Week 4: Multi-Channel Alerts
 *   **Day 16** ✅: Gupshup WhatsApp integrated — `sendWhatsAppMessage()` in `src/lib/whatsapp.ts`. All 10 notification templates built.
@@ -477,8 +477,6 @@ The API follows the predefined contract in `server/contracts/api-contracts.md`. 
 | Item | Requirement |
 |---|---|
 | **FinTech Ledger** | Atomic Wallet Balance transactions |
-| **Label Generation** | PDF Manifest generation for courier |
+| **Label Generation** | PDF Manifest generation for courier | ✅ Live |
 | **Live Credentials** | Transitioning MSG91/Digio/ULIP from Mock to Live |
 | **Admin Panel** | Revenue & Management APIs (Sprint 3) |
-
-

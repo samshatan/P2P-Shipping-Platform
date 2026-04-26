@@ -93,6 +93,8 @@ CREATE TABLE IF NOT EXISTS shipments (
     charge DECIMAL(15,2),          -- price charged to user
     courier_service VARCHAR(50),   -- e.g. "Express", "Surface"
     parcel_type VARCHAR(50),       -- e.g. "document", "parcel"
+    manifest_url TEXT,             -- Link to S3/MinIO PDF
+    manifest_hash VARCHAR(64),      -- SHA256 of manifest for integrity
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

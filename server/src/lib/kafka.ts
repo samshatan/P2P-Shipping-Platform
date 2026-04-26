@@ -1,5 +1,5 @@
 import { Kafka, Partitioners } from 'kafkajs';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS ? process.env.KAFKA_BROKERS.split(',') : ['localhost:9092'];
@@ -53,5 +53,6 @@ export const TOPICS = {
   PAYMENT_RECEIVED: 'payment.webhook.received',
   NOTIFICATION_DISPATCH: 'notification.dispatch_request',
   TRACKING_SYNC: 'tracking.manual_sync_trigger',
-  USER_REGISTERED: 'user.account.created'
+  USER_REGISTERED: 'user.account.created',
+  MANIFEST_CREATED: 'logistics.manifest.created'
 };
