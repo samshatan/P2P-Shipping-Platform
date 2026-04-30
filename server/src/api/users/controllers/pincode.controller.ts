@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../../../middleware/asyncHandler';
-import pool from '../../../Database/db';
+import { Pincode } from '../../../models/Pincode';
 
 export const checkPincode = asyncHandler(async (req: Request, res: Response) => {
     const { pincode } = req.query;
@@ -12,15 +12,10 @@ export const checkPincode = asyncHandler(async (req: Request, res: Response) => 
         });
     }
 
-    const result = await pool.query(
-        `SELECT pincode, city, state, is_serviceable, estimated_days
-         FROM pincodes WHERE pincode = $1`,
-        [pincode]
-    );
-
-    const record = result.rows[0];
+    const record = await Pincode.findOne({ pincode });
 
     if (!record) {
+
         return res.status(404).json({
             success: false,
             error: { code: 'PIN_002', message: 'Pincode not found in our serviceable zones' }

@@ -3,7 +3,7 @@ import { sendOtp } from '../controllers/sendOtp.controller';
 import { verifyOtp } from '../controllers/verifyOtp.controller';
 import { refreshToken } from '../controllers/refreshToken.controller';
 import { logout } from '../controllers/logout.controller';
-import { registerUser } from '../controllers/auth.controller';
+import { registerUser, loginUser } from '../controllers/auth.controller';
 import { googleLogin } from '../controllers/googleLogin.controller';
 import { authMiddleware } from '../../../middleware/auth.middleware';
 
@@ -11,6 +11,9 @@ const router = Router();
 
 // POST /auth/register
 router.post('/register', registerUser);
+
+// POST /auth/login
+router.post('/login', loginUser);
 
 // POST /auth/google
 router.post('/google', googleLogin);

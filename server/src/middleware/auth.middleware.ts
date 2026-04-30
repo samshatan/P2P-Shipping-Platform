@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { User } from '../models/User';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
 // Extend Express Request to carry decoded user info
 export interface AuthenticatedRequest extends Request {
@@ -7,21 +10,21 @@ export interface AuthenticatedRequest extends Request {
         userId: string;
         email: string;
         role: string;
+        name: string;
     };
 }
 
 /**
- * BE3 — Day 3: Auth Middleware
- * Decodes email-based JWT and attaches user to Request
+ * Auth Middleware
+ * Decodes MongoDB-based JWT and attaches user document info to Request
  */
-export const authMiddleware = (
+export const authMiddleware = async (
     req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
-): void => {
+): Promise<void> => {
     const authHeader = req.headers.authorization;
 
-    // ── Check header present
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         res.status(401).json({
             success: false,
@@ -32,19 +35,26 @@ export const authMiddleware = (
 
     const token = authHeader.split(' ')[1];
 
-    // ── Verify JWT signature
     try {
-        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as {
-            userId: string;
-            email: string;
-            role: string;
-        };
+        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
 
-        // Attach user to request — available in all downstream controllers
+        // Fetch user from MongoDB to ensure they still exist/are active
+        const user = await User.findById(decoded.userId);
+        
+        if (!user || !user.is_active) {
+            res.status(401).json({
+                success: false,
+                error: { code: 'USER_NOT_FOUND', message: 'User account not found or deactivated' },
+            });
+            return;
+        }
+
+        // Attach user info to request
         req.user = {
-            userId: decoded.userId,
-            email: decoded.email,
-            role: decoded.role,
+            userId: user._id.toString(),
+            email: user.email,
+            role: user.role,
+            name: user.name
         };
 
         next();
@@ -52,21 +62,20 @@ export const authMiddleware = (
         if (err instanceof jwt.TokenExpiredError) {
             res.status(401).json({
                 success: false,
-                error: { code: 'TOKEN_EXPIRED', message: 'Access token has expired. Please refresh.' },
+                error: { code: 'TOKEN_EXPIRED', message: 'Session has expired. Please log in again.' },
             });
             return;
         }
 
         res.status(401).json({
             success: false,
-            error: { code: 'INVALID_TOKEN', message: 'Invalid access token' },
+            error: { code: 'INVALID_TOKEN', message: 'Invalid session token' },
         });
     }
 };
 
 /**
  * Role-Based Access Control (RBAC) Middleware
- * Restricts access to specific roles (e.g., ADMIN)
  */
 export const roleMiddleware = (allowedRoles: string[]) => {
     return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {

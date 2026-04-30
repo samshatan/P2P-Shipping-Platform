@@ -6,25 +6,9 @@ export async function getXpressBeesRates(req: CourierRateRequest): Promise<Couri
   try {
     const apiKey = process.env.XPRESSBEES_API_KEY;
 
-    // Mock response if no API key or in development
-    if (!apiKey || process.env.NODE_ENV !== 'production') {
-      return new Promise((resolve) => setTimeout(() => {
-        resolve({
-          courier_id: 'xpressbees',
-          courier_name: 'XpressBees',
-          logo_url: 'https://swiftroute.in/logos/xpressbees.png',
-          price_paise: 8200,       // Rs 82.00
-          official_eta_days: 5,
-          ai_eta_days: 5,
-          ai_confidence: 0.91,
-          cod_available: false,
-          cod_fee_paise: 0,
-          pickup_sla_hours: 24,
-          rating: 4.0,
-          is_sponsored: false,
-          tags: ['most_reliable']
-        });
-      }, 400)); // Simulating faster response
+    // 1. Check for API Key
+    if (!apiKey) {
+      return null;
     }
 
     // Real API Implementation (Future)

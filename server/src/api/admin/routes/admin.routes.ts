@@ -5,7 +5,9 @@ import {
     updateCourier, 
     listUsers, 
     updateUserKyc,
-    listAllShipments
+    listAllShipments,
+    getUserMetrics,
+    getShipmentMetrics
 } from '../controllers/admin.controller';
 import { authMiddleware, roleMiddleware } from '../../../middleware/auth.middleware';
 
@@ -17,6 +19,8 @@ router.use(roleMiddleware(['ADMIN']) as any);
 
 // Dashboard & Stats
 router.get('/revenue/dashboard', getRevenueDashboard);
+router.get('/users/metrics', getUserMetrics);
+router.get('/shipments/metrics', getShipmentMetrics);
 
 // Courier Management
 router.get('/couriers', listCouriers);

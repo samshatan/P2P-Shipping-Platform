@@ -8,25 +8,9 @@ export async function getDelhiveryRates(req: CourierRateRequest): Promise<Courie
     const apiKey = process.env.DELHIVERY_API_KEY;
     const baseUrl = process.env.DELHIVERY_BASE_URL || 'https://staging-express.delhivery.com';
 
-    // Mock response if no API key or in development
-    if (!apiKey || process.env.NODE_ENV !== 'production') {
-      return new Promise((resolve) => setTimeout(() => {
-        resolve({
-          courier_id: 'delhivery',
-          courier_name: 'Delhivery',
-          logo_url: 'https://swiftroute.in/logos/delhivery.png',
-          price_paise: 8900,       // Rs 89.00
-          official_eta_days: 3,
-          ai_eta_days: 4,
-          ai_confidence: 0.82,
-          cod_available: true,
-          cod_fee_paise: 2500,
-          pickup_sla_hours: 2,
-          rating: 4.2,
-          is_sponsored: true,
-          tags: ['fastest', 'cod_available']
-        });
-      }, 500)); // Simulate API delay
+    // 1. Check for API Key
+    if (!apiKey) {
+      return null;
     }
 
     // Real API Implementation (Future)

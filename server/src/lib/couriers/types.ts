@@ -14,8 +14,6 @@ export interface CourierRateResponse {
   logo_url?: string;
   price_paise: number;
   official_eta_days: number;
-  ai_eta_days: number;
-  ai_confidence: number;
   cod_available: boolean;
   cod_fee_paise: number;
   pickup_sla_hours: number;

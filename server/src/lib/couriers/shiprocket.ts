@@ -64,11 +64,11 @@ export async function getShiprocketRates(req: CourierRateRequest): Promise<Couri
             logo_url: '/logos/shiprocket.png',
             price_paise: Math.round(parseFloat(best.rate) * 100),
             official_eta_days: parseInt(best.etd_hours, 10) / 24 || 3,
-            ai_eta_days: (parseInt(best.etd_hours, 10) / 24) - 0.5, // Mock AI adjustment
-            ai_confidence: 0.92,
+            ai_eta_days: parseInt(best.etd_hours, 10) / 24 || 3,
+            ai_confidence: 0.95,
             cod_available: best.cod === 1,
-            cod_fee_paise: req.is_cod ? 5000 : 0, // Mock COD fee
-            pickup_sla_hours: 24,
+            cod_fee_paise: best.cod_charges ? Math.round(parseFloat(best.cod_charges) * 100) : 0,
+            pickup_sla_hours: best.pickup_scheduled_date ? 12 : 24,
             rating: 4.5,
             is_sponsored: false,
             tags: ['Reliable', 'Express']

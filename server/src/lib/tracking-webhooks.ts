@@ -6,8 +6,7 @@
  *   1. Verify the webhook signature (where applicable)
  *   2. Parse the courier-specific payload into a normalized TrackingEvent
  *   3. Save to MongoDB via TrackingEvent model
- *   4. Emit a Kafka notification event to trigger user alerts
- *   5. Update shipment status in PostgreSQL
+ *   4. Update shipment status in MongoDB
  *
  * Routes wired by BE2:
  *   POST /tracking/webhooks/delhivery
@@ -17,8 +16,7 @@
 import crypto from 'crypto';
 import { Request, Response } from 'express';
 import { TrackingEvent } from './mongo';
-import db from '../Database/db';
-import { emitEvent, TOPICS } from './kafka';
+import { Shipment } from '../models/Shipment';
 import { enqueueNotification } from './queues';
 import type { NotificationEvent } from './queues';
 
@@ -67,10 +65,10 @@ async function saveTrackingEvent(
   description: string,
   courier: string
 ) {
-  // 1. Save to MongoDB
+  // 1. Save to MongoDB TrackingEvent
   await TrackingEvent.create({
     awb_number: awb,
-    shipment_id: awb, // Will match after lookup
+    shipment_id: awb, // Kept for legacy compatibility
     status,
     location,
     description,
@@ -78,34 +76,22 @@ async function saveTrackingEvent(
     meta: { courier, source: 'WEBHOOK' },
   });
 
-  // 2. Update shipment status in PostgreSQL
-  const pgResult = await db.query(
-    `UPDATE shipments
-     SET status = $1, updated_at = NOW()
-     WHERE awb = $2
-     RETURNING id, user_id`,
-    [status, awb]
+  // 2. Update shipment status in MongoDB
+  const shipment = await Shipment.findOneAndUpdate(
+    { awb: awb },
+    { $set: { status: status, updatedAt: new Date() } },
+    { new: true }
   );
 
-  if (pgResult.rows.length === 0) {
+  if (!shipment) {
     console.warn(`[webhook] No shipment found for AWB: ${awb}`);
     return null;
   }
 
-  const { id: shipmentId, user_id: userId } = pgResult.rows[0];
+  const shipmentId = shipment._id.toString();
+  const userId = shipment.user_id.toString();
 
-  // 3. Emit Kafka event
-  await emitEvent(TOPICS.SHIPMENT_UPDATED, {
-    awb,
-    shipment_id: shipmentId,
-    user_id: userId,
-    status,
-    location,
-    courier,
-    timestamp: new Date().toISOString(),
-  });
-
-  // 4. Enqueue notification
+  // 3. Enqueue notification
   const notifEvent = mapToNotificationEvent(status);
   if (notifEvent) {
     await enqueueNotification({

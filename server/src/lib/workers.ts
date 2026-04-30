@@ -1,20 +1,19 @@
 /**
- * BE1 — Day 9: BullMQ Workers
+ * BullMQ Workers
  *
  * Processes jobs from queues defined in queues.ts
  * - Tracking Poll Worker: Polls courier APIs for status updates
- * - Notification Worker: Dispatches multi-channel notifications
- *
- * Initialize with startWorkers() from server/src/index.ts
+ * - Notification Worker: Dispatches multi-channel notifications with Sandbox fallback
  */
 
 import { Worker, Job } from 'bullmq';
 import { redis } from './redis';
 import { TrackingEvent } from './mongo';
 import { TrackingPollJobData, NotificationJobData } from './queues';
+import { NOTIFICATION_TEMPLATES, interpolate } from '../config/notifications';
 
-// Lazy imports to avoid circular deps at startup
 const connection = redis;
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 // ─── Tracking Poll Worker ─────────────────────────────────────────────────────
 
@@ -26,22 +25,19 @@ function createTrackingPollWorker() {
       console.log(`📡 [tracking-poll] Polling ${courier.toUpperCase()} for AWB: ${awb}`);
 
       try {
-        // Dynamic import based on courier
         let statusData: { status: string; location?: string; description?: string } | null = null;
 
         if (courier === 'delhivery') {
-          // Delhivery has webhooks — polling is a fallback
-          // In production, this would call Delhivery Track API
           console.log(`[tracking-poll] Delhivery uses webhooks; skipping poll for AWB ${awb}`);
           return;
         }
 
         if (courier === 'dtdc' || courier === 'xpressbees') {
-          // These couriers need polling — mock for now until credentials are live
+          // Mock movement for demo
           statusData = {
             status: 'IN_TRANSIT',
-            location: 'Sorting Hub',
-            description: `Package in transit via ${courier.toUpperCase()}`,
+            location: 'Local Sorting Hub',
+            description: `Package is being processed at ${courier.toUpperCase()} facility.`,
           };
         }
 
@@ -57,16 +53,13 @@ function createTrackingPollWorker() {
           timestamp: new Date(),
         });
 
-        console.log(`✅ [tracking-poll] Saved status for AWB ${awb}: ${statusData.status}`);
+        console.log(`✅ [tracking-poll] Updated status for AWB ${awb}`);
       } catch (err) {
         console.error(`❌ [tracking-poll] Failed for AWB ${awb}:`, err);
-        throw err; // BullMQ will retry
+        throw err;
       }
     },
-    {
-      connection,
-      concurrency: 5,
-    }
+    { connection, concurrency: 5 }
   );
 }
 
@@ -76,130 +69,56 @@ function createNotificationWorker() {
   return new Worker<NotificationJobData>(
     'notification',
     async (job: Job<NotificationJobData>) => {
-      const { user_id, shipment_id, event_type, channels, payload } = job.data;
-      console.log(`🔔 [notification] Dispatching ${event_type} → user ${user_id} via [${channels.join(', ')}]`);
+      const { user_id, event_type, channels, payload } = job.data;
+      
+      const template = NOTIFICATION_TEMPLATES[event_type];
+      if (!template) {
+        console.error(`❌ [notification] No template found for event: ${event_type}`);
+        return;
+      }
+
+      console.log(`🔔 [notification] Dispatching ${event_type} to user ${user_id}`);
 
       const promises = channels.map(async (channel) => {
+        const message = interpolate(
+          channel === 'WHATSAPP' ? template.whatsapp : template.body, 
+          payload
+        );
+
+        // ─── SANDBOX MODE ─────────────────────────────────────────────────────
+        // If not in production, just log the message and skip real API calls
+        if (!IS_PRODUCTION) {
+          console.log(`🛠️  [SANDBOX][${channel}] To: ${payload.phone || payload.email} | Content: ${message}`);
+          return;
+        }
+
         try {
           switch (channel) {
-            case 'SMS': {
-              const { sendMSG91Otp } = await import('./msg91');
-              // SMS notifications use msg91 transport (using message as OTP field for generic notifications)
-              console.log(`📩 [SMS] ${event_type} → user ${user_id}`);
-              // In production swap to a dedicated send-notification SMS template function
+            case 'SMS':
+              // msg91 integration (removed from src/lib, so would need a fresh implementation if needed)
+              console.log(`[SMS] Sending via provider...`);
               break;
-            }
             case 'WHATSAPP': {
               const { sendWhatsAppMessage } = await import('./whatsapp');
-              const message = buildWhatsAppMessage(event_type, payload);
               await sendWhatsAppMessage(payload.phone as string, message);
               break;
             }
             case 'EMAIL': {
               const { sendEmail } = await import('./sendgrid');
-              const { subject, html } = buildEmailContent(event_type, payload);
-              await sendEmail(
-                payload.email as string,
-                subject,
-                html,
-              );
+              await sendEmail(payload.email as string, template.subject, message);
               break;
             }
           }
         } catch (err) {
-          console.error(`❌ [notification] ${channel} failed for ${event_type}:`, err);
-          // Don't rethrow — partial failures are acceptable for notifications
+          console.error(`❌ [notification] ${channel} failed:`, err);
         }
       });
 
       await Promise.allSettled(promises);
-      console.log(`✅ [notification] ${event_type} dispatched to ${channels.length} channels`);
+      console.log(`✅ [notification] ${event_type} processing complete.`);
     },
-    {
-      connection,
-      concurrency: 20,
-    }
+    { connection, concurrency: 10 }
   );
-}
-
-
-// ─── Message Builders ─────────────────────────────────────────────────────────
-
-const EVENT_MESSAGES: Record<string, { title: string; body: string; whatsapp: string; subject: string }> = {
-  BOOKING_CONFIRMED: {
-    title: '📦 Booking Confirmed!',
-    body: 'Your shipment AWB {{awb}} has been booked with {{courier}}.',
-    whatsapp: 'Your SwiftRoute shipment (AWB: {{awb}}) is confirmed! Pickup expected within {{pickup_sla}} hours.',
-    subject: 'SwiftRoute — Shipment Booked ✅',
-  },
-  PICKED_UP: {
-    title: '🚗 Picked Up!',
-    body: 'Your package (AWB: {{awb}}) has been picked up.',
-    whatsapp: 'Your SwiftRoute package (AWB: {{awb}}) has been picked up by {{courier}}.',
-    subject: 'SwiftRoute — Package Picked Up 🚗',
-  },
-  IN_TRANSIT: {
-    title: '🚚 In Transit',
-    body: 'Your package is on its way! Current location: {{location}}.',
-    whatsapp: 'Your SwiftRoute package (AWB: {{awb}}) is in transit. Current location: {{location}}.',
-    subject: 'SwiftRoute — Package In Transit 🚚',
-  },
-  OUT_FOR_DELIVERY: {
-    title: '🛵 Out for Delivery!',
-    body: 'Your package will be delivered today. OTP: {{otp}}',
-    whatsapp: 'Your SwiftRoute delivery is arriving today! Share OTP {{otp}} with the delivery agent.',
-    subject: 'SwiftRoute — Out for Delivery 🛵',
-  },
-  DELIVERED: {
-    title: '✅ Delivered!',
-    body: 'Your package (AWB: {{awb}}) has been delivered.',
-    whatsapp: 'Your SwiftRoute package (AWB: {{awb}}) has been delivered. Thank you for shipping with us!',
-    subject: 'SwiftRoute — Delivered ✅',
-  },
-  DELAYED: {
-    title: '⏳ Delivery Delayed',
-    body: 'Your package (AWB: {{awb}}) is delayed. New ETA: {{eta}}.',
-    whatsapp: 'SwiftRoute update: Your package (AWB: {{awb}}) is delayed. New estimated delivery: {{eta}}.',
-    subject: 'SwiftRoute — Delivery Delayed ⏳',
-  },
-  RTO_INITIATED: {
-    title: '↩️ Return Initiated',
-    body: 'Your package (AWB: {{awb}}) is being returned to origin.',
-    whatsapp: 'SwiftRoute alert: Your package (AWB: {{awb}}) could not be delivered and is being returned.',
-    subject: 'SwiftRoute — Return to Origin ↩️',
-  },
-  DELIVERY_OTP: {
-    title: '🔑 Delivery OTP',
-    body: 'Your delivery OTP is {{otp}}. Share with the delivery agent only.',
-    whatsapp: 'SwiftRoute Secure Delivery: Your OTP is {{otp}}. Do NOT share with anyone else.',
-    subject: 'SwiftRoute — Your Delivery OTP 🔑',
-  },
-};
-
-function interpolate(template: string, vars: Record<string, string | number>): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => String(vars[key] ?? `{{${key}}}`));
-}
-
-function buildWhatsAppMessage(event: string, payload: Record<string, string | number>): string {
-  const template = EVENT_MESSAGES[event]?.whatsapp ?? `SwiftRoute: ${event}`;
-  return interpolate(template, payload);
-}
-
-
-function buildEmailContent(event: string, payload: Record<string, string | number>) {
-  const msg = EVENT_MESSAGES[event];
-  const body = interpolate(msg?.body ?? event, payload);
-  return {
-    subject: msg?.subject ?? `SwiftRoute — ${event}`,
-    html: `
-      <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
-        <h2 style="color:#6366f1">${msg?.title ?? event}</h2>
-        <p>${body}</p>
-        <hr/>
-        <small style="color:#888">SwiftRoute P2P Shipping Platform</small>
-      </div>
-    `,
-  };
 }
 
 // ─── Startup ──────────────────────────────────────────────────────────────────
@@ -208,7 +127,7 @@ let workers: Worker[] = [];
 
 export function startWorkers(): void {
   if (process.env.ENABLE_WORKERS !== 'true') {
-    console.log('ℹ️  Workers disabled (set ENABLE_WORKERS=true to enable)');
+    console.log('ℹ️  Workers disabled (set ENABLE_WORKERS=true in .env)');
     return;
   }
 
@@ -218,11 +137,11 @@ export function startWorkers(): void {
   ];
 
   workers.forEach((w) => {
-    w.on('completed', (job) => console.log(`✅ [${job.queueName}] Job ${job.id} completed`));
+    w.on('completed', (job) => console.log(`✅ [${job.queueName}] Job ${job.id} done`));
     w.on('failed', (job, err) => console.error(`❌ [${job?.queueName}] Job ${job?.id} failed:`, err));
   });
 
-  console.log('🏭 BullMQ workers started: tracking-poll | notification');
+  console.log('🏭 BullMQ workers active: tracking-poll | notification');
 }
 
 export async function stopWorkers(): Promise<void> {

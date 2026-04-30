@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { getTrackingByAwb, delhiveryWebhook } from '../controllers/tracking.controller';
+import { getTrackingByAwb } from '../controllers/tracking.controller';
+import { handleDelhiveryWebhook } from '../../../lib/tracking-webhooks';
 
 const router = Router();
 
@@ -7,6 +8,6 @@ const router = Router();
 router.get('/:awb', getTrackingByAwb);
 
 // POST /tracking/webhooks/delhivery — called by Delhivery servers
-router.post('/webhooks/delhivery', delhiveryWebhook);
+router.post('/webhooks/delhivery', handleDelhiveryWebhook);
 
 export default router;

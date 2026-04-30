@@ -3,7 +3,6 @@ import { authMiddleware } from '../../../middleware/auth.middleware';
 import {
     createShipment,
     getShipmentById,
-    searchShipments,
     getUserShipments,
 } from '../controllers/shipment.controller';
 import {
@@ -17,7 +16,7 @@ import { confirmDelivery } from '../../tracking/controllers/tracking.controller'
 const router = Router();
 
 // ── ⚠️  Static paths MUST come before /:id ───────────────────
-router.get('/search', authMiddleware, searchShipments);
+// router.get('/search', authMiddleware, searchShipments); // TODO: implement searchShipments
 
 // ── Create ────────────────────────────────────────────────────
 router.post('/create', authMiddleware, createShipment);
