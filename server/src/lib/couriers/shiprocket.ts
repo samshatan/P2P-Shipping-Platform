@@ -33,9 +33,9 @@ async function getShiprocketToken(): Promise<string | null> {
     return null;
 }
 
-export async function getShiprocketRates(req: CourierRateRequest): Promise<CourierRateResponse | null> {
+export async function getShiprocketRates(req: CourierRateRequest): Promise<CourierRateResponse[]> {
     const token = await getShiprocketToken();
-    if (!token) return null;
+    if (!token) return [];
 
     try {
         const weightKg = req.weight_grams / 1000;
@@ -45,36 +45,47 @@ export async function getShiprocketRates(req: CourierRateRequest): Promise<Couri
                 pickup_postcode: req.pickup_pincode,
                 delivery_postcode: req.delivery_pincode,
                 weight: weightKg,
+                length: req.length_cm || 10,
+                width: req.width_cm || 10,
+                height: req.height_cm || 10,
                 cod: req.is_cod ? 1 : 0
             }
         });
 
         const data = response.data.data;
-        if (!data || !data.available_courier_companies || data.available_courier_companies.length === 0) {
-            return null;
+        if (!data || !data.available_courier_companies) {
+            return [];
         }
 
-        // Shiprocket returns multiple couriers. We take the recommended one (first one)
-        // or we could map all of them. For the aggregator, we usually want the cheapest/best.
-        const best = data.available_courier_companies[0];
+        const available = data.available_courier_companies;
+        const lowestRate = Math.min(...available.map((c: any) => parseFloat(c.rate)));
+        const fastestEtd = Math.min(...available.map((c: any) => parseInt(c.etd_hours, 10) || 1000));
 
-        return {
-            courier_id: `shiprocket_${best.courier_company_id}`,
-            courier_name: `Shiprocket (${best.courier_name})`,
-            logo_url: '/logos/shiprocket.png',
-            price_paise: Math.round(parseFloat(best.rate) * 100),
-            official_eta_days: parseInt(best.etd_hours, 10) / 24 || 3,
-            ai_eta_days: parseInt(best.etd_hours, 10) / 24 || 3,
-            ai_confidence: 0.95,
-            cod_available: best.cod === 1,
-            cod_fee_paise: best.cod_charges ? Math.round(parseFloat(best.cod_charges) * 100) : 0,
-            pickup_sla_hours: best.pickup_scheduled_date ? 12 : 24,
-            rating: 4.5,
-            is_sponsored: false,
-            tags: ['Reliable', 'Express']
-        };
-    } catch (err) {
-        console.error('❌ Shiprocket Rate Fetch Failed:', err);
-        return null;
+        // Map all available couriers from Shiprocket
+        return available.map((c: any) => {
+            const rate = parseFloat(c.rate);
+            const etd = parseInt(c.etd_hours, 10) || 1000;
+            const tags = [];
+            
+            if (rate === lowestRate) tags.push('Cheapest');
+            if (etd === fastestEtd && etd < 1000) tags.push('Express');
+
+            return {
+                courier_id: `shiprocket_${c.courier_company_id}`,
+                courier_name: c.courier_name,
+                logo_url: `/logos/shiprocket.png`,
+                price_paise: Math.round(rate * 100),
+                official_eta_days: etd / 24 || 3,
+                cod_available: c.cod === 1,
+                cod_fee_paise: c.cod_charges ? Math.round(parseFloat(c.cod_charges) * 100) : 0,
+                pickup_sla_hours: c.pickup_scheduled_date ? 12 : 24,
+                rating: parseFloat(c.rating) || 4.2,
+                is_sponsored: false,
+                tags: tags
+            };
+        });
+    } catch (err: any) {
+        console.error('❌ Shiprocket Rate Fetch Failed:', err.response?.data || err.message);
+        return [];
     }
 }

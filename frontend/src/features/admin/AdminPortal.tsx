@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { LayoutDashboard, Users, Truck, ShieldAlert, BarChart3, Settings, Search, Check, X, Building2, Package, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
+import { toast } from 'sonner'
+
+import { API_BASE_URL } from '../../config/api'
 
 export function AdminPortal() {
   const { user } = useAuth()
@@ -15,8 +18,8 @@ export function AdminPortal() {
       if (user?.role !== 'admin') return
       try {
         const [statsRes, partnersRes] = await Promise.all([
-          axios.get('http://localhost:3001/admin/stats'),
-          axios.get('http://localhost:3001/admin/partners')
+          axios.get(`${API_BASE_URL}/admin/stats`),
+          axios.get(`${API_BASE_URL}/admin/partners`)
         ])
         setStats(statsRes.data.data.stats)
         setPartners(partnersRes.data.data.partners)
@@ -146,8 +149,8 @@ function AdminStats({ stats }: { stats: any }) {
 function PartnerManagement({ partners, onUpdate }: { partners: any[], onUpdate: () => void }) {
   const handleApprove = async (id: string) => {
     try {
-      await axios.post(`http://localhost:3001/admin/partners/${id}/approve`)
-      alert('Partner approved successfully!')
+      await axios.post(`${API_BASE_URL}/admin/partners/${id}/approve`)
+      toast.success('Partner approved successfully!')
       onUpdate()
     } catch (error) {
       console.error('Approval error:', error)
@@ -158,7 +161,7 @@ function PartnerManagement({ partners, onUpdate }: { partners: any[], onUpdate: 
     <div className="space-y-10">
       <div>
         <h2 className="text-4xl font-black mb-2">Partner Requests</h2>
-        <p className="text-text-muted font-medium">Review and approve courier companies joining ShipEasy.</p>
+        <p className="text-text-muted font-medium">Review and approve courier companies joining Parcel.</p>
       </div>
 
       <div className="bg-bg-soft rounded-[2.5rem] border border-border-main overflow-hidden">

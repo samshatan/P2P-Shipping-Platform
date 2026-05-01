@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { MapPin, Package, ArrowRight, ChevronDown, Sparkles, Search, Shield, Globe } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useBooking } from '../context/BookingContext'
 import { countries } from '../constants/countries'
 
 export function LandingPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { serviceType, setServiceType } = useBooking()
   const [showDimensions, setShowDimensions] = useState(false)
   
@@ -21,6 +23,18 @@ export function LandingPage() {
     height: ''
   })
 
+  useEffect(() => {
+    if (location.state) {
+      setFormData(prev => ({ ...prev, ...location.state }))
+      if (location.state.length || location.state.width || location.state.height) {
+        setShowDimensions(true)
+      }
+      if (location.state.serviceType) {
+        setServiceType(location.state.serviceType)
+      }
+    }
+  }, [location.state, setServiceType])
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -29,12 +43,19 @@ export function LandingPage() {
   const handleShowPrices = () => {
     if (serviceType === 'domestic') {
       if (!formData.pickup_pincode || !formData.delivery_pincode || !formData.weight_grams) {
-        alert('Please fill in all details')
+        toast.error('Please fill in all details')
+        return
+      }
+      
+      // Indian Pincode Validation
+      const pincodeRegex = /^[1-9][0-9]{5}$/
+      if (!pincodeRegex.test(formData.pickup_pincode) || !pincodeRegex.test(formData.delivery_pincode)) {
+        toast.error('Please enter a valid 6-digit Indian Pincode')
         return
       }
     } else {
       if (!formData.pickup_country || !formData.delivery_country || !formData.weight_grams) {
-        alert('Please fill in all details')
+        toast.error('Please fill in all details')
         return
       }
     }

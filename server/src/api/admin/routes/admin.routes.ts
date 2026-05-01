@@ -4,7 +4,6 @@ import {
     listCouriers, 
     updateCourier, 
     listUsers, 
-    updateUserKyc,
     listAllShipments,
     getUserMetrics,
     getShipmentMetrics
@@ -26,9 +25,8 @@ router.get('/shipments/metrics', getShipmentMetrics);
 router.get('/couriers', listCouriers);
 router.patch('/couriers/:id', updateCourier);
 
-// User & KYC Management
+// User Management
 router.get('/users', listUsers);
-router.patch('/users/:id/kyc', updateUserKyc);
 
 // Global Monitoring
 router.get('/shipments', listAllShipments);

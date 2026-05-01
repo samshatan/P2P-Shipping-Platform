@@ -41,7 +41,7 @@ export function WelcomeModal({ onComplete, onTrack }: WelcomeModalProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12 text-left items-center">
                 <div className="space-y-6">
                   <p className="text-lg text-text-muted font-medium leading-relaxed">
-                    ShipEasy is India's premium P2P shipping aggregator. We connect you with 20+ top-tier courier partners like Delhivery, BlueDart, and FedEx to ensure your package reaches its destination safely and at the lowest possible cost.
+                    Parcel is India's premium P2P shipping aggregator. We connect you with 20+ top-tier courier partners like Delhivery, BlueDart, and FedEx to ensure your package reaches its destination safely and at the lowest possible cost.
                   </p>
                   <ul className="space-y-4">
                     {[

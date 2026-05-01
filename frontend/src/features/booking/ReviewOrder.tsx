@@ -4,6 +4,8 @@ import { Shield, ArrowLeft, CheckCircle2, Truck, Calendar, Wallet, Loader2 } fro
 import { useBooking } from '../../context/BookingContext'
 import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
+import { toast } from 'sonner'
+import { API_BASE_URL } from '../../config/api'
 
 export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: () => void }) {
   const { selectedCourier, pickupAddress, deliveryAddress, packageDetails, clearBooking } = useBooking()
@@ -17,7 +19,7 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
       await new Promise(resolve => setTimeout(resolve, 2000))
       
       // 1. Create Shipment (Draft)
-      const createRes = await axios.post('http://localhost:3001/shipments', {
+      const createRes = await axios.post(`${API_BASE_URL}/shipments`, {
         courier_id: selectedCourier?.courier_id,
         courier_name: selectedCourier?.name,
         pickup_address: pickupAddress,
@@ -31,12 +33,12 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
       const shipmentId = createRes.data.data.shipment_id
 
       // 2. Book Shipment
-      const bookRes = await axios.post(`http://localhost:3001/shipments/${shipmentId}/book`)
+      const bookRes = await axios.post(`${API_BASE_URL}/shipments/${shipmentId}/book`)
 
       if (bookRes.data.success) {
         onNext()
       } else {
-        alert('Booking failed. Please try again.')
+        toast.error('Booking failed. Please try again.')
       }
     } catch (error) {
       console.error('Booking error:', error)
@@ -124,7 +126,7 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
           <div className="bg-brand-primary/5 p-6 rounded-3xl border border-brand-primary/10 flex items-center gap-4">
             <Shield className="w-6 h-6 text-brand-primary" />
             <p className="text-sm font-medium text-text-muted">
-              Your shipment is protected by <span className="font-black text-brand-primary">ShipEasy Guarantee</span>. Full refund if not delivered.
+              Your shipment is protected by <span className="font-black text-brand-primary">Parcel Guarantee</span>. Full refund if not delivered.
             </p>
           </div>
         </div>

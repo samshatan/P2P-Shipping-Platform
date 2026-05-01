@@ -5,6 +5,8 @@ import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
+import { API_BASE_URL } from '../../config/api'
+
 export function SignupPage({ onSwitch, onBack }: { onSwitch: () => void, onBack: () => void }) {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -18,7 +20,7 @@ export function SignupPage({ onSwitch, onBack }: { onSwitch: () => void, onBack:
     password: ''
   })
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+  const API_URL = API_BASE_URL
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -79,7 +81,7 @@ export function SignupPage({ onSwitch, onBack }: { onSwitch: () => void, onBack:
   return (
     <div className="max-w-md mx-auto py-12 px-4">
       <div className="text-center mb-10">
-        <h2 className="text-3xl font-black mb-3 text-text-main tracking-tight">Join ShipEasy</h2>
+        <h2 className="text-3xl font-black mb-3 text-text-main tracking-tight">Join Parcel</h2>
         <p className="text-text-muted font-medium">Start shipping smarter and saving money today.</p>
       </div>
 

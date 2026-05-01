@@ -24,11 +24,6 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin', 'partner', 'support'],
     default: 'user'
   },
-  kyc_status: {
-    type: String,
-    enum: ['PENDING', 'INITIATED', 'VERIFIED', 'REJECTED'],
-    default: 'PENDING'
-  },
   saved_addresses: [addressSchema],
   avatar: { type: String },
   google_id: { type: String },

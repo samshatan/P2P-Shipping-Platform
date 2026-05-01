@@ -90,10 +90,6 @@ export const listUsers = asyncHandler(async (req: Request, res: Response) => {
     res.status(501).json({ success: false, message: 'Not Implemented' });
 });
 
-export const updateUserKyc = asyncHandler(async (req: Request, res: Response) => {
-    res.status(501).json({ success: false, message: 'Not Implemented' });
-});
-
 export const listAllShipments = asyncHandler(async (req: Request, res: Response) => {
     res.status(501).json({ success: false, message: 'Not Implemented' });
 });

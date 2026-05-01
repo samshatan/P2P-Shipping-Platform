@@ -1,14 +1,20 @@
-import { Building2, CheckCircle2, Sparkles, MapPin } from 'lucide-react'
+import { Building2, CheckCircle2, Sparkles, MapPin, Mail } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { toast } from 'sonner'
 
 export function PartnerPage() {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    toast.success('Partnership request submitted! We will reach out within 24 hours.')
+  }
+
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 animate-in fade-in slide-in-from-bottom-8 duration-700 text-left">
       <div className="text-center mb-16">
         <div className="w-20 h-20 bg-brand-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-8 animate-float">
           <Building2 className="w-10 h-10 text-brand-primary" />
         </div>
-        <h2 className="text-5xl font-black mb-6 tracking-tight">Partner with <span className="text-brand-primary">ShipEasy</span></h2>
+        <h2 className="text-5xl font-black mb-6 tracking-tight">Partner with <span className="text-brand-primary">Parcel</span></h2>
         <p className="text-xl text-text-muted max-w-2xl mx-auto leading-relaxed">Join India's most modern shipping network. Increase your volume and manage your fleet with our state-of-the-art partner dashboard.</p>
       </div>
       
@@ -36,9 +42,13 @@ export function PartnerPage() {
               <option>50+ Vehicles</option>
             </select>
           </div>
-          <button className="w-full h-16 bg-brand-primary text-white rounded-2xl font-black text-lg hover:bg-brand-secondary transition-all shadow-xl shadow-brand-primary/25 hover:-translate-y-1 active:translate-y-0">
+          <button 
+            onClick={handleSubmit}
+            className="w-full h-16 bg-brand-primary text-white rounded-2xl font-black text-lg hover:bg-brand-secondary transition-all shadow-xl shadow-brand-primary/25 hover:-translate-y-1 active:translate-y-0"
+          >
             Submit Request
           </button>
+
         </div>
 
         <div className="space-y-10 py-6">
@@ -100,7 +110,7 @@ export function PartnerPage() {
           <h3 className="text-4xl font-black mb-6 tracking-tight">Still have questions?</h3>
           <p className="text-xl text-white/80 font-medium mb-10 max-w-xl mx-auto">Our partnership team is ready to help you scale your logistics business.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <a href="mailto:partners@shipeasy.com" className="flex items-center gap-3 px-10 h-16 bg-white text-black rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/90 transition-all">
+            <a href="mailto:partners@parcel.com" className="flex items-center gap-3 px-10 h-16 bg-white text-black rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/90 transition-all">
               <Mail className="w-5 h-5" />
               Email Us
             </a>

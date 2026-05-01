@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
+import { API_BASE_URL } from '../../config/api'
+
 export function Dashboard() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -17,8 +19,8 @@ export function Dashboard() {
     const fetchData = async () => {
       try {
         const [shipmentsRes, statsRes] = await Promise.all([
-          axios.get('http://localhost:3001/shipments/users'),
-          axios.get('http://localhost:3001/admin/stats')
+          axios.get(`${API_BASE_URL}/shipments/users`),
+          axios.get(`${API_BASE_URL}/admin/stats`)
         ])
         setShipments(shipmentsRes.data.data.shipments)
         setStats(statsRes.data.data.stats)
@@ -56,7 +58,7 @@ export function Dashboard() {
           <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center shrink-0">
             <Package className="w-5 h-5 text-white" />
           </div>
-          {isSidebarOpen && <span className="font-black tracking-tighter text-xl">ShipEasy</span>}
+          {isSidebarOpen && <span className="font-black tracking-tighter text-xl">Parcel</span>}
         </div>
 
         <nav className="flex-1 space-y-2">
@@ -124,6 +126,7 @@ export function Dashboard() {
 }
 
 function OverviewView({ user, shipments, stats }: { user: any, shipments: any[], stats: any }) {
+  const navigate = useNavigate()
   const recentShipments = shipments.slice(0, 3)
 
   return (
@@ -190,9 +193,13 @@ function OverviewView({ user, shipments, stats }: { user: any, shipments: any[],
             <h3 className="font-black text-xl mb-2">Ready to ship more?</h3>
             <p className="text-text-muted text-sm font-medium">Manage all your orders from one clean, MongoDB-powered dashboard.</p>
           </div>
-          <button className="h-14 bg-brand-primary text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-brand-secondary transition-all shadow-xl shadow-brand-primary/20">
+          <button 
+            onClick={() => navigate('/calculator')}
+            className="h-14 bg-brand-primary text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-brand-secondary transition-all shadow-xl shadow-brand-primary/20"
+          >
             Start New Booking
           </button>
+
         </div>
       </div>
     </div>

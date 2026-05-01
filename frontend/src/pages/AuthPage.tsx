@@ -5,6 +5,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config/api';
 
 export function AuthPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,7 +23,7 @@ export function AuthPage() {
     password: ''
   });
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  const API_URL = API_BASE_URL;
 
   useEffect(() => {
     setIsLogin(searchParams.get('mode') !== 'signup');

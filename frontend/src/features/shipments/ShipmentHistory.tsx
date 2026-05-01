@@ -17,13 +17,15 @@ interface Shipment {
   courier_partner_id?: { name: string }
 }
 
+import { API_BASE_URL } from '../../config/api'
+
 export function ShipmentHistory() {
   const { user } = useAuth()
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['shipments', user?.id],
     queryFn: async () => {
-      const response = await axios.get('http://localhost:3001/users/shipments', {
+      const response = await axios.get(`${API_BASE_URL}/users/shipments`, {
         withCredentials: true
       })
       return response.data.data.shipments as Shipment[]
@@ -68,7 +70,7 @@ export function ShipmentHistory() {
             <Package className="w-10 h-10 text-brand-primary" />
           </div>
           <h3 className="text-2xl font-black mb-2">No Shipments Yet</h3>
-          <p className="text-text-muted mb-8 max-w-md mx-auto">You haven't booked any shipments through ShipEasy yet. Let's get your first package moving!</p>
+          <p className="text-text-muted mb-8 max-w-md mx-auto">You haven't booked any shipments through Parcel yet. Let's get your first package moving!</p>
           <Link to="/" className="inline-block bg-brand-primary text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-brand-secondary transition-all shadow-xl shadow-brand-primary/20">
             Book a Shipment
           </Link>

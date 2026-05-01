@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
+import { API_BASE_URL } from '../config/api';
+
 export function SettingsPage() {
   const { user, login } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'addresses' | 'security'>('profile');
@@ -17,7 +19,7 @@ export function SettingsPage() {
     phone: user?.phone || ''
   });
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  const API_URL = API_BASE_URL;
 
   useEffect(() => {
     if (activeTab === 'addresses') {

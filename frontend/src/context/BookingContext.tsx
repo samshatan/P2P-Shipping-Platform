@@ -8,6 +8,7 @@ interface Address {
   pincode: string
   city: string
   state: string
+  country?: string
 }
 
 interface SelectedCourier {

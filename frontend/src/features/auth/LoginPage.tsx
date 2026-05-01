@@ -5,6 +5,8 @@ import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
+import { API_BASE_URL } from '../../config/api'
+
 export function LoginPage({ onSwitch, onBack }: { onSwitch: () => void, onBack: () => void }) {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -17,7 +19,7 @@ export function LoginPage({ onSwitch, onBack }: { onSwitch: () => void, onBack: 
     password: ''
   })
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+  const API_URL = API_BASE_URL
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.type === 'email' ? 'email' : 'password']: e.target.value }))

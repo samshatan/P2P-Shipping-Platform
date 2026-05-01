@@ -176,7 +176,7 @@ export function WelcomePage() {
 
         {/* Footer CTA */}
         <section className="py-32 flex flex-col items-center text-center">
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">Ready to ShipEasy?</h2>
+            <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">Ready to Parcel?</h2>
             <p className="text-white/40 md:text-xl max-w-md mb-12">
               Join thousands of businesses and individuals optimizing their logistics.
             </p>

@@ -7,6 +7,7 @@ interface User {
   name: string
   role: 'user' | 'admin'
   avatar?: string
+  phone?: string
 }
 
 interface AuthContextType {

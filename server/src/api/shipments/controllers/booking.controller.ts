@@ -13,8 +13,8 @@ async function callCourierBookingApi(
     // Simulate real booking
     return {
         success: true,
-        awb: `SE-${courierId.toUpperCase()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        label_url: `https://labels.shipeasy.in/mock/${shipment._id}.pdf`,
+        awb: `PCL-${courierId.toUpperCase()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        label_url: `https://labels.parcel.in/mock/${shipment._id}.pdf`,
     };
 }
 

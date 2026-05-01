@@ -46,7 +46,6 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
                 email,
                 name: name || 'User',
                 role: 'user',
-                kyc_status: 'PENDING',
                 google_id: googleId,
                 avatar: picture
             });

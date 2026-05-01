@@ -28,7 +28,7 @@ export function ResultsPage() {
   return (
     <div className="max-w-5xl mx-auto py-12">
       <PriceComparison 
-        onBack={() => navigate('/')} 
+        onBack={() => navigate('/calculator', { state })} 
         onBook={navigateToBooking}
         pickup_pincode={state.pickup_pincode}
         delivery_pincode={state.delivery_pincode}

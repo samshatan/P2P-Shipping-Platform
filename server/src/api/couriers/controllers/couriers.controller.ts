@@ -6,7 +6,7 @@ import { CourierPartner } from '../../../models/CourierPartner';
 
 // ── GET /couriers/rates ──────────────────────────────────────
 export const getCourierRates = asyncHandler(async (req: Request, res: Response) => {
-    const { pickup_pincode, delivery_pincode, weight_grams, is_cod } = req.query;
+    const { pickup_pincode, delivery_pincode, weight_grams, length, width, height, is_cod } = req.query;
 
     if (!pickup_pincode || !delivery_pincode || !weight_grams) {
         return res.status(400).json({
@@ -34,13 +34,16 @@ export const getCourierRates = asyncHandler(async (req: Request, res: Response) 
         pickup_pincode: pickupPin,
         delivery_pincode: deliveryPin,
         weight_grams: weightGrams,
+        length_cm: length ? parseInt(length as string, 10) : 10,
+        width_cm: width ? parseInt(width as string, 10) : 10,
+        height_cm: height ? parseInt(height as string, 10) : 10,
         is_cod: isCod,
     });
 
     if (live.couriers.length === 0) {
-        return res.status(503).json({
-            success: false,
-            error: { code: 'RATE_004', message: 'No courier rates available for this route.' },
+        return res.status(200).json({
+            success: true,
+            data: { couriers: [], message: 'No courier rates available for this route.' },
         });
     }
 

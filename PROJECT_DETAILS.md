@@ -1,7 +1,7 @@
-# ShipEasy: Premium P2P Shipping Aggregator
+# Parcel: Premium P2P Shipping Aggregator
 
 ## 🚀 Overview
-**ShipEasy** is a state-of-the-art Peer-to-Peer (P2P) shipping platform designed to simplify logistics for modern users. It acts as a powerful aggregator, connecting users with 20+ top-tier courier partners (such as Delhivery, BlueDart, FedEx, and DHL) through a sleek, premium interface. Whether shipping a gift across town or a commercial parcel across the globe, ShipEasy provides real-time price comparisons and seamless booking.
+**Parcel** is a state-of-the-art Peer-to-Peer (P2P) shipping platform designed to simplify logistics for modern users. It acts as a powerful aggregator, connecting users with 20+ top-tier courier partners (such as Delhivery, BlueDart, FedEx, and DHL) through a sleek, premium interface. Whether shipping a gift across town or a commercial parcel across the globe, Parcel provides real-time price comparisons and seamless booking.
 
 ---
 

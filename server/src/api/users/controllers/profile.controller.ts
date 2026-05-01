@@ -26,7 +26,6 @@ export const getProfile = asyncHandler(async (req: AuthenticatedRequest, res: Re
             email: user.email,
             phone: user.phone,
             role: user.role,
-            kyc_status: user.kyc_status,
             saved_addresses: user.saved_addresses,
             created_at: user.createdAt,
         }

@@ -22,9 +22,17 @@ import { ShipmentHistory } from './features/shipments/ShipmentHistory'
 import { SettingsPage } from './pages/SettingsPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
+import { PricingPage } from './pages/PricingPage'
+import { ContactPage } from './pages/ContactPage'
+import { HelpPage } from './pages/HelpPage'
+import { AboutPage } from './pages/AboutPage'
+import { SustainabilityPage } from './pages/SustainabilityPage'
+import { ComingSoonPage } from './pages/ComingSoonPage'
+
 
 import { useAuth } from './context/AuthContext'
 import { useBooking } from './context/BookingContext'
+import { Toaster } from 'sonner'
 import { useState, useEffect } from 'react'
 
 function App() {
@@ -44,7 +52,7 @@ function App() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-main text-text-main font-sans">
-        <div className="font-bold text-xl animate-pulse">Loading ShipEasy...</div>
+        <div className="font-bold text-xl animate-pulse">Loading Parcel...</div>
       </div>
     )
   }
@@ -52,6 +60,8 @@ function App() {
   return (
     <div className="flex flex-col font-sans bg-bg-main text-text-main transition-all duration-500 relative min-h-screen">
       <ScrollToTop />
+      <Toaster position="top-right" richColors />
+
       
       {/* Universal Background Animated Blobs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -120,7 +130,15 @@ function App() {
             <Route path="/settings" element={<PageWrapper><SettingsPage /></PageWrapper>} />
             <Route path="/terms" element={<PageWrapper><TermsPage /></PageWrapper>} />
             <Route path="/privacy" element={<PageWrapper><PrivacyPage /></PageWrapper>} />
+            <Route path="/pricing" element={<PageWrapper><PricingPage /></PageWrapper>} />
+            <Route path="/about" element={<PageWrapper><AboutPage /></PageWrapper>} />
+            <Route path="/sustainability" element={<PageWrapper><SustainabilityPage /></PageWrapper>} />
+            <Route path="/help" element={<PageWrapper><HelpPage /></PageWrapper>} />
+            <Route path="/contact" element={<PageWrapper><ContactPage /></PageWrapper>} />
+            <Route path="/status" element={<PageWrapper><ComingSoonPage title="System Status" /></PageWrapper>} />
+            <Route path="/api-docs" element={<PageWrapper><ComingSoonPage title="API Documentation" /></PageWrapper>} />
           </Routes>
+
         </AnimatePresence>
       </main>
 

@@ -10,14 +10,14 @@ export function TermsPage() {
         <section className="space-y-4">
           <h2 className="text-2xl font-black text-text-main">1. Acceptance of Terms</h2>
           <p>
-            By accessing and using ShipEasy, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.
+            By accessing and using Parcel, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.
           </p>
         </section>
 
         <section className="space-y-4">
           <h2 className="text-2xl font-black text-text-main">2. Service Description</h2>
           <p>
-            ShipEasy is a logistics aggregator. We provide a platform for users to compare rates and book shipments with third-party courier partners. We do not personally handle, transport, or store your packages.
+            Parcel is a logistics aggregator. We provide a platform for users to compare rates and book shipments with third-party courier partners. We do not personally handle, transport, or store your packages.
           </p>
         </section>
 
@@ -34,14 +34,14 @@ export function TermsPage() {
         <section className="space-y-4">
           <h2 className="text-2xl font-black text-text-main">4. Payments & Refunds</h2>
           <p>
-            Payments are collected at the time of booking. Refunds are subject to the specific courier partner's policy. ShipEasy acts as a facilitator and will assist in processing legitimate refund requests.
+            Payments are collected at the time of booking. Refunds are subject to the specific courier partner's policy. Parcel acts as a facilitator and will assist in processing legitimate refund requests.
           </p>
         </section>
 
         <section className="space-y-4">
           <h2 className="text-2xl font-black text-text-main">5. Limitation of Liability</h2>
           <p>
-            ShipEasy is not liable for loss, damage, or delay caused by courier partners. Our liability is limited to the service fee charged by ShipEasy for the specific booking.
+            Parcel is not liable for loss, damage, or delay caused by courier partners. Our liability is limited to the service fee charged by Parcel for the specific booking.
           </p>
         </section>
       </div>

@@ -24,7 +24,7 @@ export function Navbar() {
            <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-tr ${themeGradient} shadow-lg shadow-brand-primary/20 group-hover:scale-110 transition-all duration-500`}>
               <Package className="w-5 h-5 text-white" />
            </div>
-           <span className="text-xl font-black tracking-tight text-white">ShipEasy</span>
+           <span className="text-xl font-black tracking-tight text-white">Parcel</span>
         </Link>
 
         {/* Center Nav */}
