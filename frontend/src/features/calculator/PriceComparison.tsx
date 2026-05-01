@@ -134,7 +134,7 @@ export function PriceComparison({
               <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
             )}
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 flex-1 min-w-0">
               <div className="w-16 h-16 sm:w-20 sm:h-20 bg-bg-soft rounded-2xl flex items-center justify-center font-black text-2xl text-brand-primary border border-border-main group-hover:scale-105 transition-transform shadow-inner">
                 {courier.courier_name ? courier.courier_name[0] : '?'}
               </div>
@@ -165,7 +165,8 @@ export function PriceComparison({
               </div>
             </div>
 
-            <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-2 border-t lg:border-t-0 lg:border-l border-border-main pt-6 lg:pt-0 lg:pl-8">
+            <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8 shrink-0 w-full lg:w-auto mt-6 lg:mt-0">
+              <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-2 border-t lg:border-t-0 lg:border-l border-border-main pt-6 lg:pt-0 lg:pl-8 w-full lg:w-[140px]">
               <div className="text-left lg:text-right">
                 <div className="flex items-baseline gap-1">
                   <span className="text-xs font-bold text-text-muted">₹</span>
@@ -175,7 +176,7 @@ export function PriceComparison({
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 w-full lg:w-auto">
               <button 
                 onClick={() => {
                   const name = courier.courier_name.toLowerCase()
@@ -202,6 +203,7 @@ export function PriceComparison({
               >
                 Book with us
               </button>
+            </div>
             </div>
           </div>
         )) : (
