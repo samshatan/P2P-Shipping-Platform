@@ -186,8 +186,8 @@ export function AuthPage() {
                   </div>
 
                   <div className="relative flex items-center justify-center mb-8">
-                    <hr className="w-full border-white/10" />
-                    <span className="absolute bg-[#0a0a0a] px-3 text-xs text-white/40 uppercase tracking-widest font-medium">Or</span>
+                    <hr className="w-full border-white/20"/>
+                    <span className="absolute px-4 text-xs font-bold text-white/60 uppercase tracking-wider">Or Continue with Email</span>
                   </div>
                 </>
               )}
