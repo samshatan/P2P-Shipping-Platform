@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
+const JWT_SECRET = process.env.JWT_ACCESS_SECRET || 'access_secret_fallback';
 
 // Extend Express Request to carry decoded user info
 export interface AuthenticatedRequest extends Request {

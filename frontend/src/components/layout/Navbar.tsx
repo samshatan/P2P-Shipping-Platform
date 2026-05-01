@@ -101,21 +101,26 @@ export function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-x-0 top-20 z-40 bg-[#050505]/95 backdrop-blur-2xl shadow-2xl border-b border-white/10 p-6 flex flex-col gap-4 lg:hidden"
+            className="fixed inset-x-0 top-20 z-40 bg-[#1c1c1e]/99 backdrop-blur-2xl shadow-2xl border-b border-white/10 p-6 flex flex-col gap-4 lg:hidden"
           >
             <Link to="/calculator" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-white/90 hover:text-white py-2">Ship Now</Link>
             <Link to="/tracking" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-white/90 hover:text-white py-2">Tracking</Link>
             <Link to="/bulk" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-white/90 hover:text-white py-2">Bulk</Link>
             <hr className="border-white/10 my-3" />
-            <div className="flex flex-col gap-3 mt-2">
-              {!user ? (
-                <>
-                  <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="py-3.5 rounded-2xl font-semibold bg-[#1A1A1A] border border-white/10 text-white text-center hover:bg-white/10 transition-colors">Sign In</Link>
-                  <Link to="/calculator" onClick={() => setMobileMenuOpen(false)} className="py-3.5 rounded-2xl font-semibold bg-white text-black text-center hover:bg-white/90 transition-colors">Get Started</Link>
-                </>
-              ) : (
-                <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-3.5 rounded-2xl font-semibold bg-white text-black text-center hover:bg-white/90 transition-colors">Go to Dashboard</Link>
-              )}
+            <div className="relative mt-2">
+              {/* Premium Glow Effect */}
+              <div className="absolute inset-0 bg-white/5 blur-[40px] rounded-full pointer-events-none -m-4"></div>
+              
+              <div className="relative flex flex-col gap-3">
+                {!user ? (
+                  <>
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="py-3.5 rounded-xl font-medium bg-[#1A1A1A] border border-white/10 text-white text-center hover:bg-white/10 transition-colors">Sign In</Link>
+                    <Link to="/calculator" onClick={() => setMobileMenuOpen(false)} className="py-3.5 rounded-xl font-medium bg-white text-black text-center hover:bg-white/90 transition-colors shadow-lg shadow-white/5">Get Started</Link>
+                  </>
+                ) : (
+                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-3.5 rounded-xl font-medium bg-white text-black text-center hover:bg-white/90 transition-colors shadow-lg shadow-white/5">Go to Dashboard</Link>
+                )}
+              </div>
             </div>
           </motion.div>
         )}

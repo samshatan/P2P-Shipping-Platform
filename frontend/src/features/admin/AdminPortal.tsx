@@ -106,7 +106,7 @@ function AdminStats({ stats }: { stats: any }) {
     <div className="space-y-12">
       <div>
         <h2 className="text-4xl font-black mb-2">Platform Overview</h2>
-        <p className="text-text-muted font-medium">Live metrics from MongoDB database.</p>
+        <p className="text-text-muted font-medium">Live platform metrics and overview.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

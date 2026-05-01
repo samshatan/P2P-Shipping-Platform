@@ -3,6 +3,7 @@ import { asyncHandler } from "../../../middleware/asyncHandler";
 import { User } from "../../../models/User";
 import { enqueueNotification } from "../../../lib/queues";
 import jwt from 'jsonwebtoken';
+import redis from '../../../Database/redis';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
@@ -16,14 +17,26 @@ const generateToken = (userId: string) => {
 // Traditional or Google OAuth registration
 // ─────────────────────────────────────────────────────────────
 export const registerUser = asyncHandler(async (req: Request, res: Response) => {
-  const { name, email, password, phone } = req.body;
+  const { name, email, password, phone, otp } = req.body;
 
-  if (!name || !email) {
+  if (!name || !email || !otp) {
     return res.status(400).json({
       success: false,
-      error: { code: "AUTH_001", message: "Name and email are required" }
+      error: { code: "AUTH_001", message: "Name, email, and OTP are required" }
     });
   }
+
+  // Verify OTP
+  const storedOtp = await redis.get(`otp:${email}`);
+  if (!storedOtp || storedOtp !== otp) {
+    return res.status(401).json({
+      success: false,
+      error: { code: "AUTH_005", message: "Invalid or expired OTP" }
+    });
+  }
+
+  // Clear OTP after successful verification
+  await redis.del(`otp:${email}`);
 
   // Check if user already exists
   const existingUser = await User.findOne({ email: email.toLowerCase() });

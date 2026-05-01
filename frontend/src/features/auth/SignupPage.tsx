@@ -14,6 +14,9 @@ export function SignupPage({ onSwitch, onBack }: { onSwitch: () => void, onBack:
   const { login } = useAuth()
   const navigate = useNavigate()
 
+  const [showOtpInput, setShowOtpInput] = useState(false)
+  const [otp, setOtp] = useState('')
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,11 +40,26 @@ export function SignupPage({ onSwitch, onBack }: { onSwitch: () => void, onBack:
     try {
       setIsLoading(true)
       setError(null)
-      const res = await axios.post(`${API_URL}/auth/register`, formData)
-      
-      if (res.data.success) {
-        login(res.data.data.token, res.data.data.user)
-        navigate('/')
+
+      if (!showOtpInput) {
+        // Step 1: Send OTP
+        const res = await axios.post(`${API_URL}/auth/send-otp`, { email: formData.email })
+        if (res.data.success) {
+          setShowOtpInput(true)
+        }
+      } else {
+        // Step 2: Verify OTP and Register
+        if (!otp || otp.length < 6) {
+          setError('Please enter a valid 6-digit OTP')
+          return
+        }
+        
+        const res = await axios.post(`${API_URL}/auth/register`, { ...formData, otp })
+        
+        if (res.data.success) {
+          login(res.data.data.token, res.data.data.user)
+          navigate('/')
+        }
       }
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Registration failed. Try again.')
@@ -141,12 +159,31 @@ export function SignupPage({ onSwitch, onBack }: { onSwitch: () => void, onBack:
             </div>
           </div>
 
+          {showOtpInput && (
+            <div className="space-y-2 text-left animate-in slide-in-from-top-4 fade-in duration-300">
+              <label className="text-xs font-black text-text-muted uppercase tracking-[0.2em] ml-1">Verification Code</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-brand-primary transition-colors" />
+                <input 
+                  type="text" 
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  required
+                  maxLength={6}
+                  placeholder="Enter 6-digit OTP"
+                  className="w-full h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary transition-all outline-none font-bold tracking-widest text-lg"
+                />
+              </div>
+              <p className="text-xs text-brand-primary font-bold ml-1 mt-2">We sent a code to {formData.email}</p>
+            </div>
+          )}
+
           <button 
             type="submit"
             disabled={isLoading}
             className="w-full h-14 bg-brand-primary text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-brand-secondary transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-brand-primary/25 disabled:opacity-50"
           >
-            {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Create Account <ArrowRight className="w-6 h-6" /></>}
+            {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <>{showOtpInput ? 'Verify & Create Account' : 'Continue'} <ArrowRight className="w-6 h-6" /></>}
           </button>
         </form>
 

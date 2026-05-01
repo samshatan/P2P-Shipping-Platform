@@ -133,7 +133,7 @@ function OverviewView({ user, shipments, stats }: { user: any, shipments: any[],
     <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-500 text-left">
       <div>
         <h2 className="text-3xl font-black mb-2">Welcome back, {user?.name?.split(' ')[0] || 'Human'}! 👋</h2>
-        <p className="text-text-muted font-medium">Here's your live shipping overview from MongoDB.</p>
+        <p className="text-text-muted font-medium">Here's your live shipping overview.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -212,7 +212,7 @@ function ShipmentsView({ shipments }: { shipments: any[] }) {
       <div className="flex items-center justify-between mb-10">
         <div>
           <h2 className="text-3xl font-black mb-1">My Shipments</h2>
-          <p className="text-text-muted font-medium">Tracking and history powered by MongoDB.</p>
+          <p className="text-text-muted font-medium">Your complete tracking and history.</p>
         </div>
       </div>
 
@@ -278,7 +278,7 @@ function ProfileView() {
             <button className="px-6 py-2.5 bg-brand-primary text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-brand-secondary transition-all">
               Change Photo
             </button>
-            <p className="text-xs text-text-muted font-medium">Powered by MongoDB Profile Sync.</p>
+            <p className="text-xs text-text-muted font-medium">Profile synced securely.</p>
           </div>
         </div>
 
