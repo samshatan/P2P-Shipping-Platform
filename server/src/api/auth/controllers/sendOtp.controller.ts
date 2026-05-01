@@ -31,34 +31,34 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
   }
 
   // ── Rate limiting: max 5 attempts per email per hour ─────────
-  const attemptsRaw = await redis.get(RATE_KEY(email));
-  const attempts = attemptsRaw ? parseInt(attemptsRaw, 10) : 0;
-
-  if (attempts >= MAX_ATTEMPTS) {
-    res.status(429).json({
-      success: false,
-      error: { code: 'AUTH_004', message: 'Too many attempts. Try after 30 minutes.' },
-    });
-    return;
-  }
-
-  // ── Generate and store OTP in Redis ─────────────────────────
-  const otp = generateOtp();
-
-  // Store OTP with 5-minute TTL
-  await redis.set(OTP_KEY(email), otp, 'EX', OTP_TTL);
-
-  // Increment attempt counter; set TTL only on first attempt
-  if (attempts === 0) {
-    await redis.set(RATE_KEY(email), '1', 'EX', RATE_TTL);
-  } else {
-    await redis.incr(RATE_KEY(email));
-  }
-
-  // ── Send OTP via SendGrid ────────────────────────────────────
   try {
+    const attemptsRaw = await redis.get(RATE_KEY(email));
+    const attempts = attemptsRaw ? parseInt(attemptsRaw, 10) : 0;
+
+    if (attempts >= MAX_ATTEMPTS) {
+      res.status(429).json({
+        success: false,
+        error: { code: 'AUTH_004', message: 'Too many attempts. Try after 30 minutes.' },
+      });
+      return;
+    }
+
+    // ── Generate and store OTP in Redis ─────────────────────────
+    const otp = generateOtp();
+
+    // Store OTP with 5-minute TTL
+    await redis.set(OTP_KEY(email), otp, 'EX', OTP_TTL);
+
+    // Increment attempt counter; set TTL only on first attempt
+    if (attempts === 0) {
+      await redis.set(RATE_KEY(email), '1', 'EX', RATE_TTL);
+    } else {
+      await redis.incr(RATE_KEY(email));
+    }
+
+    // ── Send OTP via SendGrid ────────────────────────────────────
     const result = await sendOtpEmail(email, otp);
-    if (!result.success) throw new Error('SendGrid failed');
+    if (!result.success) throw new Error(result.error || 'SendGrid failed');
 
     // ── Success response ─────────────────────────────────────────
     res.status(200).json({
@@ -69,11 +69,15 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
         email: email,
       },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('❌ Email OTP failed:', err);
     res.status(500).json({
       success: false,
-      error: { code: 'SERVER_001', message: 'Failed to send verification email' },
+      error: { 
+        code: 'SERVER_001', 
+        message: 'Failed to send verification email',
+        details: err.response?.body || err.message || 'Unknown error'
+      },
     });
   }
 };
