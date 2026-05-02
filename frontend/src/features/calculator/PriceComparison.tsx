@@ -111,16 +111,16 @@ export function PriceComparison({
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start sm:items-center justify-between gap-3">
         <div className="text-left">
-          <h2 className="text-3xl font-black mb-1 tracking-tight">Results for your route</h2>
+          <h2 className="text-2xl md:text-3xl font-black mb-1 tracking-tight">Results for your route</h2>
           <p className="text-text-muted font-medium uppercase text-xs tracking-widest">
             {pickup_pincode} → {delivery_pincode} • {Number(weight_grams)/1000}kg • {length}x{width}x{height}cm
           </p>
         </div>
         <button 
           onClick={onBack}
-          className="text-sm font-bold text-brand-primary hover:bg-brand-primary/10 px-4 py-2 rounded-lg transition-colors"
+          className="text-sm font-bold text-brand-primary hover:bg-brand-primary/10 px-4 py-2 rounded-lg transition-colors shrink-0"
         >
           Change details
         </button>
@@ -128,7 +128,7 @@ export function PriceComparison({
 
       <div className="grid gap-6">
         {couriers.length > 0 ? couriers.map((courier, index) => (
-          <div key={courier.courier_id || index} className="bg-bg-main border border-border-main rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-xl hover:shadow-brand-primary/5 hover:border-brand-primary/30 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-8 group relative overflow-hidden">
+          <div key={courier.courier_id || index} className="bg-bg-main border border-border-main rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm hover:shadow-xl hover:shadow-brand-primary/5 hover:border-brand-primary/30 transition-all flex flex-col gap-5 group relative overflow-hidden">
             {/* Background highlight for best option */}
             {index === 0 && (
               <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
@@ -140,7 +140,7 @@ export function PriceComparison({
               </div>
               <div className="text-left">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <h3 className="font-black text-xl sm:text-2xl">{courier.courier_name || 'Unknown'}</h3>
+                  <h3 className="font-black text-lg sm:text-2xl">{courier.courier_name || 'Unknown'}</h3>
                   {courier.tags?.map(tag => (
                     <span key={tag} className={`text-[10px] uppercase tracking-widest font-black px-2.5 py-1 rounded-full ${
                       tag === 'Cheapest' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
@@ -165,45 +165,38 @@ export function PriceComparison({
               </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8 shrink-0 w-full lg:w-auto mt-6 lg:mt-0">
-              <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-2 border-t lg:border-t-0 lg:border-l border-border-main pt-6 lg:pt-0 lg:pl-8 w-full lg:w-[140px]">
-              <div className="text-left lg:text-right">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xs font-bold text-text-muted">₹</span>
-                  <span className="text-4xl font-black text-text-main">{(Number(courier.price_paise || 0) / 100).toFixed(2)}</span>
-                </div>
-                <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">All taxes included</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-border-main pt-4">
+              <div className="flex items-baseline gap-1">
+                <span className="text-xs font-bold text-text-muted">₹</span>
+                <span className="text-3xl sm:text-4xl font-black text-text-main">{(Number(courier.price_paise || 0) / 100).toFixed(2)}</span>
+                <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest ml-1">incl. taxes</p>
               </div>
-            </div>
-
-            <div className="flex gap-3 w-full lg:w-auto">
-              <button 
-                onClick={() => {
-                  const name = courier.courier_name.toLowerCase()
-                  let url = 'https://www.google.com/search?q=' + encodeURIComponent(courier.courier_name)
-                  
-                  if (name.includes('delhivery')) url = 'https://www.delhivery.com'
-                  else if (name.includes('blue dart') || name.includes('bluedart')) url = 'https://www.bluedart.com'
-                  else if (name.includes('xpressbees')) url = 'https://www.xpressbees.com'
-                  else if (name.includes('ecom express')) url = 'https://ecomexpress.in'
-                  else if (name.includes('dtdc')) url = 'https://www.dtdc.in'
-                  else if (name.includes('shadowfax')) url = 'https://www.shadowfax.in'
-                  else if (name.includes('ekart')) url = 'https://www.ekartlogistics.com'
-                  else if (name.includes('amazon')) url = 'https://track.amazon.in'
-                  
-                  window.open(url, '_blank')
-                }}
-                className="flex-1 lg:flex-none px-6 py-4 bg-bg-soft border border-border-main rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-bg-main hover:border-brand-primary transition-all flex items-center justify-center gap-2 active:scale-95"
-              >
-                Visit Site <ExternalLink className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => handleBook(courier)}
-                className="flex-1 lg:flex-none px-8 py-4 bg-brand-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-brand-secondary transition-all shadow-lg shadow-brand-primary/20 active:scale-95 whitespace-nowrap"
-              >
-                Book with us
-              </button>
-            </div>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => {
+                    const name = courier.courier_name.toLowerCase()
+                    let url = 'https://www.google.com/search?q=' + encodeURIComponent(courier.courier_name)
+                    if (name.includes('delhivery')) url = 'https://www.delhivery.com'
+                    else if (name.includes('blue dart') || name.includes('bluedart')) url = 'https://www.bluedart.com'
+                    else if (name.includes('xpressbees')) url = 'https://www.xpressbees.com'
+                    else if (name.includes('ecom express')) url = 'https://ecomexpress.in'
+                    else if (name.includes('dtdc')) url = 'https://www.dtdc.in'
+                    else if (name.includes('shadowfax')) url = 'https://www.shadowfax.in'
+                    else if (name.includes('ekart')) url = 'https://www.ekartlogistics.com'
+                    else if (name.includes('amazon')) url = 'https://track.amazon.in'
+                    window.open(url, '_blank')
+                  }}
+                  className="flex-1 sm:flex-none px-4 sm:px-6 py-3 bg-bg-soft border border-border-main rounded-xl font-black text-xs uppercase tracking-widest hover:bg-bg-main hover:border-brand-primary transition-all flex items-center justify-center gap-2 active:scale-95"
+                >
+                  Visit <ExternalLink className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => handleBook(courier)}
+                  className="flex-1 sm:flex-none px-5 sm:px-8 py-3 bg-brand-primary text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-brand-secondary transition-all shadow-lg shadow-brand-primary/20 active:scale-95 whitespace-nowrap"
+                >
+                  Book with us
+                </button>
+              </div>
             </div>
           </div>
         )) : (
@@ -213,7 +206,7 @@ export function PriceComparison({
         )}
       </div>
 
-      <div className="bg-brand-primary/5 p-8 rounded-[2rem] border border-brand-primary/10 flex items-center gap-6 text-left">
+      <div className="bg-brand-primary/5 p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-brand-primary/10 flex items-start sm:items-center gap-4 sm:gap-6 text-left">
         <div className="w-16 h-16 bg-brand-primary rounded-2xl flex items-center justify-center shrink-0">
           <Shield className="w-8 h-8 text-white" />
         </div>

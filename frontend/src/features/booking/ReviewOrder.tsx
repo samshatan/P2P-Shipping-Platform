@@ -55,30 +55,30 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
 
   return (
     <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700 text-left">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <button onClick={onBack} className="flex items-center gap-2 text-text-muted hover:text-brand-primary font-bold uppercase text-[10px] tracking-widest transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to addresses
         </button>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-500 text-white flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4" />
             </div>
-            <span className="text-xs font-bold text-text-muted">Addresses</span>
+            <span className="text-xs font-bold text-text-muted hidden sm:block">Addresses</span>
           </div>
-          <div className="w-12 h-[1px] bg-green-500"></div>
+          <div className="w-8 sm:w-12 h-[1px] bg-green-500"></div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-xs">2</div>
-            <span className="text-xs font-bold">Review</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-xs">2</div>
+            <span className="text-xs font-bold hidden sm:block">Review</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-8">
           {/* Summary Card */}
-          <div className="bg-bg-main p-8 rounded-[2.5rem] border border-border-main shadow-2xl shadow-brand-primary/5 glass">
-            <h3 className="text-xl font-black mb-8 flex items-center gap-3">
+          <div className="bg-bg-main p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] border border-border-main shadow-2xl shadow-brand-primary/5 glass">
+            <h3 className="text-lg md:text-xl font-black mb-6 md:mb-8 flex items-center gap-3">
               <Shield className="w-6 h-6 text-brand-primary" /> Order Summary
             </h3>
 
@@ -131,9 +131,9 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
           </div>
         </div>
 
-        {/* Payment Sidebar */}
+        {/* Payment Panel - shows after summary on mobile, sticky sidebar on desktop */}
         <div className="space-y-8">
-          <div className="bg-bg-main p-8 rounded-[2.5rem] border border-border-main shadow-2xl shadow-brand-primary/5 glass sticky top-24">
+          <div className="bg-bg-main p-6 sm:p-8 rounded-2xl sm:rounded-[2.5rem] border border-border-main shadow-2xl shadow-brand-primary/5 glass md:sticky md:top-24">
             <h3 className="text-lg font-black mb-6">Payment Details</h3>
             <div className="space-y-4 mb-8">
               <div className="flex justify-between text-sm font-bold text-text-muted">
@@ -151,7 +151,7 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
               <div className="h-[1px] bg-border-main my-2"></div>
               <div className="flex justify-between items-baseline">
                 <span className="font-black">Total</span>
-                <span className="text-3xl font-black text-brand-primary">₹{(selectedCourier.price_paise / 100).toFixed(2)}</span>
+                <span className="text-2xl sm:text-3xl font-black text-brand-primary">₹{(selectedCourier.price_paise / 100).toFixed(2)}</span>
               </div>
             </div>
 

@@ -69,7 +69,7 @@ export function LandingPage() {
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-black uppercase tracking-widest mb-8 animate-in fade-in slide-in-from-top-4 duration-1000">
           <Sparkles className="w-4 h-4" /> {serviceType === 'domestic' ? 'Fastest Domestic Network' : 'Global Premium Shipping'}
         </div>
-        <h1 className="text-5xl sm:text-7xl font-black text-text-main mb-8 leading-[1.05] tracking-tight animate-in fade-in zoom-in duration-700">
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-text-main mb-8 leading-[1.05] tracking-tight animate-in fade-in zoom-in duration-700">
           {serviceType === 'domestic' ? 'Shipping built for' : 'Connect to the'} <br /> 
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-accent animate-gradient">
             {serviceType === 'domestic' ? 'the modern world.' : 'Entire Planet.'}
@@ -96,10 +96,10 @@ export function LandingPage() {
       </div>
 
       {/* Calculator Card */}
-      <div className="bg-bg-main p-8 sm:p-12 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] dark:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-border-main text-left animate-in slide-in-from-bottom-12 duration-1000 relative overflow-hidden group glass max-w-5xl mx-auto animate-float">
+      <div className="bg-bg-main p-5 sm:p-10 md:p-12 rounded-2xl sm:rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] dark:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-border-main text-left animate-in slide-in-from-bottom-12 duration-1000 relative overflow-hidden group glass max-w-5xl mx-auto">
         <div className={`absolute -top-24 -right-24 w-96 h-96 ${serviceType === 'domestic' ? 'bg-brand-primary/10' : 'bg-brand-accent/10'} rounded-full blur-[100px] group-hover:scale-110 transition-all duration-1000`}></div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 relative z-10">
           {/* Origin */}
           <div className="space-y-4">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.3em] pl-1">Origin</label>
@@ -120,7 +120,7 @@ export function LandingPage() {
                         name="pickup_country"
                         value={formData.pickup_country}
                         onChange={handleInputChange}
-                        className="w-full h-16 pl-14 pr-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-lg appearance-none transition-all cursor-pointer"
+                        className="w-full h-12 md:h-16 pl-14 pr-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-base md:text-lg appearance-none transition-all cursor-pointer"
                       >
                         <option>India</option>
                         {countries.map(c => <option key={c}>{c}</option>)}
@@ -135,7 +135,7 @@ export function LandingPage() {
                       value={formData.pickup_pincode}
                       onChange={handleInputChange}
                       placeholder={serviceType === 'domestic' ? "Pickup Pincode" : "Origin Zip/Postal"} 
-                      className="w-full h-16 pl-14 pr-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-lg transition-all"
+                      className="w-full h-12 md:h-16 pl-14 pr-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-base md:text-lg transition-all"
                     />
                   </div>
                 </motion.div>
@@ -163,7 +163,7 @@ export function LandingPage() {
                         name="delivery_country"
                         value={formData.delivery_country}
                         onChange={handleInputChange}
-                        className="w-full h-16 pl-14 pr-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-accent outline-none font-bold text-lg appearance-none transition-all cursor-pointer"
+                        className="w-full h-12 md:h-16 pl-14 pr-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-accent outline-none font-bold text-base md:text-lg appearance-none transition-all cursor-pointer"
                       >
                         <option value="">Select Destination Country</option>
                         {countries.map(c => <option key={c} value={c}>{c}</option>)}
@@ -178,7 +178,7 @@ export function LandingPage() {
                       value={formData.delivery_pincode}
                       onChange={handleInputChange}
                       placeholder={serviceType === 'domestic' ? "Delivery Pincode" : "Destination Zip/Postal"} 
-                      className="w-full h-16 pl-14 pr-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-lg transition-all"
+                      className="w-full h-12 md:h-16 pl-14 pr-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-base md:text-lg transition-all"
                     />
                   </div>
                 </motion.div>
@@ -189,9 +189,8 @@ export function LandingPage() {
 
         <div className="mt-12 space-y-4 relative z-10">
           <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.3em] pl-1">Weight & Dimensions</label>
-          <div className="flex flex-col sm:flex-row gap-6">
-            <div className="flex-1 relative group/input">
-              <div className="absolute inset-0 bg-brand-accent/5 rounded-2xl scale-95 opacity-0 group-focus-within/input:scale-100 group-focus-within/input:opacity-100 transition-all duration-500"></div>
+          <div className="flex flex-col gap-4">
+            <div className="relative group/input">
               <Package className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted group-focus-within/input:text-brand-accent transition-colors" />
               <input 
                 type="number" 
@@ -199,14 +198,14 @@ export function LandingPage() {
                 value={formData.weight_grams}
                 onChange={handleInputChange}
                 placeholder="Weight in Grams" 
-                className="w-full h-16 pl-14 px-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-lg transition-all relative z-10"
+                className="w-full h-14 md:h-16 pl-14 pr-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-base md:text-lg transition-all"
               />
             </div>
             <button 
               onClick={handleShowPrices}
-              className={`px-12 h-16 rounded-2xl font-black text-xl flex items-center justify-center gap-3 transition-all hover:translate-y-[-4px] active:translate-y-0 shadow-2xl relative z-10 group ${serviceType === 'domestic' ? 'bg-brand-primary text-white shadow-brand-primary/30 hover:bg-brand-secondary' : 'bg-brand-accent text-white shadow-brand-accent/30 hover:bg-purple-700'}`}
+              className={`w-full h-14 md:h-16 rounded-2xl font-black text-base md:text-xl flex items-center justify-center gap-3 transition-all hover:-translate-y-1 active:translate-y-0 shadow-2xl group ${serviceType === 'domestic' ? 'bg-brand-primary text-white shadow-brand-primary/30 hover:bg-brand-secondary' : 'bg-brand-accent text-white shadow-brand-accent/30 hover:bg-purple-700'}`}
             >
-              Calculate Prices <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+              Calculate Prices <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         </div>

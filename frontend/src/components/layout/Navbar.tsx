@@ -17,7 +17,7 @@ export function Navbar() {
     : 'from-purple-600 via-fuchsia-500 to-purple-900'
 
   return (
-    <nav className="fixed top-0 w-full z-50 glass-panel border-x-0 border-t-0 border-b-white/10 h-20">
+    <nav className="fixed top-0 w-full z-50 glass-panel border-x-0 border-t-0 border-b-white/10 h-16 lg:h-20">
       <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 cursor-pointer group">
@@ -60,13 +60,13 @@ export function Navbar() {
               </Link>
               <Link
                 to="/dashboard"
-                className="w-10 h-10 rounded-full bg-white text-black hover:bg-white/90 transition-all shadow-xl shadow-white/10 flex items-center justify-center overflow-hidden border-2 border-white/20"
+                className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-white text-black hover:bg-white/90 transition-all shadow-xl shadow-white/10 flex items-center justify-center overflow-hidden border-2 border-white/20"
                 title="Go to Dashboard"
               >
                 {user.avatar ? (
                   <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
-                  <User className="w-5 h-5" />
+                  <User className="w-4 h-4 lg:w-5 lg:h-5" />
                 )}
               </Link>
             </div>
@@ -101,7 +101,7 @@ export function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-x-0 top-20 z-40 bg-[#1c1c1e]/99 backdrop-blur-2xl shadow-2xl border-b border-white/10 p-6 flex flex-col gap-4 lg:hidden"
+            className="fixed inset-x-0 top-16 z-40 bg-[#1c1c1e]/99 backdrop-blur-2xl shadow-2xl border-b border-white/10 p-6 flex flex-col gap-4 lg:hidden"
           >
             <Link to="/calculator" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-white/90 hover:text-white py-2">Ship Now</Link>
             <Link to="/tracking" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-white/90 hover:text-white py-2">Tracking</Link>
@@ -126,5 +126,6 @@ export function Navbar() {
         )}
       </AnimatePresence>
     </nav>
+
   )
 }

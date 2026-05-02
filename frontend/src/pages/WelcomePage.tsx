@@ -43,7 +43,7 @@ export function WelcomePage() {
       <main className="relative z-10 pt-12 pb-20 px-6 max-w-7xl mx-auto">
         
         {/* Hero Section */}
-        <section className="flex flex-col items-center text-center mt-12 md:mt-24 mb-32">
+        <section className="flex flex-col items-center text-center mt-8 md:mt-24 mb-20 md:mb-32">
           
           {/* Mode Switcher */}
           <div className="glass-panel p-1.5 rounded-full flex items-center mb-10 w-max mx-auto shadow-2xl relative">
@@ -72,7 +72,7 @@ export function WelcomePage() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -100 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[1.1] mb-8"
+                className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[1.1] mb-8"
               >
                 Global Shipping, <br />
                 <span className={`text-transparent bg-clip-text bg-gradient-to-r ${themeGradient}`}>
@@ -109,7 +109,7 @@ export function WelcomePage() {
             <p className="text-white/50 text-lg max-w-xl">Everything you need to manage personal parcels and massive e-commerce volumes seamlessly.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {/* Feature 1 */}
             <div className="glass-panel p-8 rounded-3xl md:col-span-2 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:scale-110 transition-transform duration-500">
@@ -176,7 +176,7 @@ export function WelcomePage() {
 
         {/* Footer CTA */}
         <section className="py-32 flex flex-col items-center text-center">
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">Ready to Parcel?</h2>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">Ready to Parcel?</h2>
             <p className="text-white/40 md:text-xl max-w-md mb-12">
               Join thousands of businesses and individuals optimizing their logistics.
             </p>

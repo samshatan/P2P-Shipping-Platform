@@ -72,8 +72,8 @@ export function TrackingPage() {
           <div className="absolute inset-0 bg-brand-primary/20 rounded-[2.5rem] animate-ping opacity-20"></div>
           <Truck className="w-10 h-10 text-brand-primary relative z-10" />
         </div>
-        <h2 className="text-5xl font-black mb-6 tracking-tight">Track Your Journey</h2>
-        <p className="text-xl text-text-muted max-w-xl mx-auto leading-relaxed font-medium">
+        <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tight">Track Your Journey</h2>
+        <p className="text-base md:text-xl text-text-muted max-w-xl mx-auto leading-relaxed font-medium">
           Enter your Tracking ID to follow your package across the world in real-time.
         </p>
       </motion.div>
@@ -92,7 +92,7 @@ export function TrackingPage() {
           </div>
           <button 
             disabled={isLoading}
-            className="h-16 px-12 bg-brand-primary text-white rounded-2xl font-black text-lg hover:bg-brand-secondary transition-all shadow-xl shadow-brand-primary/20 active:scale-95 disabled:opacity-50 shrink-0"
+            className="h-14 md:h-16 px-8 md:px-12 bg-brand-primary text-white rounded-2xl font-black text-base md:text-lg hover:bg-brand-secondary transition-all shadow-xl shadow-brand-primary/20 active:scale-95 disabled:opacity-50 shrink-0 w-full sm:w-auto"
           >
             {isLoading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 'Track Package'}
           </button>
@@ -125,11 +125,11 @@ export function TrackingPage() {
             <div className="bg-bg-main p-8 sm:p-10 rounded-[3rem] border border-border-main shadow-xl glass overflow-hidden relative">
               <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-12 relative z-10">
                 <div className="space-y-3">
                   <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.3em]">Tracking ID</p>
                   <div className="space-y-1">
-                    <h4 className="text-3xl font-black tracking-tight">{data.awb}</h4>
+                    <h4 className="text-xl sm:text-3xl font-black tracking-tight">{data.awb}</h4>
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-primary/10 text-brand-primary text-[10px] font-black uppercase rounded-full border border-brand-primary/20">
                       <ShieldCheck className="w-3 h-3" /> {data.courier}
                     </span>
@@ -139,7 +139,7 @@ export function TrackingPage() {
                 <div className="space-y-3">
                   <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.3em]">Live Status</p>
                   <div className="space-y-1">
-                    <h4 className="text-3xl font-black text-brand-primary uppercase tracking-tighter italic">
+                    <h4 className="text-xl sm:text-3xl font-black text-brand-primary uppercase tracking-tighter italic">
                       {data.current_status.replace(/_/g, ' ')}
                     </h4>
                     <p className="text-xs font-bold text-text-muted flex items-center gap-1.5">
@@ -151,7 +151,7 @@ export function TrackingPage() {
                 <div className="space-y-3">
                   <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.3em]">Destination</p>
                   <div className="space-y-1">
-                    <h4 className="text-3xl font-black flex items-center gap-2 tracking-tight">
+                    <h4 className="text-xl sm:text-3xl font-black flex items-center gap-2 tracking-tight">
                       <Map className="w-6 h-6 text-orange-500" /> {data.current_location}
                     </h4>
                     <p className="text-xs font-bold text-text-muted">Estimated Delivery: Today</p>
@@ -161,8 +161,8 @@ export function TrackingPage() {
             </div>
 
             {/* Premium Interactive Timeline */}
-            <div className="bg-bg-main p-8 sm:p-16 rounded-[3.5rem] border border-border-main shadow-sm glass relative overflow-hidden">
-              <h3 className="text-3xl font-black mb-16 tracking-tight">Package Journey</h3>
+            <div className="bg-bg-main p-6 sm:p-10 lg:p-16 rounded-3xl sm:rounded-[3.5rem] border border-border-main shadow-sm glass relative overflow-hidden">
+              <h3 className="text-xl sm:text-3xl font-black mb-8 sm:mb-16 tracking-tight">Package Journey</h3>
               
               <div className="relative">
                 {/* Vertical Progress Line */}
@@ -180,7 +180,7 @@ export function TrackingPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.15 }}
-                      className="relative flex gap-12 group"
+                      className="relative flex gap-5 sm:gap-12 group"
                     >
                       {/* Timeline Node */}
                       <div className={`w-12 h-12 rounded-[1.25rem] flex items-center justify-center shrink-0 z-10 transition-all duration-500 group-hover:rotate-12 ${
@@ -193,7 +193,7 @@ export function TrackingPage() {
 
                       <div className="space-y-2 flex-1 pt-1">
                         <div className="flex flex-wrap items-center gap-4">
-                          <h4 className={`text-2xl font-black tracking-tight ${i === 0 ? 'text-text-main' : 'text-text-muted/80'}`}>
+                          <h4 className={`text-base sm:text-2xl font-black tracking-tight ${i === 0 ? 'text-text-main' : 'text-text-muted/80'}`}>
                             {event.status.replace(/_/g, ' ')}
                           </h4>
                           <div className="flex items-center gap-3 bg-bg-soft/50 border border-border-main px-3 py-1.5 rounded-xl">
@@ -204,7 +204,7 @@ export function TrackingPage() {
                           </div>
                         </div>
                         
-                        <p className={`text-lg font-medium leading-relaxed max-w-2xl ${i === 0 ? 'text-text-muted' : 'text-text-muted/60'}`}>
+                        <p className={`text-sm sm:text-lg font-medium leading-relaxed max-w-2xl ${i === 0 ? 'text-text-muted' : 'text-text-muted/60'}`}>
                           {event.description}
                         </p>
                         

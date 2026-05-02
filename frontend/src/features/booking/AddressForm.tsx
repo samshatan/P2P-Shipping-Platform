@@ -104,7 +104,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700 text-left relative">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 text-left relative">
       
       {/* Address Book Modal Overlay */}
       <AnimatePresence>
@@ -167,33 +167,33 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
         )}
       </AnimatePresence>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <button onClick={onBack} className="flex items-center gap-2 text-text-muted hover:text-brand-primary font-bold uppercase text-[10px] tracking-widest transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to rates
         </button>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-xs shadow-lg shadow-brand-primary/20">1</div>
-            <span className="text-xs font-black uppercase tracking-widest">Addresses</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-xs shadow-lg shadow-brand-primary/20">1</div>
+            <span className="text-xs font-black uppercase tracking-widest hidden sm:block">Addresses</span>
           </div>
-          <div className="w-12 h-[1px] bg-border-main"></div>
+          <div className="w-8 sm:w-12 h-[1px] bg-border-main"></div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-bg-soft border border-border-main text-text-muted flex items-center justify-center font-bold text-xs">2</div>
-            <span className="text-xs font-black uppercase tracking-widest text-text-muted">Review</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-bg-soft border border-border-main text-text-muted flex items-center justify-center font-bold text-xs">2</div>
+            <span className="text-xs font-black uppercase tracking-widest text-text-muted hidden sm:block">Review</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12">
         {/* Pickup Section */}
         <div className="space-y-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-brand-primary/10 rounded-[1.25rem] flex items-center justify-center border border-brand-primary/20">
-                <MapPin className="w-7 h-7 text-brand-primary" />
+              <div className="w-10 h-10 md:w-14 md:h-14 bg-brand-primary/10 rounded-xl md:rounded-[1.25rem] flex items-center justify-center border border-brand-primary/20 shrink-0">
+                <MapPin className="w-5 h-5 md:w-7 md:h-7 text-brand-primary" />
               </div>
               <div>
-                <h2 className="text-2xl font-black tracking-tight">Pickup Details</h2>
+                <h2 className="text-lg md:text-2xl font-black tracking-tight">Pickup Details</h2>
                 <p className="text-sm text-text-muted font-medium">Where should we collect from?</p>
               </div>
             </div>
@@ -207,7 +207,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
             )}
           </div>
 
-          <div className="bg-bg-main p-8 rounded-[2.5rem] border border-border-main shadow-2xl shadow-brand-primary/5 space-y-6 glass">
+          <div className="bg-bg-main p-5 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-border-main shadow-2xl shadow-brand-primary/5 space-y-4 md:space-y-6 glass">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Full Name</label>
@@ -217,7 +217,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
                     type="text" 
                     value={pickup.name} 
                     onChange={(e) => setPickupState({...pickup, name: e.target.value})}
-                    className="w-full h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold transition-all"
+                    className="w-full h-11 md:h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-sm md:text-base transition-all"
                     placeholder="John Doe"
                   />
                 </div>
@@ -230,7 +230,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
                     type="tel" 
                     value={pickup.phone} 
                     onChange={(e) => setPickupState({...pickup, phone: e.target.value})}
-                    className="w-full h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold transition-all"
+                    className="w-full h-11 md:h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-sm md:text-base transition-all"
                     placeholder="+91 98765..."
                   />
                 </div>
@@ -259,7 +259,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
                     type="text" 
                     value={pickup.pincode} 
                     onChange={(e) => setPickupState({...pickup, pincode: e.target.value})}
-                    className="w-full h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold transition-all"
+                    className="w-full h-11 md:h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-sm md:text-base transition-all"
                     placeholder="110001"
                   />
                 </div>
@@ -270,7 +270,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
                   type="text" 
                   value={pickup.city} 
                   onChange={(e) => setPickupState({...pickup, city: e.target.value})}
-                  className="w-full h-14 px-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold transition-all"
+                  className="w-full h-11 md:h-14 px-5 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-sm md:text-base transition-all"
                   placeholder="New Delhi"
                 />
               </div>
@@ -294,11 +294,11 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
         <div className="space-y-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-orange-500/10 rounded-[1.25rem] flex items-center justify-center border border-orange-500/20">
-                <Navigation className="w-7 h-7 text-orange-500" />
+              <div className="w-10 h-10 md:w-14 md:h-14 bg-orange-500/10 rounded-xl md:rounded-[1.25rem] flex items-center justify-center border border-orange-500/20 shrink-0">
+                <Navigation className="w-5 h-5 md:w-7 md:h-7 text-orange-500" />
               </div>
               <div>
-                <h2 className="text-2xl font-black tracking-tight">Delivery Details</h2>
+                <h2 className="text-lg md:text-2xl font-black tracking-tight">Delivery Details</h2>
                 <p className="text-sm text-text-muted font-medium">Where is it going?</p>
               </div>
             </div>
@@ -312,7 +312,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
             )}
           </div>
 
-          <div className="bg-bg-main p-8 rounded-[2.5rem] border border-border-main shadow-2xl shadow-brand-primary/5 space-y-6 glass">
+          <div className="bg-bg-main p-5 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-border-main shadow-2xl shadow-brand-primary/5 space-y-4 md:space-y-6 glass">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Full Name</label>
@@ -322,7 +322,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
                     type="text" 
                     value={delivery.name} 
                     onChange={(e) => setDeliveryState({...delivery, name: e.target.value})}
-                    className="w-full h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold transition-all"
+                    className="w-full h-11 md:h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-sm md:text-base transition-all"
                     placeholder="Jane Smith"
                   />
                 </div>
@@ -335,7 +335,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
                     type="tel" 
                     value={delivery.phone} 
                     onChange={(e) => setDeliveryState({...delivery, phone: e.target.value})}
-                    className="w-full h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold transition-all"
+                    className="w-full h-11 md:h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-sm md:text-base transition-all"
                     placeholder="+91 98765..."
                   />
                 </div>
@@ -364,7 +364,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
                     type="text" 
                     value={delivery.pincode} 
                     onChange={(e) => setDeliveryState({...delivery, pincode: e.target.value})}
-                    className="w-full h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold transition-all"
+                    className="w-full h-11 md:h-14 pl-12 pr-4 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-sm md:text-base transition-all"
                     placeholder="400001"
                   />
                 </div>
@@ -375,7 +375,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
                   type="text" 
                   value={delivery.city} 
                   onChange={(e) => setDeliveryState({...delivery, city: e.target.value})}
-                  className="w-full h-14 px-6 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold transition-all"
+                  className="w-full h-11 md:h-14 px-5 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-sm md:text-base transition-all"
                   placeholder="Mumbai"
                 />
               </div>
@@ -396,12 +396,12 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
         </div>
       </div>
 
-      <div className="flex justify-center pt-8 pb-20">
+      <div className="flex justify-center pt-8 pb-8">
         <button 
           onClick={handleNext}
-          className="bg-brand-primary text-white px-20 h-20 rounded-[1.5rem] font-black text-xl flex items-center justify-center gap-4 hover:bg-brand-secondary transition-all hover:-translate-y-1 active:translate-y-0 shadow-[0_20px_50px_rgba(37,99,235,0.3)] group"
+          className="w-full sm:w-auto bg-brand-primary text-white px-10 sm:px-20 h-16 sm:h-20 rounded-2xl font-black text-lg sm:text-xl flex items-center justify-center gap-4 hover:bg-brand-secondary transition-all hover:-translate-y-1 active:translate-y-0 shadow-[0_20px_50px_rgba(37,99,235,0.3)] group"
         >
-          Proceed to Review <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+          Proceed to Review <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
     </div>
