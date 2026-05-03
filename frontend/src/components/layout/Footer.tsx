@@ -8,6 +8,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-20">
           <div className="col-span-1 md:col-span-1 space-y-8">
             <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-primary/10 text-brand-primary">
+                <Package className="w-5 h-5" />
+              </div>
               <span className="text-2xl font-black tracking-tighter">Parcel</span>
             </div>
             <p className="text-text-muted text-base leading-relaxed font-medium">
