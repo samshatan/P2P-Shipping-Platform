@@ -30,7 +30,7 @@ export function Dashboard() {
         setShipments(shipmentsRes.data.data?.shipments || [])
         setStats(statsRes.data.data?.stats || null)
       } catch (error) {
-        console.error('Error fetching dashboard data:', error)
+
       } finally {
         setIsLoading(false)
       }

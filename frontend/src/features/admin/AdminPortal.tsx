@@ -24,7 +24,7 @@ export function AdminPortal() {
         setStats(statsRes.data.data.stats)
         setPartners(partnersRes.data.data.partners)
       } catch (error) {
-        console.error('Error fetching admin data:', error)
+
       } finally {
         setIsLoading(false)
       }
@@ -153,7 +153,7 @@ function PartnerManagement({ partners, onUpdate }: { partners: any[], onUpdate: 
       toast.success('Partner approved successfully!')
       onUpdate()
     } catch (error) {
-      console.error('Approval error:', error)
+
     }
   }
 

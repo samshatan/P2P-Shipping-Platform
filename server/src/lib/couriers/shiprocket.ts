@@ -1,21 +1,14 @@
 import axios from 'axios';
-import redis from '../../Database/redis';
+import { redis } from '../../lib/redis';
 import { CourierRateRequest, CourierRateResponse } from './types';
 
 const SHIPROCKET_API_URL = 'https://apiv2.shiprocket.in/v1/external';
 const TOKEN_KEY = 'shiprocket:token';
 
-/**
- * Shiprocket Courier Integration
- * Handles authentication and rate calculation
- */
 
 async function getShiprocketToken(): Promise<string | null> {
-    // 1. Try Cache
     const cached = await redis.get(TOKEN_KEY);
     if (cached) return cached;
-
-    // 2. Auth with Shiprocket
     try {
         const response = await axios.post(`${SHIPROCKET_API_URL}/auth/login`, {
             email: process.env.SHIPROCKET_EMAIL,
@@ -23,12 +16,11 @@ async function getShiprocketToken(): Promise<string | null> {
         });
 
         if (response.data.token) {
-            // Cache for 9 days (Shiprocket tokens usually last 10 days)
             await redis.set(TOKEN_KEY, response.data.token, 'EX', 9 * 24 * 3600);
             return response.data.token;
         }
     } catch (err) {
-        console.error('❌ Shiprocket Auth Failed:', err);
+
     }
     return null;
 }
@@ -61,7 +53,6 @@ export async function getShiprocketRates(req: CourierRateRequest): Promise<Couri
         const lowestRate = Math.min(...available.map((c: any) => parseFloat(c.rate)));
         const fastestEtd = Math.min(...available.map((c: any) => parseInt(c.etd_hours, 10) || 1000));
 
-        // Map all available couriers from Shiprocket
         return available.map((c: any) => {
             const rate = parseFloat(c.rate);
             const etd = parseInt(c.etd_hours, 10) || 1000;
@@ -85,7 +76,7 @@ export async function getShiprocketRates(req: CourierRateRequest): Promise<Couri
             };
         });
     } catch (err: any) {
-        console.error('❌ Shiprocket Rate Fetch Failed:', err.response?.data || err.message);
+
         return [];
     }
 }

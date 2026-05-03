@@ -35,7 +35,7 @@ export function SettingsPage() {
       });
       setAddresses(res.data.data.addresses);
     } catch (err) {
-      console.error('Failed to fetch addresses:', err);
+
     } finally {
       setIsLoadingAddresses(false);
     }
@@ -49,12 +49,11 @@ export function SettingsPage() {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       if (res.data.success) {
-        // Update local auth context
         login(localStorage.getItem('token')!, res.data.data.user);
         alert('Profile updated successfully!');
       }
     } catch (err) {
-      console.error('Failed to update profile:', err);
+
     } finally {
       setIsSaving(false);
     }
@@ -68,7 +67,7 @@ export function SettingsPage() {
       });
       setAddresses(prev => prev.filter(a => a._id !== id));
     } catch (err) {
-      console.error('Failed to delete address:', err);
+
     }
   };
 

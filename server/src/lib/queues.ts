@@ -1,21 +1,7 @@
-/**
- * BE1 — Day 9: BullMQ Job Queues
- *
- * Queues:
- *  - tracking-poll  : Polls DTDC/XpressBees for shipment status every 15 mins
- *  - notification   : Dispatches notifications asynchronously (SMS, WA, Push, Email)
- *
- * Uses ioredis connection already configured in redis.ts
- */
-
-import { Queue, Worker, QueueEvents, Job } from 'bullmq';
+import { Queue, QueueEvents } from 'bullmq';
 import { redis } from './redis';
 
-// ─── Connection Config ────────────────────────────────────────────────────────
-
-const connection = redis; // Reuse existing ioredis instance
-
-// ─── Queue Definitions ────────────────────────────────────────────────────────
+const connection = redis;
 
 export const trackingPollQueue = new Queue('tracking-poll', {
   connection,
@@ -36,9 +22,6 @@ export const notificationQueue = new Queue('notification', {
     backoff: { type: 'exponential', delay: 2000 },
   },
 });
-
-
-// ─── Job Type Definitions ─────────────────────────────────────────────────────
 
 export interface TrackingPollJobData {
   shipment_id: string;
@@ -69,49 +52,29 @@ export type NotificationEvent =
   | 'DELIVERY_OTP'
   | 'WELCOME_USER';
 
-// ─── Queue Helpers ────────────────────────────────────────────────────────────
-
-/**
- * Enqueue a tracking poll for a specific shipment AWB.
- * Called after a shipment is booked with a courier that needs polling.
- * @param data - AWB and courier details
- * @param delayMs - ms before first poll (default 15 min)
- */
 export async function enqueueTrackingPoll(
   data: TrackingPollJobData,
   delayMs: number = 15 * 60 * 1000
 ): Promise<void> {
   await trackingPollQueue.add(`poll:${data.awb}`, data, {
     delay: delayMs,
-    // Repeat every 15 minutes for up to 10 days
     repeat: {
       every: 15 * 60 * 1000,
-      limit: 960, // 96 times/day × 10 days
+      limit: 960,
     },
   });
-  console.log(`📡 Tracking poll enqueued for AWB: ${data.awb} (courier: ${data.courier})`);
 }
 
-/**
- * Enqueue a notification dispatch.
- * @param data - Notification job data
- */
 export async function enqueueNotification(data: NotificationJobData): Promise<void> {
   await notificationQueue.add(`notify:${data.event_type}:${data.user_id}`, data);
-  console.log(`🔔 Notification enqueued: ${data.event_type} → user ${data.user_id}`);
 }
-
-// ─── Graceful Shutdown ────────────────────────────────────────────────────────
 
 export async function closeQueues(): Promise<void> {
   await Promise.all([
     trackingPollQueue.close(),
     notificationQueue.close(),
   ]);
-  console.log('🛑 BullMQ queues closed');
 }
-
-// ─── Queue Health Check ───────────────────────────────────────────────────────
 
 export async function getQueueHealth(): Promise<Record<string, object>> {
   const [trackingCounts, notifyCounts] = await Promise.all([

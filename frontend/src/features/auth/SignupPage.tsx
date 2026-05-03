@@ -85,7 +85,6 @@ export function SignupPage({ onSwitch, onBack }: { onSwitch: () => void, onBack:
           setError(res.data.message || 'Signup failed')
         }
       } catch (err: any) {
-        console.error('Google signup error:', err)
         setError(err.response?.data?.message || 'Failed to authenticate with Google')
       } finally {
         setIsGoogleLoading(false)

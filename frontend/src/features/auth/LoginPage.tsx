@@ -65,7 +65,6 @@ export function LoginPage({ onSwitch, onBack }: { onSwitch: () => void, onBack: 
           setError(res.data.message || 'Login failed')
         }
       } catch (err: any) {
-        console.error('Google login error:', err)
         setError(err.response?.data?.message || 'Failed to authenticate with Google')
       } finally {
         setIsGoogleLoading(false)

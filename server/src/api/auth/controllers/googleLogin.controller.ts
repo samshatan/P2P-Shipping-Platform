@@ -1,16 +1,12 @@
 import { Request, Response } from 'express';
 import { User } from '../../../models/User';
 import { signTokens } from '../../../lib/jwt';
-import redis from '../../../Database/redis';
+import { redis } from '../../../lib/redis';
 import axios from 'axios';
 
 const REFRESH_TOKEN_KEY = (userId: string) => `refresh_token:${userId}`;
 const REFRESH_TOKEN_EXPIRY_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
-/**
- * POST /auth/google
- * Verifies Google Access Token and logs user in (or registers them)
- */
 export const googleLogin = async (req: Request, res: Response): Promise<void> => {
     const { token } = req.body;
 
@@ -23,7 +19,6 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
     }
 
     try {
-        // 1. Fetch user info from Google using the access token
         const googleRes = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -35,13 +30,10 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
 
         const { email, name, picture, sub: googleId } = payload;
 
-        // 2. Find or Create User in DB
         let isNewUser = false;
         let user = await User.findOne({ email });
 
         if (!user) {
-            isNewUser = true;
-            // Create user shell
             user = await User.create({
                 email,
                 name: name || 'User',
@@ -51,18 +43,15 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
             });
         }
 
-        // 3. Sign JWT tokens
         const { accessToken, refreshToken } = signTokens(user.id, user.email, user.role);
 
-        // 4. Store Refresh Token in Redis
         if (redis.status === 'ready') {
             await redis.set(REFRESH_TOKEN_KEY(user.id), refreshToken, 'EX', REFRESH_TOKEN_EXPIRY_SECONDS);
         }
 
-        // 5. Success Response
         res.status(200).json({
             success: true,
-            token: accessToken, // Frontend expects 'token' at top level based on my previous update
+            token: accessToken,
             user: {
                 id: user.id,
                 email: user.email,
@@ -86,7 +75,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
         });
 
     } catch (err) {
-        console.error('❌ Google Auth Error:', err);
+
         res.status(401).json({
             success: false,
             error: { code: 'AUTH_INVALID_GOOGLE', message: 'Failed to verify Google token' }

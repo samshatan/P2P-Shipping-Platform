@@ -52,7 +52,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
         setSavedAddresses(res.data.data.addresses)
       }
     } catch (err) {
-      console.error('Failed to fetch addresses')
+
     }
   }
 

@@ -3,19 +3,14 @@ import { asyncHandler } from "../../../middleware/asyncHandler";
 import { User } from "../../../models/User";
 import { enqueueNotification } from "../../../lib/queues";
 import jwt from 'jsonwebtoken';
-import redis from '../../../Database/redis';
+import { redis } from '../../../lib/redis';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
-// ── Helper: Generate Token ────────────────────────────────────
 const generateToken = (userId: string) => {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
 };
 
-// ─────────────────────────────────────────────────────────────
-// POST /auth/register
-// Traditional or Google OAuth registration
-// ─────────────────────────────────────────────────────────────
 export const registerUser = asyncHandler(async (req: Request, res: Response) => {
   const { name, email, password, phone, otp } = req.body;
 
@@ -26,7 +21,6 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
     });
   }
 
-  // Verify OTP
   const storedOtp = await redis.get(`otp:${email}`);
   if (!storedOtp || storedOtp !== otp) {
     return res.status(401).json({
@@ -35,10 +29,8 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
     });
   }
 
-  // Clear OTP after successful verification
   await redis.del(`otp:${email}`);
 
-  // Check if user already exists
   const existingUser = await User.findOne({ email: email.toLowerCase() });
   if (existingUser) {
     return res.status(409).json({
@@ -47,17 +39,15 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
     });
   }
 
-  // Create new user
   const user = await User.create({
     name,
     email: email.toLowerCase(),
-    password, // Mongoose pre-save hook hashes this
+    password,
     phone
   });
 
   const token = generateToken(user._id.toString());
 
-  // Enqueue welcome notification (BullMQ)
   await enqueueNotification({
     user_id: user._id.toString(),
     event_type: "WELCOME_USER",
@@ -80,9 +70,6 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
   });
 });
 
-// ─────────────────────────────────────────────────────────────
-// POST /auth/login
-// ─────────────────────────────────────────────────────────────
 export const loginUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
 

@@ -15,10 +15,8 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
   const handlePayAndBook = async () => {
     setIsProcessing(true)
     try {
-      // Simulate payment delay
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      // 1. Create Shipment (Draft)
       const createRes = await axios.post(`${API_BASE_URL}/shipments`, {
         courier_id: selectedCourier?.courier_id,
         courier_name: selectedCourier?.name,
@@ -32,7 +30,6 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
       
       const shipmentId = createRes.data.data.shipment_id
 
-      // 2. Book Shipment
       const bookRes = await axios.post(`${API_BASE_URL}/shipments/${shipmentId}/book`)
 
       if (bookRes.data.success) {
@@ -41,8 +38,6 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
         toast.error('Booking failed. Please try again.')
       }
     } catch (error) {
-      console.error('Booking error:', error)
-      // For demo purposes, we'll proceed even if API fails if it's a 404/500 during dev
       onNext()
     } finally {
       setIsProcessing(false)

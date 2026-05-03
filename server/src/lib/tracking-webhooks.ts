@@ -1,26 +1,9 @@
-/**
- * BE3 — Day 8: Tracking Webhook Handlers
- *
- * Handles inbound delivery status pushes from courier partners.
- * All handlers:
- *   1. Verify the webhook signature (where applicable)
- *   2. Parse the courier-specific payload into a normalized TrackingEvent
- *   3. Save to MongoDB via TrackingEvent model
- *   4. Update shipment status in MongoDB
- *
- * Routes wired by BE2:
- *   POST /tracking/webhooks/delhivery
- *   POST /tracking/webhooks/dtdc
- */
-
 import crypto from 'crypto';
 import { Request, Response } from 'express';
 import { TrackingEvent } from './mongo';
 import { Shipment } from '../models/Shipment';
 import { enqueueNotification } from './queues';
 import type { NotificationEvent } from './queues';
-
-// ─── Status Normalizer ────────────────────────────────────────────────────────
 
 const DELHIVERY_STATUS_MAP: Record<string, string> = {
   'Manifested':         'BOOKED',
@@ -56,8 +39,6 @@ function mapToNotificationEvent(normalizedStatus: string): NotificationEvent | n
   return map[normalizedStatus] ?? null;
 }
 
-// ─── Shared: Save Tracking Event ─────────────────────────────────────────────
-
 async function saveTrackingEvent(
   awb: string,
   status: string,
@@ -65,10 +46,9 @@ async function saveTrackingEvent(
   description: string,
   courier: string
 ) {
-  // 1. Save to MongoDB TrackingEvent
   await TrackingEvent.create({
     awb_number: awb,
-    shipment_id: awb, // Kept for legacy compatibility
+    shipment_id: awb,
     status,
     location,
     description,
@@ -76,7 +56,6 @@ async function saveTrackingEvent(
     meta: { courier, source: 'WEBHOOK' },
   });
 
-  // 2. Update shipment status in MongoDB
   const shipment = await Shipment.findOneAndUpdate(
     { awb: awb },
     { $set: { status: status, updatedAt: new Date() } },
@@ -84,14 +63,12 @@ async function saveTrackingEvent(
   );
 
   if (!shipment) {
-    console.warn(`[webhook] No shipment found for AWB: ${awb}`);
     return null;
   }
 
   const shipmentId = shipment._id.toString();
   const userId = shipment.user_id.toString();
 
-  // 3. Enqueue notification
   const notifEvent = mapToNotificationEvent(status);
   if (notifEvent) {
     await enqueueNotification({
@@ -106,17 +83,8 @@ async function saveTrackingEvent(
   return { shipmentId, userId };
 }
 
-// ─── Delhivery Webhook Handler ────────────────────────────────────────────────
-
-/**
- * POST /tracking/webhooks/delhivery
- *
- * Delhivery sends a batch of shipment status updates.
- * Payload format: { ShipmentData: [{ Shipment: { ... } }] }
- */
 export async function handleDelhiveryWebhook(req: Request, res: Response): Promise<void> {
   try {
-    // Verify Delhivery signature if secret is configured
     const webhookSecret = process.env.DELHIVERY_WEBHOOK_SECRET;
     if (webhookSecret) {
       const signature = req.headers['x-delhivery-signature'] as string;
@@ -126,7 +94,6 @@ export async function handleDelhiveryWebhook(req: Request, res: Response): Promi
         .digest('hex');
 
       if (signature !== expectedSig) {
-        console.warn('[delhivery-webhook] ⚠️ Invalid signature — rejecting');
         res.status(401).json({ error: 'Invalid webhook signature' });
         return;
       }
@@ -156,30 +123,20 @@ export async function handleDelhiveryWebhook(req: Request, res: Response): Promi
         await saveTrackingEvent(awb, normalizedStatus, location, description, 'delhivery');
         processed++;
       } catch (err) {
-        console.error('[delhivery-webhook] Error processing item:', err);
         failed++;
       }
     }
 
-    console.log(`✅ [delhivery-webhook] Processed: ${processed} | Failed: ${failed}`);
     res.status(200).json({ received: true, processed, failed });
 
   } catch (err) {
-    console.error('[delhivery-webhook] Fatal error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 }
 
-// ─── DTDC Webhook Handler ─────────────────────────────────────────────────────
-
-/**
- * POST /tracking/webhooks/dtdc
- *
- * DTDC sends status updates with format: { trackingId, status, location, timestamp }
- */
 export async function handleDtdcWebhook(req: Request, res: Response): Promise<void> {
   try {
-    const { trackingId, status: rawStatus, location, description, timestamp } = req.body;
+    const { trackingId, status: rawStatus, location, description } = req.body;
 
     if (!trackingId || !rawStatus) {
       res.status(400).json({ error: 'trackingId and status are required' });
@@ -196,11 +153,9 @@ export async function handleDtdcWebhook(req: Request, res: Response): Promise<vo
       'dtdc'
     );
 
-    console.log(`✅ [dtdc-webhook] AWB ${trackingId} → ${normalizedStatus}`);
     res.status(200).json({ received: true });
 
   } catch (err) {
-    console.error('[dtdc-webhook] Fatal error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 }

@@ -9,20 +9,17 @@ import usersRouter from './api/users/routes/users.routes';
 import shipmentsRouter from './api/shipments/routes/shipments.routes';
 import trackingRouter from './api/tracking/routes/tracking.routes';
 import couriersRouter from './api/couriers/routes/couriers.routes';
-import disputesRouter from './api/disputes/routes/disputes.routes';
 import adminRouter from './api/admin/routes/admin.routes';
 import { startWorkers, stopWorkers } from './lib/workers';
 
 import { connectMongoDB } from './lib/mongo';
 import { checkPincode } from './api/users/controllers/pincode.controller';
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ── Base Middlewares ─────────────────────────────────────────
 app.use(helmet({
   crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
 }));
@@ -33,27 +30,21 @@ app.use(cors({
 app.use(express.json());
 app.use(morgan('dev'));
 
-// ── Routes ──────────────────────────────────────────────────
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/shipments', shipmentsRouter);
 app.use('/tracking', trackingRouter);
 app.use('/couriers', couriersRouter);
-app.use('/disputes', disputesRouter);
 app.use('/admin', adminRouter);
 app.get('/pincodes/check', checkPincode);
 
-// ── Health Check ─────────────────────────────────────────────
 app.get('/health', async (req, res) => {
   try {
-    // 1. Check Redis
     await redis.ping();
 
-    // 2. Check MongoDB
     const mongoose = (await import('mongoose')).default;
     const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
 
-    // 3. Queue health (if workers are enabled)
     let queueHealth = {};
     if (process.env.ENABLE_WORKERS === 'true') {
       const { getQueueHealth } = await import('./lib/queues');
@@ -81,20 +72,15 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// ── Start Server ─────────────────────────────────────────────
 const server = app.listen(PORT, async () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
 
   await connectMongoDB();
   startWorkers();
 });
 
-// ── Graceful Shutdown ────────────────────────────────────────
 process.on('SIGTERM', async () => {
-  console.log('⚠️  SIGTERM received — shutting down gracefully...');
   await stopWorkers();
   server.close(() => {
-    console.log('✅ Server closed');
     process.exit(0);
   });
 });
