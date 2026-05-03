@@ -21,8 +21,8 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 cursor-pointer group">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-tr ${themeGradient} shadow-lg shadow-brand-primary/20 group-hover:scale-110 transition-all duration-500`}>
-              <Package className="w-5 h-5 text-white" />
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-tr ${themeGradient} shadow-lg shadow-brand-primary/20 group-hover:scale-110 transition-all duration-500 overflow-hidden`}>
+              <img src="/favicon.svg" alt="Parcel Logo" className="w-5 h-5 object-contain" />
           </div>
           <span className="text-xl font-black tracking-tight text-white">Parcel</span>
         </Link>
