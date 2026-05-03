@@ -10,7 +10,7 @@ import { API_BASE_URL } from '../../config/api'
 
 export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: () => void }) {
   const { setPickup, setDelivery, pickupAddress, deliveryAddress, serviceType } = useBooking()
-  const { user } = useAuth()
+  const { user, token } = useAuth()
   
   const [pickup, setPickupState] = useState(pickupAddress || {
     name: '',
@@ -47,7 +47,10 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
 
   const fetchAddresses = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/users/addresses`)
+      if (!token) return
+      const res = await axios.get(`${API_BASE_URL}/users/addresses`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       if (res.data.success) {
         setSavedAddresses(res.data.data.addresses)
       }
@@ -77,6 +80,8 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
     toast.success('Address applied!')
   }
 
+  const [loading, setLoading] = useState(false)
+
   const handleNext = async () => {
     // Comprehensive validation
     if (!pickup.name || !pickup.phone || !pickup.address || !pickup.pincode || !pickup.city || !pickup.state) {
@@ -88,19 +93,25 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
       return
     }
 
-    // Save addresses if requested
-    if (user) {
-      if (savePickup) {
-        await axios.post(`${API_BASE_URL}/users/addresses`, { ...pickup, label: 'Saved Pickup' })
+    setLoading(true)
+    try {
+      // Save addresses if requested (Don't block navigation if these fail)
+      if (user && token) {
+        const headers = { Authorization: `Bearer ${token}` }
+        if (savePickup) {
+          axios.post(`${API_BASE_URL}/users/addresses`, { ...pickup, label: 'Saved Pickup' }, { headers }).catch(() => {})
+        }
+        if (saveDelivery) {
+          axios.post(`${API_BASE_URL}/users/addresses`, { ...delivery, label: 'Saved Delivery' }, { headers }).catch(() => {})
+        }
       }
-      if (saveDelivery) {
-        await axios.post(`${API_BASE_URL}/users/addresses`, { ...delivery, label: 'Saved Delivery' })
-      }
-    }
 
-    setPickup(pickup)
-    setDelivery(delivery)
-    onNext()
+      setPickup(pickup)
+      setDelivery(delivery)
+      onNext()
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -421,9 +432,14 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
       <div className="flex justify-center pt-8 pb-8">
         <button 
           onClick={handleNext}
-          className="w-full sm:w-auto bg-brand-primary text-white px-10 sm:px-20 h-16 sm:h-20 rounded-2xl font-black text-lg sm:text-xl flex items-center justify-center gap-4 hover:bg-brand-secondary transition-all hover:-translate-y-1 active:translate-y-0 shadow-[0_20px_50px_rgba(37,99,235,0.3)] group"
+          disabled={loading}
+          className={`w-full sm:w-auto bg-brand-primary text-white px-10 sm:px-20 h-16 sm:h-20 rounded-2xl font-black text-lg sm:text-xl flex items-center justify-center gap-4 hover:bg-brand-secondary transition-all hover:-translate-y-1 active:translate-y-0 shadow-[0_20px_50px_rgba(37,99,235,0.3)] group ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
         >
-          Proceed to Review <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-1 transition-transform" />
+          {loading ? 'Processing...' : (
+            <>
+              Proceed to Review <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-1 transition-transform" />
+            </>
+          )}
         </button>
       </div>
     </div>
