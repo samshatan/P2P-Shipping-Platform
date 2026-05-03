@@ -250,7 +250,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Pincode</label>
                 <div className="relative">
@@ -274,6 +274,17 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
                   placeholder="New Delhi"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">State</label>
+              <input 
+                type="text" 
+                value={pickup.state} 
+                onChange={(e) => setPickupState({...pickup, state: e.target.value})}
+                className="w-full h-11 md:h-14 px-5 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-sm md:text-base transition-all"
+                placeholder="Delhi"
+              />
             </div>
             
             {user && (
@@ -355,7 +366,7 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Pincode</label>
                 <div className="relative">
@@ -379,6 +390,17 @@ export function AddressForm({ onNext, onBack }: { onNext: () => void, onBack: ()
                   placeholder="Mumbai"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">State</label>
+              <input 
+                type="text" 
+                value={delivery.state} 
+                onChange={(e) => setDeliveryState({...delivery, state: e.target.value})}
+                className="w-full h-11 md:h-14 px-5 bg-bg-soft border border-border-main rounded-2xl focus:border-brand-primary outline-none font-bold text-sm md:text-base transition-all"
+                placeholder="Maharashtra"
+              />
             </div>
             
             {user && (
