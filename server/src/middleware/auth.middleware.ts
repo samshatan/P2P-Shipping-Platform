@@ -5,14 +5,14 @@ import { User } from '../models/User';
 const JWT_SECRET = process.env.JWT_ACCESS_SECRET || 'access_secret_fallback';
 
 // Extend Express Request to carry decoded user info
-export interface AuthenticatedRequest extends Request {
+export type AuthenticatedRequest = Request & {
     user?: {
         userId: string;
         email: string;
         role: string;
         name: string;
     };
-}
+};
 
 /**
  * Auth Middleware
