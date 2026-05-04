@@ -5,7 +5,7 @@ interface User {
   id: string
   email: string
   name: string
-  role: 'user' | 'admin'
+  role: 'USER' | 'ADMIN' | 'PARTNER' | 'SUPPORT'
   avatar?: string
   phone?: string
 }

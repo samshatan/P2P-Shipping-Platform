@@ -33,7 +33,7 @@ export function Navbar() {
           <Link to="/calculator" className="text-white font-black hover:text-white/80 transition-colors">Ship Now</Link>
           <Link to="/tracking" className="hover:text-white transition-colors">Tracking</Link>
           <Link to="/bulk" className="hover:text-white transition-colors">Bulk</Link>
-          {user?.role === 'admin' && (
+          {user?.role === 'ADMIN' && (
             <Link to="/admin" className="text-brand-primary flex items-center gap-1 hover:text-brand-secondary transition-colors">
               <ShieldAlert className="w-4 h-4" /> Admin
             </Link>
@@ -107,6 +107,11 @@ export function Navbar() {
             <Link to="/tracking" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-white/90 hover:text-white py-2">Tracking</Link>
             <Link to="/bulk" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-white/90 hover:text-white py-2">Bulk</Link>
             <hr className="border-white/10 my-3" />
+            {user?.role === 'ADMIN' && (
+              <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-brand-primary hover:text-white py-2 flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5" /> Admin Portal
+              </Link>
+            )}
             <div className="relative mt-2">
               {/* Premium Glow Effect */}
               <div className="absolute inset-0 bg-white/5 blur-[40px] rounded-full pointer-events-none -m-4"></div>

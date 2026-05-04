@@ -32,7 +32,7 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
         isNewUser = true;
         user = await User.create({
             email: email.toLowerCase(),
-            role: 'user',
+            role: 'USER',
             is_active: true
         });
 

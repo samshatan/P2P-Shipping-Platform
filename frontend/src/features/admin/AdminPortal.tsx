@@ -15,7 +15,7 @@ export function AdminPortal() {
 
   useEffect(() => {
     const fetchAdminData = async () => {
-      if (user?.role !== 'admin' || !token) return
+      if (user?.role !== 'ADMIN' || !token) return
       try {
         const [statsRes, partnersRes] = await Promise.all([
           axios.get(`${API_BASE_URL}/admin/stats`, {
@@ -36,7 +36,7 @@ export function AdminPortal() {
     fetchAdminData()
   }, [user, token])
 
-  if (user?.role !== 'admin') {
+  if (user?.role !== 'ADMIN') {
     return (
       <div className="py-20 text-center space-y-6">
         <ShieldAlert className="w-20 h-20 text-red-500 mx-auto animate-bounce" />
