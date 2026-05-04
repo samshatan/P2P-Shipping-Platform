@@ -21,8 +21,8 @@ const userSchema = new mongoose.Schema({
   phone: { type: String },
   role: {
     type: String,
-    enum: ['user', 'admin', 'partner', 'support'],
-    default: 'user'
+    enum: ['USER', 'ADMIN', 'PARTNER', 'SUPPORT'],
+    default: 'USER'
   },
   saved_addresses: [addressSchema],
   avatar: { type: String },
