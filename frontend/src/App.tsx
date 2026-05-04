@@ -1,5 +1,6 @@
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { AnimatePresence, useScroll, useSpring, motion } from 'framer-motion'
+import { Package } from 'lucide-react'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { WelcomePage } from './pages/WelcomePage'
@@ -51,8 +52,12 @@ function App() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bg-main text-text-main font-sans">
-        <div className="font-bold text-xl animate-pulse">Loading Parcel...</div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-bg-main text-text-main font-sans">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-tr from-blue-600 via-cyan-500 to-blue-900 shadow-2xl shadow-blue-500/20 mb-8 animate-bounce">
+          <Package className="w-10 h-10 text-white" />
+        </div>
+        <div className="font-black text-2xl tracking-tighter animate-pulse">Parcel</div>
+        <div className="mt-4 text-text-muted text-xs font-bold uppercase tracking-[0.3em]">Connecting the World</div>
       </div>
     )
   }

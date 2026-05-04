@@ -64,6 +64,18 @@ export function WelcomePage() {
             </button>
           </div>
 
+          {/* Brand Logo */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mb-8 group"
+          >
+            <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center bg-gradient-to-tr ${themeGradient} shadow-2xl shadow-brand-primary/20 group-hover:scale-110 transition-all duration-700`}>
+                <Package className="w-10 h-10 text-white" />
+            </div>
+          </motion.div>
+
           <div className="relative overflow-hidden min-h-[200px] w-full flex flex-col items-center">
             <AnimatePresence mode="popLayout">
               <motion.h1 

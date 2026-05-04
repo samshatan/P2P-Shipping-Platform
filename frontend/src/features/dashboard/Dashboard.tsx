@@ -12,7 +12,7 @@ const NAV_ITEMS = [
 ]
 
 export function Dashboard() {
-  const { user, logout } = useAuth()
+  const { user, token, logout } = useAuth()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<'overview' | 'shipments' | 'profile'>('overview')
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -22,21 +22,26 @@ export function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!token) return;
       try {
         const [shipmentsRes, statsRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/shipments/users`),
-          axios.get(`${API_BASE_URL}/admin/stats`)
+          axios.get(`${API_BASE_URL}/users/shipments`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          axios.get(`${API_BASE_URL}/admin/stats`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
         ])
         setShipments(shipmentsRes.data.data?.shipments || [])
         setStats(statsRes.data.data?.stats || null)
       } catch (error) {
-
+        console.error('Dashboard fetch error:', error)
       } finally {
         setIsLoading(false)
       }
     }
     fetchData()
-  }, [])
+  }, [token])
 
   const renderContent = () => {
     if (isLoading) return (

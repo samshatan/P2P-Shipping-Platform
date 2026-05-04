@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { API_BASE_URL } from '../../config/api'
 
 export function AdminPortal() {
-  const { user } = useAuth()
+  const { user, token } = useAuth()
   const [activeTab, setActiveTab] = useState<'stats' | 'partners' | 'orders' | 'users'>('stats')
   const [stats, setStats] = useState<any>(null)
   const [partners, setPartners] = useState<any[]>([])
@@ -15,22 +15,26 @@ export function AdminPortal() {
 
   useEffect(() => {
     const fetchAdminData = async () => {
-      if (user?.role !== 'admin') return
+      if (user?.role !== 'admin' || !token) return
       try {
         const [statsRes, partnersRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/admin/stats`),
-          axios.get(`${API_BASE_URL}/admin/partners`)
+          axios.get(`${API_BASE_URL}/admin/stats`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          axios.get(`${API_BASE_URL}/admin/partners`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
         ])
         setStats(statsRes.data.data.stats)
         setPartners(partnersRes.data.data.partners)
       } catch (error) {
-
+        console.error('Admin fetch error:', error)
       } finally {
         setIsLoading(false)
       }
     }
     fetchAdminData()
-  }, [user])
+  }, [user, token])
 
   if (user?.role !== 'admin') {
     return (
@@ -149,11 +153,14 @@ function AdminStats({ stats }: { stats: any }) {
 function PartnerManagement({ partners, onUpdate }: { partners: any[], onUpdate: () => void }) {
   const handleApprove = async (id: string) => {
     try {
-      await axios.post(`${API_BASE_URL}/admin/partners/${id}/approve`)
+      await axios.post(`${API_BASE_URL}/admin/partners/${id}/approve`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       toast.success('Partner approved successfully!')
       onUpdate()
     } catch (error) {
-
+      console.error('Approval error:', error)
+      toast.error('Failed to approve partner')
     }
   }
 

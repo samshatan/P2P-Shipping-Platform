@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../config/api';
 
 export function SettingsPage() {
-  const { user, login } = useAuth();
+  const { user, token, login } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'addresses' | 'security'>('profile');
   const [isSaving, setIsSaving] = useState(false);
   const [addresses, setAddresses] = useState<any[]>([]);
@@ -25,17 +25,18 @@ export function SettingsPage() {
     if (activeTab === 'addresses') {
       fetchAddresses();
     }
-  }, [activeTab]);
+  }, [activeTab, token]);
 
   const fetchAddresses = async () => {
+    if (!token) return;
     setIsLoadingAddresses(true);
     try {
       const res = await axios.get(`${API_URL}/users/addresses`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
       setAddresses(res.data.data.addresses);
     } catch (err) {
-
+      console.error('Fetch addresses error:', err);
     } finally {
       setIsLoadingAddresses(false);
     }
@@ -43,17 +44,18 @@ export function SettingsPage() {
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!token) return;
     setIsSaving(true);
     try {
       const res = await axios.patch(`${API_URL}/users/profile`, profileData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
       if (res.data.success) {
-        login(localStorage.getItem('token')!, res.data.data.user);
+        login(token, res.data.data.user);
         alert('Profile updated successfully!');
       }
     } catch (err) {
-
+      console.error('Profile update error:', err);
     } finally {
       setIsSaving(false);
     }
@@ -61,13 +63,14 @@ export function SettingsPage() {
 
   const deleteAddress = async (id: string) => {
     if (!confirm('Are you sure you want to delete this address?')) return;
+    if (!token) return;
     try {
       await axios.delete(`${API_URL}/users/addresses/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
       setAddresses(prev => prev.filter(a => a._id !== id));
     } catch (err) {
-
+      console.error('Delete address error:', err);
     }
   };
 

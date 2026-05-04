@@ -9,12 +9,13 @@ import { API_BASE_URL } from '../../config/api'
 
 export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: () => void }) {
   const { selectedCourier, pickupAddress, deliveryAddress, packageDetails, clearBooking } = useBooking()
-  const { user } = useAuth()
+  const { user, token } = useAuth()
   const [isProcessing, setIsProcessing] = useState(false)
 
   const handlePayAndBook = async () => {
     setIsProcessing(true)
     try {
+      if (!token) throw new Error('Not authenticated')
       await new Promise(resolve => setTimeout(resolve, 2000))
       
       const createRes = await axios.post(`${API_BASE_URL}/shipments`, {
@@ -24,13 +25,17 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
         delivery_address: deliveryAddress,
         weight_grams: Number(packageDetails?.weight_grams || 0),
         price_paise: selectedCourier?.price_paise
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       })
 
       if (!createRes.data.success) throw new Error('Draft creation failed')
       
       const shipmentId = createRes.data.data.shipment_id
 
-      const bookRes = await axios.post(`${API_BASE_URL}/shipments/${shipmentId}/book`)
+      const bookRes = await axios.post(`${API_BASE_URL}/shipments/${shipmentId}/book`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
 
       if (bookRes.data.success) {
         onNext()

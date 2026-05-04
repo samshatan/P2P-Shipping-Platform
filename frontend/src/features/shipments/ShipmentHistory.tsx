@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { Package, Search, ExternalLink, Calendar, MapPin, CheckCircle2, Clock } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { PageWrapper } from '../../components/layout/PageWrapper'
 
@@ -20,17 +20,20 @@ interface Shipment {
 import { API_BASE_URL } from '../../config/api'
 
 export function ShipmentHistory() {
-  const { user } = useAuth()
+  const { user, token } = useAuth()
+  const navigate = useNavigate()
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['shipments', user?.id],
     queryFn: async () => {
       const response = await axios.get(`${API_BASE_URL}/users/shipments`, {
-        withCredentials: true
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       })
       return response.data.data.shipments as Shipment[]
     },
-    enabled: !!user,
+    enabled: !!user && !!token,
   })
 
   return (
@@ -57,8 +60,10 @@ export function ShipmentHistory() {
 
       {isLoading ? (
         <div className="py-20 text-center flex flex-col items-center justify-center">
-          <div className="w-12 h-12 border-4 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin mb-4"></div>
-          <p className="text-text-muted font-bold animate-pulse">Loading shipments...</p>
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-tr from-blue-600 via-cyan-500 to-blue-900 shadow-xl shadow-blue-500/20 mb-6 animate-pulse">
+            <Package className="w-6 h-6 text-white" />
+          </div>
+          <p className="text-text-muted font-bold animate-pulse uppercase tracking-[0.2em] text-xs">Loading shipments...</p>
         </div>
       ) : error ? (
         <div className="py-20 text-center bg-red-500/5 rounded-3xl border border-red-500/10">
@@ -66,8 +71,8 @@ export function ShipmentHistory() {
         </div>
       ) : !data || data.length === 0 ? (
         <div className="py-24 text-center bg-bg-soft rounded-3xl border border-border-main glass">
-          <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Package className="w-10 h-10 text-brand-primary" />
+          <div className="w-20 h-20 bg-gradient-to-tr from-blue-600 via-cyan-500 to-blue-900 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-brand-primary/20">
+            <Package className="w-10 h-10 text-white" />
           </div>
           <h3 className="text-2xl font-black mb-2">No Shipments Yet</h3>
           <p className="text-text-muted mb-8 max-w-md mx-auto">You haven't booked any shipments through Parcel yet. Let's get your first package moving!</p>
