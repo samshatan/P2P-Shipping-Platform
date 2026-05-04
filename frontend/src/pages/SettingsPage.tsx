@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, MapPin, Shield, Bell, Plus, Trash2, Save, Loader2, Home } from 'lucide-react';
+import { User, MapPin, Shield, Bell, Plus, Trash2, Save, Loader2, Home, Download } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -13,6 +13,7 @@ export function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [addresses, setAddresses] = useState<any[]>([]);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -20,6 +21,28 @@ export function SettingsPage() {
   });
 
   const API_URL = API_BASE_URL;
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
 
   useEffect(() => {
     if (activeTab === 'addresses') {
@@ -103,6 +126,16 @@ export function SettingsPage() {
               {tab.label}
             </button>
           ))}
+
+          {deferredPrompt && (
+            <button
+              onClick={handleInstallClick}
+              className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-brand-primary/10 text-brand-primary hover:bg-brand-primary hover:text-white transition-all font-black text-[10px] uppercase tracking-widest mt-4 animate-bounce"
+            >
+              <Download className="w-5 h-5" />
+              Install App
+            </button>
+          )}
 
           <Link 
             to="/"

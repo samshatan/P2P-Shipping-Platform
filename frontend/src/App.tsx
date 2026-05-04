@@ -9,6 +9,7 @@ import { ResultsPage } from './pages/ResultsPage'
 import { PartnerPage } from './pages/PartnerPage'
 import { ScrollToTop } from './components/utils/ScrollToTop'
 import { PageWrapper } from './components/layout/PageWrapper'
+import { InstallPWA } from './components/utils/InstallPWA'
 
 import { AuthPage } from './pages/AuthPage'
 import { AddressForm } from './features/booking/AddressForm'
@@ -64,6 +65,8 @@ function App() {
 
   return (
     <div className="flex flex-col font-sans bg-bg-main text-text-main transition-all duration-500 relative min-h-screen">
+      <InstallPWA />
+      <Navbar />
       <ScrollToTop />
       <Toaster position="top-right" richColors />
 
