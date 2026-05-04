@@ -1,8 +1,10 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import { redis } from './lib/redis';
 import authRouter from './api/auth/routes/auth.routes';
 import usersRouter from './api/users/routes/users.routes';
@@ -14,8 +16,6 @@ import { startWorkers, stopWorkers } from './lib/workers';
 
 import { connectMongoDB } from './lib/mongo';
 import { checkPincode } from './api/users/controllers/pincode.controller';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
