@@ -151,6 +151,7 @@ function AdminStats({ stats }: { stats: any }) {
 }
 
 function PartnerManagement({ partners, onUpdate }: { partners: any[], onUpdate: () => void }) {
+  const { token } = useAuth()
   const handleApprove = async (id: string) => {
     try {
       await axios.post(`${API_BASE_URL}/admin/partners/${id}/approve`, {}, {
