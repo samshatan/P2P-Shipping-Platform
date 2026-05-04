@@ -8,9 +8,10 @@ const REFRESH_TOKEN_KEY = (userId: string) => `refresh_token:${userId}`;
 const REFRESH_TOKEN_EXPIRY_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
 export const googleLogin = async (req: Request, res: Response): Promise<void> => {
-    const { token } = req.body;
+    const { token, idToken } = req.body;
+    const googleToken = token || idToken;
 
-    if (!token) {
+    if (!googleToken) {
         res.status(400).json({
             success: false,
             error: { code: 'AUTH_001', message: 'Google Access Token is required' }
@@ -20,7 +21,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
 
     try {
         const googleRes = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${googleToken}` }
         });
 
         const payload = googleRes.data;
@@ -37,7 +38,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
             user = await User.create({
                 email,
                 name: name || 'User',
-                role: 'user',
+                role: 'USER',
                 google_id: googleId,
                 avatar: picture
             });

@@ -1,7 +1,7 @@
 
-export type UserRole = 'USER' | 'ADMIN' | 'COURIER_PARTNER';
+export type UserRole = 'USER' | 'ADMIN' | 'PARTNER' | 'SUPPORT';
 
-export type KycStatus = 'PENDING' | 'VERIFIED' | 'REJECTED';
+
 
 export type ShipmentStatus =
     | 'DRAFT'
@@ -21,7 +21,7 @@ export type PaymentMethod = 'RAZORPAY' | 'WALLET' | 'COD';
 
 export type PaymentStatus = 'PENDING' | 'CAPTURED' | 'FAILED' | 'REFUNDED';
 
-export type WalletTransactionType = 'CREDIT' | 'DEBIT';
+
 
 export type DisputeType =
     | 'WEIGHT_MISMATCH'
@@ -41,9 +41,6 @@ export interface User {
     name?: string;
     email?: string;
     role: UserRole;
-    kyc_status: KycStatus;
-    kyc_request_id?: string;
-    wallet_balance: number;         // in paise
     referral_code?: string;
     created_at: string;
 }
@@ -102,15 +99,7 @@ export interface Payment {
     created_at: string;
 }
 
-export interface WalletTransaction {
-    id: string;
-    user_id: string;
-    shipment_id?: string;
-    type: WalletTransactionType;
-    amount_paise: number;
-    description: string;
-    created_at: string;
-}
+
 
 export interface Dispute {
     id: string;
@@ -197,8 +186,8 @@ export function parsePagination(query: Record<string, unknown>): {
     limit: number;
     offset: number;
 } {
-    const page   = Math.max(1,  parseInt(query.page  as string) || 1);
-    const limit  = Math.min(50, parseInt(query.limit as string) || 10);
+    const page = Math.max(1, parseInt(query.page as string) || 1);
+    const limit = Math.min(50, parseInt(query.limit as string) || 10);
     const offset = (page - 1) * limit;
     return { page, limit, offset };
 }

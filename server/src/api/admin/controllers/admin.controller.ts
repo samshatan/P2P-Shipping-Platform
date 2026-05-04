@@ -9,9 +9,9 @@ import { Partner } from '../../../models/Partner';
 // ─────────────────────────────────────────────────────────────
 export const getAdminStats = asyncHandler(async (req: Request, res: Response) => {
     const totalShipments = await Shipment.countDocuments();
-    const activeUsers = await User.countDocuments({ role: 'user' });
+    const activeUsers = await User.countDocuments({ role: 'USER' });
     const pendingPartners = await Partner.countDocuments({ status: 'PENDING' });
-    
+
     // Calculate total revenue (example logic)
     const revenueResult = await Shipment.aggregate([
         { $match: { status: { $ne: 'CANCELLED' } } },
@@ -61,7 +61,7 @@ export const approvePartner = asyncHandler(async (req: Request, res: Response) =
     await User.create({
         name: partner.company_name,
         email: partner.email,
-        role: 'partner',
+        role: 'PARTNER',
         is_active: true
     });
 
