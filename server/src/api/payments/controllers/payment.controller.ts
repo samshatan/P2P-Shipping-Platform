@@ -5,10 +5,27 @@ import { Shipment } from '../../../models/Shipment';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || '',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || '',
-});
+// Lazy initialization to prevent crash if env vars are missing on startup
+let razorpayInstance: Razorpay | null = null;
+
+const getRazorpay = () => {
+    if (razorpayInstance) return razorpayInstance;
+
+    const key_id = process.env.RAZORPAY_KEY_ID;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!key_id || !key_secret) {
+        console.error('CRITICAL: RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is missing from environment variables.');
+        throw new Error('Razorpay credentials not configured');
+    }
+
+    razorpayInstance = new Razorpay({
+        key_id,
+        key_secret,
+    });
+
+    return razorpayInstance;
+};
 
 export const createOrder = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { shipment_id } = req.body;
@@ -26,7 +43,7 @@ export const createOrder = asyncHandler(async (req: AuthenticatedRequest, res: R
         receipt: `receipt_${shipment._id}`,
     };
 
-    const order = await razorpay.orders.create(options);
+    const order = await getRazorpay().orders.create(options);
 
     shipment.razorpay_order_id = order.id;
     await shipment.save();
