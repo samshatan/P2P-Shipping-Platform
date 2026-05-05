@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { Shield, ArrowLeft, CheckCircle2, Truck, Calendar, Wallet, Loader2 } from 'lucide-react'
 import { useBooking } from '../../context/BookingContext'
@@ -23,6 +23,10 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
   }, [])
 
   const handlePayAndBook = async () => {
+    if (!selectedCourier || !pickupAddress || !deliveryAddress || !packageDetails) {
+      toast.error('Booking details are incomplete')
+      return
+    }
     setIsProcessing(true)
     try {
       if (!token) throw new Error('Not authenticated')
@@ -95,7 +99,7 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
         prefill: {
           name: user?.name,
           email: user?.email,
-          contact: pickupAddress.phone
+          contact: pickupAddress?.phone
         },
         theme: {
           color: "#3b82f6"
