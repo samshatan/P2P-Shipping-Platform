@@ -30,7 +30,7 @@ const shipmentSchema = new mongoose.Schema({
   
   status: { 
     type: String, 
-    enum: ['DRAFT', 'BOOKED', 'PICKED_UP', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED', 'RTO'],
+    enum: ['DRAFT', 'PAID', 'BOOKED', 'PICKED_UP', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED', 'RTO'],
     default: 'DRAFT',
     index: true
   },
@@ -38,6 +38,16 @@ const shipmentSchema = new mongoose.Schema({
   price_paise: { type: Number, required: true },
   is_cod: { type: Boolean, default: false },
   cod_amount: { type: Number, default: 0 },
+
+  // Payment Tracking
+  razorpay_order_id: { type: String, index: true },
+  razorpay_payment_id: { type: String },
+  razorpay_signature: { type: String },
+  payment_status: {
+    type: String,
+    enum: ['PENDING', 'PAID', 'FAILED', 'REFUNDED'],
+    default: 'PENDING'
+  },
   
   parcel_type: { type: String, default: 'PARCEL' },
   label_url: { type: String },

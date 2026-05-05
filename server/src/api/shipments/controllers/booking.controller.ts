@@ -36,10 +36,10 @@ export const bookShipment = asyncHandler(async (req: AuthenticatedRequest, res: 
         });
     }
 
-    if (shipment.status !== 'DRAFT') {
+    if (!['DRAFT', 'PAID'].includes(shipment.status)) {
         return res.status(409).json({
             success: false,
-            error: { code: 'BOOK_002', message: `Only DRAFT shipments can be booked. Current: ${shipment.status}` },
+            error: { code: 'BOOK_002', message: `Only DRAFT or PAID shipments can be booked. Current: ${shipment.status}` },
         });
     }
 

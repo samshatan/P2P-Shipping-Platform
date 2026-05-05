@@ -6,7 +6,7 @@ const SHIPROCKET_API_URL = 'https://apiv2.shiprocket.in/v1/external';
 const TOKEN_KEY = 'shiprocket:token';
 
 
-async function getShiprocketToken(): Promise<string | null> {
+export async function getShiprocketToken(): Promise<string | null> {
     const cached = await redis.get(TOKEN_KEY);
     if (cached) return cached;
     try {
@@ -23,6 +23,21 @@ async function getShiprocketToken(): Promise<string | null> {
 
     }
     return null;
+}
+
+export async function getShiprocketTracking(awb: string): Promise<any> {
+    const token = await getShiprocketToken();
+    if (!token) return null;
+
+    try {
+        const response = await axios.get(`${SHIPROCKET_API_URL}/courier/track/awb/${awb}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        return response.data;
+    } catch (err) {
+        return null;
+    }
 }
 
 export async function getShiprocketRates(req: CourierRateRequest): Promise<CourierRateResponse[]> {

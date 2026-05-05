@@ -91,8 +91,6 @@ function App() {
         style={{ scaleX }}
       />
 
-      <Navbar />
-      
       <main className={`flex-1 ${location.pathname === '/' ? '' : 'max-w-7xl mx-auto w-full px-4 sm:px-6 pt-16 sm:pt-20 pb-10 sm:pb-16 text-center relative z-10'}`}>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
@@ -102,33 +100,33 @@ function App() {
             <Route path="/partner" element={<PageWrapper><PartnerPage /></PageWrapper>} />
             <Route path="/history" element={<PageWrapper><ShipmentHistory /></PageWrapper>} />
             
-            <Route 
-              path="/login" 
-              element={<PageWrapper><AuthPage /></PageWrapper>} 
+            <Route
+              path="/login"
+              element={<PageWrapper><AuthPage /></PageWrapper>}
             />
-            <Route 
-              path="/signup" 
-              element={<PageWrapper><AuthPage /></PageWrapper>} 
+            <Route
+              path="/signup"
+              element={<PageWrapper><AuthPage /></PageWrapper>}
             />
             
-            <Route 
-              path="/book/address" 
-              element={<PageWrapper><AddressForm onNext={() => navigate('/book/review')} onBack={() => navigate(-1)} /></PageWrapper>} 
+            <Route
+              path="/book/address"
+              element={<PageWrapper><AddressForm onNext={() => navigate('/book/review')} onBack={() => navigate(-1)} /></PageWrapper>}
             />
-            <Route 
-              path="/book/review" 
-              element={<PageWrapper><ReviewOrder onNext={() => navigate('/book/success')} onBack={() => navigate(-1)} /></PageWrapper>} 
+            <Route
+              path="/book/review"
+              element={<PageWrapper><ReviewOrder onNext={() => navigate('/book/success')} onBack={() => navigate(-1)} /></PageWrapper>}
             />
-            <Route 
-              path="/book/success" 
+            <Route
+              path="/book/success"
               element={
                 <PageWrapper>
-                  <SuccessPage 
-                    onDashboard={() => navigate('/dashboard')} 
-                    onHome={() => { navigate('/'); clearBooking(); }} 
+                  <SuccessPage
+                    onDashboard={() => navigate('/dashboard')}
+                    onHome={() => { navigate('/'); clearBooking(); }}
                   />
                 </PageWrapper>
-              } 
+              }
             />
             
             <Route path="/dashboard" element={<PageWrapper><Dashboard /></PageWrapper>} />

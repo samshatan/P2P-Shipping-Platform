@@ -12,7 +12,9 @@ import shipmentsRouter from './api/shipments/routes/shipments.routes';
 import trackingRouter from './api/tracking/routes/tracking.routes';
 import couriersRouter from './api/couriers/routes/couriers.routes';
 import adminRouter from './api/admin/routes/admin.routes';
+import paymentRouter from './api/payments/routes/payment.routes';
 import { startWorkers, stopWorkers } from './lib/workers';
+import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 
 import { connectMongoDB } from './lib/mongo';
 import { checkPincode } from './api/users/controllers/pincode.controller';
@@ -36,7 +38,12 @@ app.use('/shipments', shipmentsRouter);
 app.use('/tracking', trackingRouter);
 app.use('/couriers', couriersRouter);
 app.use('/admin', adminRouter);
+app.use('/payments', paymentRouter);
 app.get('/pincodes/check', checkPincode);
+
+// Error Handling Middleware
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 app.get('/health', async (req, res) => {
   try {

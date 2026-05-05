@@ -12,12 +12,22 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
   const { user, token } = useAuth()
   const [isProcessing, setIsProcessing] = useState(false)
 
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    script.async = true
+    document.body.appendChild(script)
+    return () => {
+      document.body.removeChild(script)
+    }
+  }, [])
+
   const handlePayAndBook = async () => {
     setIsProcessing(true)
     try {
       if (!token) throw new Error('Not authenticated')
-      await new Promise(resolve => setTimeout(resolve, 2000))
       
+      // 1. Create Shipment (Draft)
       const createRes = await axios.post(`${API_BASE_URL}/shipments`, {
         courier_id: selectedCourier?.courier_id,
         courier_name: selectedCourier?.name,
@@ -30,21 +40,77 @@ export function ReviewOrder({ onNext, onBack }: { onNext: () => void, onBack: ()
       })
 
       if (!createRes.data.success) throw new Error('Draft creation failed')
-      
       const shipmentId = createRes.data.data.shipment_id
 
-      const bookRes = await axios.post(`${API_BASE_URL}/shipments/${shipmentId}/book`, {}, {
+      // 2. Create Razorpay Order
+      const orderRes = await axios.post(`${API_BASE_URL}/payments/create-order`, {
+        shipment_id: shipmentId
+      }, {
         headers: { Authorization: `Bearer ${token}` }
       })
 
-      if (bookRes.data.success) {
-        onNext()
-      } else {
-        toast.error('Booking failed. Please try again.')
-      }
-    } catch (error) {
-      onNext()
-    } finally {
+      if (!orderRes.data.success) throw new Error('Payment order creation failed')
+      const orderData = orderRes.data.data
+
+      // 3. Open Razorpay Modal
+      const options = {
+        key: orderData.key,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "SwiftRoute P2P",
+        description: `Shipment #${shipmentId}`,
+        order_id: orderData.order_id,
+        handler: async (response: any) => {
+          try {
+            setIsProcessing(true)
+            // 4. Verify Payment
+            const verifyRes = await axios.post(`${API_BASE_URL}/payments/verify`, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              shipment_id: shipmentId
+            }, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+
+            if (verifyRes.data.success) {
+              // 5. Finalize Booking
+              const bookRes = await axios.post(`${API_BASE_URL}/shipments/${shipmentId}/book`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+              })
+
+              if (bookRes.data.success) {
+                toast.success('Payment successful and booking confirmed!')
+                onNext()
+              } else {
+                toast.error('Payment verified but booking failed. Please check history.')
+              }
+            }
+          } catch (err) {
+            toast.error('Payment verification failed')
+          } finally {
+            setIsProcessing(false)
+          }
+        },
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+          contact: pickupAddress.phone
+        },
+        theme: {
+          color: "#3b82f6"
+        },
+        modal: {
+          ondismiss: () => {
+            setIsProcessing(false)
+          }
+        }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || 'Booking failed')
       setIsProcessing(false)
     }
   }
