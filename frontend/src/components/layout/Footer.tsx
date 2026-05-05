@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 export function Footer() {
   return (
-    <footer className="border-t border-border-main bg-bg-soft py-14 mt-auto">
+    <footer className="border-t border-border-main bg-bg-soft py-10 mt-auto">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-20">
           <div className="col-span-1 md:col-span-1 space-y-8">
@@ -49,7 +49,7 @@ export function Footer() {
           </div>
         </div>
         
-        <div className="border-t border-border-main mt-24 pt-10 flex flex-col sm:flex-row justify-between items-center gap-6 text-[10px] font-black text-text-muted uppercase tracking-[0.4em]">
+        <div className="border-t border-border-main mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-6 text-[10px] font-black text-text-muted uppercase tracking-[0.4em]">
           <p>© 2026 Parcel — A Logistics Platform.</p>
           <div className="flex gap-12">
             <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> All Systems Operational</span>

@@ -46,19 +46,29 @@ export function WelcomePage() {
         <section className="flex flex-col items-center text-center mt-8 md:mt-24 mb-20 md:mb-32">
           
           {/* Mode Switcher */}
-          <div className="glass-panel p-1.5 rounded-full flex items-center mb-10 w-max mx-auto shadow-2xl relative">
+          <div 
+            className="glass-panel p-1.5 rounded-full flex items-center mb-10 w-max mx-auto shadow-2xl relative"
+            role="tablist"
+            aria-label="Shipping mode selector"
+          >
             <div 
               className={`absolute inset-y-1.5 w-[calc(50%-6px)] bg-white/10 rounded-full transition-all duration-300 ease-out z-0 ${isDomestic ? 'left-1.5' : 'left-[calc(50%+1.5px)]'}`}
             />
             <button 
               onClick={() => setShippingMode('domestic')}
-              className={`relative z-10 px-6 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-colors ${isDomestic ? 'text-white' : 'text-white/50 hover:text-white/80'}`}
+              role="tab"
+              aria-selected={isDomestic}
+              aria-label="Switch to Domestic shipping"
+              className={`relative z-10 px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-colors ${isDomestic ? 'text-white' : 'text-white/50 hover:text-white/80'}`}
             >
               <Package className="w-4 h-4" /> Domestic
             </button>
             <button 
               onClick={() => setShippingMode('international')}
-              className={`relative z-10 px-6 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-colors ${!isDomestic ? 'text-white' : 'text-white/50 hover:text-white/80'}`}
+              role="tab"
+              aria-selected={!isDomestic}
+              aria-label="Switch to International shipping"
+              className={`relative z-10 px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-colors ${!isDomestic ? 'text-white' : 'text-white/50 hover:text-white/80'}`}
             >
               <Globe className="w-4 h-4" /> International
             </button>
@@ -84,30 +94,32 @@ export function WelcomePage() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -100 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[1.1] mb-8"
+                className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-black tracking-tighter leading-[1.1] mb-8"
               >
-                Global Shipping, <br />
+                Shipping made simple, <br />
                 <span className={`text-transparent bg-clip-text bg-gradient-to-r ${themeGradient}`}>
-                  {isDomestic ? 'Locally Simplified.' : 'Entire Planet.'}
+                  {isDomestic ? 'for everyone.' : 'for the world.'}
                 </span>
               </motion.h1>
             </AnimatePresence>
           </div>
 
-          <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-            Aggregate {isDomestic ? 'high-speed delivery across 29,000+ pin codes in India.' : 'seamless connections to 220+ countries worldwide.'} Compare rates across 20+ top-tier partners instantly.
+          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+            Whether it's a gift for a friend or a shipment for your business, we help you {isDomestic ? 'reach any of the 29,000+ pin codes in India' : 'connect with 220+ countries'} with ease.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             <button 
               onClick={handleStart}
-              className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-black font-semibold flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/10"
+              aria-label="Start booking a shipment"
+              className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white text-black font-bold flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/10"
             >
-              Compare Rates Now <ArrowRight className="w-4 h-4" />
+              Start Shipping <ArrowRight className="w-4 h-4" />
             </button>
             <button 
               onClick={() => navigate('/tracking')}
-              className="w-full sm:w-auto px-8 py-4 rounded-full glass-panel font-semibold flex items-center justify-center gap-2 hover:bg-white/10 transition-colors"
+              aria-label="Track your package"
+              className="w-full sm:w-auto px-10 py-5 rounded-2xl glass font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition-colors"
             >
               <Calculator className="w-4 h-4" /> Track Package
             </button>

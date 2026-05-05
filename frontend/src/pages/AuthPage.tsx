@@ -100,10 +100,10 @@ export function AuthPage() {
     : 'from-purple-600 to-fuchsia-500';
 
   return (
-    <div className="min-h-screen font-sans flex flex-col items-center justify-center px-4 py-10 relative overflow-hidden text-white">
+    <div className="font-sans flex flex-col items-center justify-center px-4 py-10 relative overflow-hidden text-white">
 
       {/* ── Card ─────────────────────────────────────── */}
-      <div className="w-full max-w-sm relative z-10">
+      <div className="w-full max-w-sm relative z-10 glass-panel rounded-2xl p-5 space-y-4 h-auto">
 
         {/* Back link */}
         <Link
@@ -115,9 +115,6 @@ export function AuthPage() {
 
         {/* Logo + heading */}
         <div className="text-center mb-6">
-          <div className={`w-11 h-11 rounded-xl mx-auto flex items-center justify-center bg-gradient-to-tr ${accentGradient} shadow-lg mb-4 transition-all duration-700`}>
-            <Package className="w-5 h-5 text-white" />
-          </div>
 
           <AnimatePresence mode="wait">
             <motion.div

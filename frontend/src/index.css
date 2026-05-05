@@ -1,12 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Cambria Math", "Cambria", "Georgia", serif;
+
   --color-brand-primary: hsl(var(--brand-primary));
   --color-brand-secondary: hsl(var(--brand-secondary));
   --color-brand-accent: hsl(var(--brand-accent));
-  
+  --color-brand-warm: hsl(var(--brand-warm));
+
   --color-primary-blue: hsl(210 100% 50%);
   --color-primary-purple: hsl(270 100% 60%);
   --color-bg-dark: hsl(220 20% 4%);
@@ -16,81 +19,115 @@
 
 :root {
   /* HSL values for premium colors */
-  --brand-primary: 221 83% 53%; /* #2563eb */
-  --brand-secondary: 243 75% 59%; /* #4f46e5 */
-  --brand-accent: 38 92% 50%; /* #f59e0b */
+  --brand-primary: 221 83% 53%;
+  /* #2563eb */
+  --brand-secondary: 243 75% 59%;
+  /* #4f46e5 */
+  --brand-accent: 38 92% 50%;
+  /* #f59e0b */
+  --brand-warm: 12 90% 60%;
+  /* Warm Orange-Red for a human touch */
 
   /* Default to Dark Theme (Parcel Premium) */
   --bg-main: #050505;
   --bg-soft: #0a0a0a;
   --text-main: #ffffff;
-  --text-muted: rgba(255, 255, 255, 0.5);
+  --text-muted: rgba(255, 255, 255, 0.6);
   --border-main: rgba(255, 255, 255, 0.1);
-  
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-}
 
-.dark {
-  /* Keep consistent with root for universal darkness */
-  --bg-main: #050505;
-  --bg-soft: #0a0a0a;
-  --text-main: #ffffff;
-  --text-muted: rgba(255, 255, 255, 0.5);
-  --border-main: rgba(255, 255, 255, 0.1);
-  
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 @layer base {
   html {
-    @apply h-full scroll-smooth bg-[#050505];
+    @apply h-full scroll-smooth;
+    background-color: var(--bg-main);
   }
 
   body {
-    @apply antialiased min-h-full overflow-x-hidden bg-[#050505];
-    background-color: #050505;
+    @apply antialiased min-h-full overflow-x-hidden;
+    background-color: var(--bg-main);
     color: var(--text-main);
     margin: 0;
   }
 }
 
-@utility bg-bg-main { background-color: var(--bg-main); }
-@utility bg-bg-soft { background-color: var(--bg-soft); }
-@utility text-text-main { color: var(--text-main); }
-@utility text-text-muted { color: var(--text-muted); }
-@utility border-border-main { border-color: var(--border-main); }
+@utility bg-bg-main {
+  background-color: var(--bg-main);
+}
+
+@utility bg-bg-soft {
+  background-color: var(--bg-soft);
+}
+
+@utility text-text-main {
+  color: var(--text-main);
+}
+
+@utility text-text-muted {
+  color: var(--text-muted);
+}
+
+@utility border-border-main {
+  border-color: var(--border-main);
+}
+
 @utility glass {
   background-color: var(--glass-bg);
   backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
 }
+
 @utility glass-panel {
   @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
-}
-@utility glass-panel-light {
-  @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl;
 }
 
 /* Premium Animations */
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 @keyframes gradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes blob {
-  0% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
-  100% { transform: translate(0px, 0px) scale(1); }
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
 }
 
 .animate-float {
@@ -118,13 +155,16 @@
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-main);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--border-main);
   border-radius: 8px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }

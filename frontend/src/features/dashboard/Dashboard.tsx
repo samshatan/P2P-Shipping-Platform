@@ -47,7 +47,7 @@ export function Dashboard() {
     if (isLoading) return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
         <Loader2 className="w-12 h-12 animate-spin text-brand-primary" />
-        <p className="text-sm font-bold text-text-muted">Loading your dashboard...</p>
+        <p className="text-sm font-bold text-white/50">Loading your dashboard...</p>
       </div>
     )
     switch (activeTab) {
@@ -58,7 +58,7 @@ export function Dashboard() {
   }
 
   return (
-    <div className="flex h-[80vh] min-h-[600px] bg-bg-soft rounded-2xl md:rounded-[3rem] border border-border-main overflow-hidden glass shadow-2xl animate-in fade-in duration-700 relative">
+    <div className="flex h-[80vh] min-h-[600px] bg-[#050505] rounded-2xl md:rounded-[3rem] border border-white/10 overflow-hidden glass shadow-2xl animate-in fade-in duration-700 relative">
 
       {/* ── Mobile Sidebar Drawer Overlay ─────────────────── */}
       {drawerOpen && (
@@ -71,35 +71,34 @@ export function Dashboard() {
       {/* ── Sidebar (drawer on mobile, fixed on desktop) ──── */}
       <aside className={`
         fixed inset-y-0 left-0 z-[100] w-64 flex flex-col
-        border-r border-border-main bg-bg-main p-6
+        border-r border-white/10 bg-[#050505] p-8
         transition-transform duration-300
         ${drawerOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:z-auto lg:bg-bg-main/50
+        lg:translate-x-0 lg:static lg:z-auto lg:bg-transparent
       `}>
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-12">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center shrink-0">
               <Package className="w-5 h-5 text-white" />
             </div>
-            <span className="font-black tracking-tighter text-xl">Parcel</span>
+            <span className="font-display font-black tracking-tighter text-xl uppercase italic">Parcel</span>
           </div>
-          <button onClick={() => setDrawerOpen(false)} className="lg:hidden p-2 rounded-lg hover:bg-bg-soft text-text-muted">
+          <button onClick={() => setDrawerOpen(false)} className="lg:hidden p-2 rounded-lg hover:bg-white/5 text-white/50">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Nav Links */}
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-3">
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
               onClick={() => { setActiveTab(item.id as any); setDrawerOpen(false) }}
-              className={`w-full flex items-center gap-4 p-3 rounded-xl transition-all ${
-                activeTab === item.id
-                  ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20'
-                  : 'text-text-muted hover:bg-bg-soft hover:text-text-main'
-              }`}
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${activeTab === item.id
+                  ? 'bg-white text-black shadow-lg shadow-white/5'
+                  : 'text-white/50 hover:bg-white/5 hover:text-white'
+                }`}
             >
               <item.icon className="w-5 h-5 shrink-0" />
               <span className="font-bold text-sm">{item.label}</span>
@@ -110,7 +109,7 @@ export function Dashboard() {
         {/* Sign Out */}
         <button
           onClick={() => { logout(); navigate('/') }}
-          className="flex items-center gap-4 p-3 rounded-xl text-text-muted hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 transition-all"
+          className="flex items-center gap-4 p-4 rounded-2xl text-white/40 hover:bg-red-500/10 hover:text-red-400 transition-all"
         >
           <LogOut className="w-5 h-5 shrink-0" />
           <span className="font-bold text-sm">Sign Out</span>
@@ -121,62 +120,61 @@ export function Dashboard() {
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
         {/* Top Header */}
-        <header className="h-14 md:h-16 border-b border-border-main flex items-center gap-3 px-4 md:px-6 bg-bg-main/30 shrink-0">
+        <header className="h-16 md:h-20 border-b border-white/10 flex items-center gap-3 px-6 md:px-8 bg-transparent shrink-0">
           {/* Hamburger (mobile only) */}
           <button
             onClick={() => setDrawerOpen(true)}
-            className="lg:hidden p-2 rounded-lg hover:bg-bg-soft text-text-muted"
+            className="lg:hidden p-2 rounded-lg hover:bg-white/5 text-white/50"
           >
             <Menu className="w-5 h-5" />
           </button>
 
           {/* Search (desktop only) */}
           <div className="relative hidden md:flex flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
             <input
               type="text"
-              placeholder="Search tracking ID..."
-              className="w-full h-9 pl-10 pr-4 bg-bg-soft border border-border-main rounded-xl text-sm focus:border-brand-primary outline-none transition-all"
+              placeholder="Track your order..."
+              className="w-full h-11 pl-12 pr-4 bg-white/5 border border-white/10 rounded-2xl text-sm focus:border-white/30 outline-none transition-all font-medium"
             />
           </div>
 
           {/* User Info */}
-          <div className="flex items-center gap-3 ml-auto">
+          <div className="flex items-center gap-4 ml-auto">
             <div className="text-right hidden sm:block">
-              <p className="text-xs font-black leading-tight">{user?.name || 'User'}</p>
-              <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">{user?.role || 'Basic'}</p>
+              <p className="text-sm font-bold leading-tight">{user?.name || 'User'}</p>
+              <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">{user?.role || 'Basic'}</p>
             </div>
-            <div className="w-8 h-8 rounded-lg bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center font-black text-brand-primary text-sm">
+            <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-brand-primary text-sm">
               {user?.name?.[0]?.toUpperCase() || 'U'}
             </div>
           </div>
         </header>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8">
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-10">
           {renderContent()}
         </div>
 
         {/* ── Bottom Tab Bar (mobile only) ───────────────────── */}
-        <nav className="lg:hidden border-t border-border-main bg-bg-main/80 backdrop-blur-xl flex items-center shrink-0">
+        <nav className="lg:hidden border-t border-white/10 bg-[#050505]/80 backdrop-blur-2xl flex items-center shrink-0">
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id as any)}
-              className={`flex-1 flex flex-col items-center py-3 gap-1 transition-all ${
-                activeTab === item.id ? 'text-brand-primary' : 'text-text-muted'
-              }`}
+              className={`flex-1 flex flex-col items-center py-4 gap-1 transition-all ${activeTab === item.id ? 'text-white' : 'text-white/40'
+                }`}
             >
               <item.icon className="w-5 h-5" />
-              <span className="text-[9px] font-black uppercase tracking-widest">{item.label}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest">{item.label}</span>
             </button>
           ))}
           <button
             onClick={() => { logout(); navigate('/') }}
-            className="flex-1 flex flex-col items-center py-3 gap-1 text-red-400"
+            className="flex-1 flex flex-col items-center py-4 gap-1 text-red-400"
           >
             <LogOut className="w-5 h-5" />
-            <span className="text-[9px] font-black uppercase tracking-widest">Sign Out</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Exit</span>
           </button>
         </nav>
       </main>
@@ -189,68 +187,78 @@ function OverviewView({ user, shipments, stats }: { user: any; shipments: any[];
   const recentShipments = shipments.slice(0, 3)
 
   return (
-    <div className="space-y-6 text-left">
+    <div className="space-y-10 text-left">
       <div>
-        <h2 className="text-2xl md:text-3xl font-black mb-1">Welcome back, {user?.name?.split(' ')[0] || 'Human'}! 👋</h2>
-        <p className="text-text-muted font-medium text-sm">Here's your live shipping overview.</p>
+        <h2 className="text-3xl md:text-5xl font-display font-black mb-2">Hey {user?.name?.split(' ')[0] || 'there'}, welcome back! 👋</h2>
+        <p className="text-white/60 font-medium text-lg">Here's a quick look at what's happening with your deliveries.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         {[
-          { label: 'Active Shipments', value: shipments.filter(s => s.status !== 'DELIVERED').length, icon: Package, trend: 'Live Data' },
-          { label: 'Total Spending', value: stats?.total_revenue || '₹0.00', icon: TrendingUp, trend: 'Platform' },
-          { label: 'Saved Addresses', value: user?.saved_addresses?.length || '0', icon: MapPin, trend: 'Profile' }
+          { label: 'Active Orders', value: shipments.filter(s => s.status !== 'DELIVERED').length, icon: Package, trend: 'Real-time' },
+          { label: 'Total Value', value: stats?.total_revenue || '₹0.00', icon: TrendingUp, trend: 'Lifetime' },
+          { label: 'Saved Contacts', value: user?.saved_addresses?.length || '0', icon: MapPin, trend: 'Profile' }
         ].map((stat, i) => (
-          <div key={i} className="bg-bg-main p-5 rounded-2xl border border-border-main shadow-sm hover:shadow-xl transition-all group">
-            <div className="flex justify-between items-start mb-3">
-              <div className="p-2.5 rounded-xl bg-brand-primary/10 text-brand-primary group-hover:scale-110 transition-transform">
-                <stat.icon className="w-5 h-5" />
+          <div key={i} className="bg-white/5 p-8 rounded-[2.5rem] border border-white/10 shadow-sm hover:shadow-xl hover:border-white/20 transition-all group relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-brand-primary/5 rounded-full blur-2xl group-hover:bg-brand-primary/10 transition-colors"></div>
+            <div className="flex justify-between items-start mb-6 relative z-10">
+              <div className="p-4 rounded-2xl bg-brand-primary/10 text-brand-primary group-hover:scale-110 transition-transform">
+                <stat.icon className="w-6 h-6" />
               </div>
-              <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-bg-soft text-text-muted uppercase tracking-widest">{stat.trend}</span>
+              <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-white/5 text-white/50 uppercase tracking-widest">{stat.trend}</span>
             </div>
-            <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{stat.label}</p>
-            <h4 className="text-2xl md:text-3xl font-black">{stat.value}</h4>
+            <p className="text-xs font-bold text-white/40 uppercase tracking-[0.2em] mb-2">{stat.label}</p>
+            <h4 className="text-3xl md:text-4xl font-display font-black">{stat.value}</h4>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-bg-main p-6 rounded-2xl border border-border-main shadow-sm">
-          <h3 className="font-black text-lg mb-6">Recent Shipments</h3>
-          <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10 shadow-sm">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="font-display font-black text-2xl">Latest Updates</h3>
+            <button onClick={() => navigate('/history')} className="text-xs font-bold text-white/40 hover:text-white uppercase tracking-widest">See All</button>
+          </div>
+          <div className="space-y-6">
             {recentShipments.length > 0 ? recentShipments.map((s, i) => (
-              <div key={i} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-bg-soft border border-border-main flex items-center justify-center font-black text-brand-primary text-[9px]">
-                    {s.awb?.substring(0, 4) || 'PNDG'}
+              <div key={i} className="flex items-center justify-between group cursor-pointer">
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-bold text-brand-primary text-sm group-hover:border-brand-primary/30 transition-colors">
+                    {s.awb?.substring(0, 4) || 'DRAFT'}
                   </div>
                   <div>
-                    <p className="font-black text-sm">{s.pickup_address?.city} → {s.delivery_address?.city}</p>
-                    <p className="text-xs text-text-muted font-medium">{s.status} • {s.courier_name}</p>
+                    <p className="font-bold text-base">{s.pickup_address?.city} → {s.delivery_address?.city}</p>
+                    <p className="text-xs text-white/50 font-medium">
+                      <span className="text-brand-warm">{s.status}</span> • {s.courier_name}
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-black text-sm">₹{(s.price_paise / 100).toFixed(2)}</p>
-                  <p className="text-[10px] text-text-muted">{new Date(s.createdAt).toLocaleDateString()}</p>
+                  <p className="font-black text-base">₹{(s.price_paise / 100).toFixed(2)}</p>
+                  <p className="text-[10px] text-white/40 font-medium uppercase tracking-widest">{new Date(s.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
             )) : (
-              <div className="py-8 text-center text-text-muted font-bold text-sm">No shipments yet.</div>
+              <div className="py-12 text-center text-white/40 font-medium text-lg">
+                You haven't shipped anything yet. <br /> Ready to start your first journey? 🚀
+              </div>
             )}
           </div>
         </div>
 
-        <div className="bg-bg-main p-6 rounded-2xl border border-border-main flex flex-col justify-center text-center space-y-5">
-          <div className="w-16 h-16 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto">
-            <Sparkles className="w-8 h-8 text-brand-primary" />
+        <div className="bg-white/5 p-10 rounded-[3rem] border border-white/10 flex flex-col justify-center text-center space-y-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/5 to-transparent pointer-events-none"></div>
+          <div className="w-24 h-24 bg-brand-primary/10 rounded-[2rem] flex items-center justify-center mx-auto rotate-3 group-hover:rotate-6 transition-transform">
+            <Sparkles className="w-12 h-12 text-brand-primary" />
           </div>
-          <div>
-            <h3 className="font-black text-lg mb-2">Ready to ship more?</h3>
-            <p className="text-text-muted text-sm font-medium">Manage all your orders from one clean dashboard.</p>
+          <div className="relative z-10">
+            <h3 className="font-display font-black text-2xl mb-3">Need to ship something?</h3>
+            <p className="text-white/50 text-base font-medium max-w-[280px] mx-auto">Our smart calculator finds the best rates across 20+ partners in seconds.</p>
           </div>
           <button
             onClick={() => navigate('/calculator')}
-            className="h-12 bg-brand-primary text-white rounded-xl font-black text-sm uppercase tracking-widest hover:bg-brand-secondary transition-all shadow-lg shadow-brand-primary/20"
+            aria-label="Start a new shipment booking"
+            className="relative z-10 h-16 bg-white text-black rounded-2xl font-bold text-base uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/5"
           >
             Start New Booking
           </button>
@@ -261,69 +269,70 @@ function OverviewView({ user, shipments, stats }: { user: any; shipments: any[];
 }
 
 function ShipmentsView({ shipments }: { shipments: any[] }) {
+  const navigate = useNavigate()
   return (
     <div className="text-left">
-      <div className="mb-6">
-        <h2 className="text-2xl md:text-3xl font-black mb-1">My Shipments</h2>
-        <p className="text-text-muted font-medium text-sm">Your complete tracking and history.</p>
+      <div className="mb-10">
+        <h2 className="text-3xl md:text-5xl font-display font-black mb-2">My Shipments</h2>
+        <p className="text-white/60 font-medium text-lg">Detailed tracking for all your active and past orders.</p>
       </div>
 
       {/* Mobile card view */}
-      <div className="space-y-3 md:hidden">
+      <div className="space-y-4 md:hidden">
         {shipments.length > 0 ? shipments.map((s, i) => (
-          <div key={s._id || i} className="bg-bg-main p-5 rounded-2xl border border-border-main">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-black text-sm text-brand-primary">#{s.awb || 'DRAFT'}</span>
-              <span className="px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-brand-primary/10 text-brand-primary">{s.status}</span>
+          <div key={s._id || i} className="bg-white/5 p-6 rounded-3xl border border-white/10">
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-bold text-sm text-brand-primary">#{s.awb || 'DRAFT'}</span>
+              <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-brand-primary/10 text-brand-primary">{s.status}</span>
             </div>
-            <p className="font-bold text-sm flex items-center gap-1 mb-1">
-              {s.pickup_address?.city} <ArrowRight className="w-3 h-3 text-text-muted" /> {s.delivery_address?.city}
+            <p className="font-bold text-base flex items-center gap-2 mb-2">
+              {s.pickup_address?.city} <ArrowRight className="w-4 h-4 text-white/30" /> {s.delivery_address?.city}
             </p>
-            <div className="flex items-center justify-between text-xs text-text-muted font-medium">
+            <div className="flex items-center justify-between text-xs text-white/40 font-medium">
               <span>{new Date(s.createdAt).toLocaleDateString()}</span>
-              <span className="font-black text-text-main">₹{(s.price_paise / 100).toFixed(2)}</span>
+              <span className="font-black text-white text-base">₹{(s.price_paise / 100).toFixed(2)}</span>
             </div>
           </div>
         )) : (
-          <div className="py-16 text-center font-bold text-text-muted">No shipments found.</div>
+          <div className="py-20 text-center font-medium text-white/40 text-lg">No orders found yet.</div>
         )}
       </div>
 
       {/* Desktop table view */}
-      <div className="hidden md:block bg-bg-main rounded-2xl border border-border-main overflow-hidden shadow-sm">
+      <div className="hidden md:block bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-bg-soft border-b border-border-main">
-              <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Tracking ID</th>
-              <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Route</th>
-              <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Status</th>
-              <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Price</th>
+            <tr className="bg-white/5 border-b border-white/10">
+              <th className="px-8 py-5 text-[11px] font-bold text-white/40 uppercase tracking-widest">Tracking ID</th>
+              <th className="px-8 py-5 text-[11px] font-bold text-white/40 uppercase tracking-widest">Route</th>
+              <th className="px-8 py-5 text-[11px] font-bold text-white/40 uppercase tracking-widest">Status</th>
+              <th className="px-8 py-5 text-[11px] font-bold text-white/40 uppercase tracking-widest">Amount</th>
             </tr>
           </thead>
           <tbody>
             {shipments.map((s, i) => (
-              <tr key={s._id || i} className="border-b border-border-main/50 hover:bg-bg-soft/50 transition-colors cursor-pointer">
-                <td className="px-6 py-5">
-                  <span className="font-black text-sm">#{s.awb || 'DRAFT'}</span>
-                  <p className="text-[10px] text-text-muted mt-0.5">{new Date(s.createdAt).toLocaleDateString()}</p>
+              <tr key={s._id || i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer group">
+                <td className="px-8 py-6">
+                  <span className="font-bold text-base group-hover:text-brand-primary transition-colors">#{s.awb || 'DRAFT'}</span>
+                  <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">{new Date(s.createdAt).toLocaleDateString()}</p>
                 </td>
-                <td className="px-6 py-5">
-                  <div className="flex items-center gap-2 font-bold text-sm">
+                <td className="px-8 py-6">
+                  <div className="flex items-center gap-3 font-bold text-base">
                     <span>{s.pickup_address?.city}</span>
-                    <ArrowRight className="w-3 h-3 text-text-muted" />
+                    <ArrowRight className="w-4 h-4 text-white/20" />
                     <span>{s.delivery_address?.city}</span>
                   </div>
                 </td>
-                <td className="px-6 py-5">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-brand-primary/10 text-brand-primary">{s.status}</span>
+                <td className="px-8 py-6">
+                  <span className="px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest bg-brand-primary/10 text-brand-primary">{s.status}</span>
                 </td>
-                <td className="px-6 py-5">
-                  <span className="font-black">₹{(s.price_paise / 100).toFixed(2)}</span>
+                <td className="px-8 py-6">
+                  <span className="font-black text-base text-white">₹{(s.price_paise / 100).toFixed(2)}</span>
                 </td>
               </tr>
             ))}
             {shipments.length === 0 && (
-              <tr><td colSpan={4} className="px-6 py-16 text-center font-bold text-text-muted">No shipments found.</td></tr>
+              <tr><td colSpan={4} className="px-8 py-24 text-center font-medium text-white/40 text-xl">No shipments found. Start shipping!</td></tr>
             )}
           </tbody>
         </table>
@@ -335,36 +344,36 @@ function ShipmentsView({ shipments }: { shipments: any[] }) {
 function ProfileView() {
   const { user } = useAuth()
   return (
-    <div className="max-w-2xl text-left">
-      <h2 className="text-2xl md:text-3xl font-black mb-8">Profile Settings</h2>
-      <div className="space-y-6">
-        <div className="flex items-center gap-6 pb-8 border-b border-border-main">
-          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-brand-primary/10 border-2 border-dashed border-brand-primary/30 flex items-center justify-center font-black text-2xl md:text-3xl text-brand-primary uppercase shrink-0">
+    <div className="max-w-3xl text-left">
+      <h2 className="text-3xl md:text-5xl font-display font-black mb-12">Profile Settings</h2>
+      <div className="space-y-10">
+        <div className="flex items-center gap-8 pb-10 border-b border-white/10">
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-brand-primary/10 border-2 border-dashed border-brand-primary/30 flex items-center justify-center font-black text-3xl md:text-4xl text-brand-primary uppercase shrink-0">
             {user?.name?.[0]}
           </div>
-          <div className="space-y-2">
-            <p className="font-black text-base">{user?.name}</p>
-            <p className="text-sm text-text-muted font-medium">{user?.email}</p>
-            <button className="px-4 py-2 bg-brand-primary text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-brand-secondary transition-all">
-              Change Photo
+          <div className="space-y-3">
+            <p className="font-display font-black text-xl md:text-2xl">{user?.name}</p>
+            <p className="text-base text-white/50 font-medium">{user?.email}</p>
+            <button className="px-5 py-2.5 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all">
+              Change Avatar
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Full Name</label>
-            <input type="text" defaultValue={user?.name} className="w-full h-12 px-5 bg-bg-soft border border-border-main rounded-xl focus:border-brand-primary outline-none font-bold transition-all" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <div className="space-y-3">
+            <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Full Name</label>
+            <input type="text" defaultValue={user?.name} className="w-full h-14 px-6 bg-white/5 border border-white/10 rounded-2xl focus:border-white/30 outline-none font-bold text-lg transition-all" />
           </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Email Address</label>
-            <input type="email" defaultValue={user?.email} disabled className="w-full h-12 px-5 bg-bg-soft/50 border border-border-main rounded-xl outline-none font-bold text-text-muted" />
+          <div className="space-y-3">
+            <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Email Address</label>
+            <input type="email" defaultValue={user?.email} disabled className="w-full h-14 px-6 bg-white/5 border border-white/10 rounded-2xl outline-none font-bold text-lg text-white/30 cursor-not-allowed" />
           </div>
         </div>
 
-        <div className="pt-2">
-          <button className="h-12 px-8 bg-text-main text-bg-main rounded-xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
-            Save Changes
+        <div className="pt-4">
+          <button className="h-16 px-12 bg-white text-black rounded-2xl font-bold text-base uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-white/5">
+            Save Profile
           </button>
         </div>
       </div>
