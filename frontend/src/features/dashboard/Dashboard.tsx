@@ -119,6 +119,7 @@ export function Dashboard() {
         toast.success('Password updated successfully')
         return true
       }
+      return false
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to update password')
       return false
