@@ -28,7 +28,13 @@ const userSchema = new mongoose.Schema({
   avatar: { type: String },
   google_id: { type: String },
   is_active: { type: Boolean, default: true },
-  last_login: { type: Date }
+  last_login: { type: Date },
+  settings: {
+    notifications: { type: Boolean, default: true },
+    biometric_login: { type: Boolean, default: false },
+    global_coverage: { type: Boolean, default: true },
+    auto_fill_addresses: { type: Boolean, default: true }
+  }
 }, {
   timestamps: true
 });

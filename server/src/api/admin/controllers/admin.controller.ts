@@ -9,7 +9,7 @@ import { Partner } from '../../../models/Partner';
 // ─────────────────────────────────────────────────────────────
 export const getAdminStats = asyncHandler(async (req: Request, res: Response) => {
     const totalShipments = await Shipment.countDocuments();
-    const activeUsers = await User.countDocuments({ role: 'USER' });
+    const activeUsers = await User.countDocuments({ role: { $in: ['USER', 'PARTNER'] } });
     const pendingPartners = await Partner.countDocuments({ status: 'PENDING' });
 
     // Calculate total revenue (example logic)
@@ -87,11 +87,19 @@ export const updateCourier = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const listUsers = asyncHandler(async (req: Request, res: Response) => {
-    res.status(501).json({ success: false, message: 'Not Implemented' });
+    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    return res.status(200).json({
+        success: true,
+        data: { users }
+    });
 });
 
 export const listAllShipments = asyncHandler(async (req: Request, res: Response) => {
-    res.status(501).json({ success: false, message: 'Not Implemented' });
+    const shipments = await Shipment.find().sort({ createdAt: -1 }).limit(100);
+    return res.status(200).json({
+        success: true,
+        data: { shipments }
+    });
 });
 
 export const getUserMetrics = asyncHandler(async (req: Request, res: Response) => {

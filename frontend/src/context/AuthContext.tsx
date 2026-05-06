@@ -8,6 +8,12 @@ interface User {
   role: 'USER' | 'ADMIN' | 'PARTNER' | 'SUPPORT'
   avatar?: string
   phone?: string
+  settings?: {
+    notifications: boolean
+    biometric_login: boolean
+    global_coverage: boolean
+    auto_fill_addresses: boolean
+  }
 }
 
 interface AuthContextType {
@@ -16,6 +22,7 @@ interface AuthContextType {
   isLoading: boolean
   login: (token: string, user: User) => void
   logout: () => void
+  updateUser: (newUser: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -25,6 +32,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
   const [isLoading, setIsLoading] = useState(true)
 
+  const logout = React.useCallback(() => {
+    setToken(null)
+    setUser(null)
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    delete axios.defaults.headers.common['Authorization']
+  }, [])
+
   useEffect(() => {
     const initAuth = async () => {
       const storedToken = localStorage.getItem('token')
@@ -33,13 +48,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (storedToken && storedUser) {
         setToken(storedToken)
         setUser(JSON.parse(storedUser))
-        // Set global axios header
         axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
       }
       setIsLoading(false)
     }
     initAuth()
-  }, [])
+
+    // Global 401 interceptor
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          logout()
+          window.location.href = '/'
+        }
+        return Promise.reject(error)
+      }
+    )
+
+    return () => axios.interceptors.response.eject(interceptor)
+  }, [logout])
 
   const login = (newToken: string, newUser: User) => {
     setToken(newToken)
@@ -49,16 +77,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
   }
 
-  const logout = () => {
-    setToken(null)
-    setUser(null)
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    delete axios.defaults.headers.common['Authorization']
+  const updateUser = (newUser: Partial<User>) => {
+    setUser(prev => {
+      if (!prev) return null
+      const updated = { ...prev, ...newUser }
+      localStorage.setItem('user', JSON.stringify(updated))
+      return updated
+    })
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )

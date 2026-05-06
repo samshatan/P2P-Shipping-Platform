@@ -28,7 +28,7 @@ export function Navbar() {
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-tr ${themeGradient} shadow-lg shadow-brand-primary/20 group-hover:scale-110 transition-all duration-500`}>
             <Package className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-logo font-black tracking-tight text-white uppercase ">Parcel</span>
+          <span className="text-xl font-logo font-black tracking-tight text-white uppercase">Parcel</span>
         </Link>
 
         {/* Center Nav */}
@@ -37,6 +37,7 @@ export function Navbar() {
           <Link to="/calculator" className="text-white font-black hover:text-white/80 transition-colors focus-visible:text-brand-accent outline-none">Ship Now</Link>
           <Link to="/tracking" className="hover:text-white transition-colors focus-visible:text-white outline-none">Tracking</Link>
           <Link to="/bulk" className="hover:text-white transition-colors focus-visible:text-white outline-none">Bulk</Link>
+          <Link to="/partner" className="hover:text-white transition-colors focus-visible:text-white outline-none">Join Us</Link>
           {user?.role === 'ADMIN' && (
             <Link to="/admin" className="text-brand-primary flex items-center gap-1 hover:text-brand-secondary transition-colors focus-visible:ring-1 ring-brand-primary outline-none px-2 rounded">
               <ShieldAlert className="w-4 h-4" /> Admin
@@ -121,6 +122,7 @@ export function Navbar() {
             <Link to="/calculator" onClick={() => setMobileMenuOpen(false)} className="text-lg font-bold text-white/90 hover:text-white py-2">Ship Now</Link>
             <Link to="/tracking" onClick={() => setMobileMenuOpen(false)} className="text-lg font-bold text-white/90 hover:text-white py-2">Tracking</Link>
             <Link to="/bulk" onClick={() => setMobileMenuOpen(false)} className="text-lg font-bold text-white/90 hover:text-white py-2">Bulk</Link>
+            <Link to="/partner" onClick={() => setMobileMenuOpen(false)} className="text-lg font-bold text-white/90 hover:text-white py-2">Join Us</Link>
             <hr className="border-white/10 my-3" />
             {user?.role === 'ADMIN' && (
               <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="text-lg font-bold text-brand-primary hover:text-white py-2 flex items-center gap-2">

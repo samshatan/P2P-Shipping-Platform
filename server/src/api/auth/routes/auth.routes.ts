@@ -3,7 +3,7 @@ import { sendOtp } from '../controllers/sendOtp.controller';
 import { verifyOtp } from '../controllers/verifyOtp.controller';
 import { refreshToken } from '../controllers/refreshToken.controller';
 import { logout } from '../controllers/logout.controller';
-import { registerUser, loginUser } from '../controllers/auth.controller';
+import { registerUser, loginUser, changePassword } from '../controllers/auth.controller';
 import { googleLogin } from '../controllers/googleLogin.controller';
 import { authMiddleware } from '../../../middleware/auth.middleware';
 
@@ -29,5 +29,8 @@ router.post('/refresh', refreshToken);
 
 // POST /auth/logout (Protected)
 router.post('/logout', authMiddleware as any, logout);
+
+// POST /auth/change-password (Protected)
+router.post('/change-password', authMiddleware as any, changePassword);
 
 export default router;

@@ -106,3 +106,25 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
     }
   });
 });
+
+export const changePassword = asyncHandler(async (req: any, res: Response) => {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user?.userId;
+
+    if (!currentPassword || !newPassword) {
+        return res.status(400).json({ success: false, message: 'Current and new passwords are required' });
+    }
+
+    const user = await User.findById(userId).select('+password');
+    if (!user || !(await (user as any).comparePassword(currentPassword))) {
+        return res.status(401).json({ success: false, message: 'Invalid current password' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.status(200).json({
+        success: true,
+        message: 'Password updated successfully'
+    });
+});
