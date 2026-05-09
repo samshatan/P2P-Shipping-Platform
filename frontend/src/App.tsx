@@ -30,6 +30,7 @@ import { HelpPage } from './pages/HelpPage'
 import { AboutPage } from './pages/AboutPage'
 import { SustainabilityPage } from './pages/SustainabilityPage'
 import { ComingSoonPage } from './pages/ComingSoonPage'
+import { ImportExportPage } from './pages/ImportExportPage'
 
 
 import { useAuth } from './context/AuthContext'
@@ -131,6 +132,7 @@ function App() {
             
             <Route path="/dashboard" element={<PageWrapper><Dashboard /></PageWrapper>} />
             <Route path="/tracking" element={<PageWrapper><TrackingPage /></PageWrapper>} />
+            <Route path="/import-export" element={<PageWrapper><ImportExportPage /></PageWrapper>} />
             <Route path="/bulk" element={<PageWrapper><BulkShipping /></PageWrapper>} />
             <Route path="/admin" element={<PageWrapper><AdminPortal /></PageWrapper>} />
             <Route path="/settings" element={<PageWrapper><SettingsPage /></PageWrapper>} />

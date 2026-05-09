@@ -36,6 +36,7 @@ export function Navbar() {
           <Link to="/" className="hover:text-white transition-colors focus-visible:text-white outline-none">Home</Link>
           <Link to="/calculator" className="text-white font-black hover:text-white/80 transition-colors focus-visible:text-brand-accent outline-none">Ship Now</Link>
           <Link to="/tracking" className="hover:text-white transition-colors focus-visible:text-white outline-none">Tracking</Link>
+          <Link to="/import-export" className="hover:text-white transition-colors focus-visible:text-white outline-none">Import Export</Link>
           <Link to="/bulk" className="hover:text-white transition-colors focus-visible:text-white outline-none">Bulk</Link>
           <Link to="/partner" className="hover:text-white transition-colors focus-visible:text-white outline-none">Join Us</Link>
           {user?.role === 'ADMIN' && (
@@ -121,6 +122,7 @@ export function Navbar() {
           >
             <Link to="/calculator" onClick={() => setMobileMenuOpen(false)} className="text-lg font-bold text-white/90 hover:text-white py-2">Ship Now</Link>
             <Link to="/tracking" onClick={() => setMobileMenuOpen(false)} className="text-lg font-bold text-white/90 hover:text-white py-2">Tracking</Link>
+            <Link to="/import-export" onClick={() => setMobileMenuOpen(false)} className="text-lg font-bold text-white/90 hover:text-white py-2">Import Export</Link>
             <Link to="/bulk" onClick={() => setMobileMenuOpen(false)} className="text-lg font-bold text-white/90 hover:text-white py-2">Bulk</Link>
             <Link to="/partner" onClick={() => setMobileMenuOpen(false)} className="text-lg font-bold text-white/90 hover:text-white py-2">Join Us</Link>
             <hr className="border-white/10 my-3" />
